@@ -4,6 +4,9 @@ import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 
 const userRouter = Router();
 
-userRouter.get("/findById/:id", (req, res) => console.log("hello world!"));
+userRouter.get(
+  "/findById/:id",
+  asyncErrorHandler(new UserController().findById)
+);
 
 export default userRouter;
