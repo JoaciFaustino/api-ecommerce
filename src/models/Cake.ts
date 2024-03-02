@@ -1,10 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 export interface ICake {
+  _id?: Types.ObjectId | string;
   type: string;
   frosting?: string[];
   filling?: string;
   size?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const cakeSchema = new mongoose.Schema<ICake>(
