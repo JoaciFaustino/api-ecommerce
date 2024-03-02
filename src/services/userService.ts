@@ -1,5 +1,5 @@
 import { UserRepository } from "../repositories/userRepository";
-import { userResponseDB } from "../types/DBresponses";
+import { userResponseDB } from "../@types/DBresponses";
 
 export class UserService {
   private userRepository: UserRepository;
