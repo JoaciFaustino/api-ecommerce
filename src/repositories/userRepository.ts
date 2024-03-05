@@ -18,7 +18,7 @@ export class UserRepository {
       name: name,
       username: username,
       email: email,
-      password: password,
+      password: password
     });
   }
 
@@ -28,7 +28,15 @@ export class UserRepository {
     email: string
   ): Promise<boolean> {
     return await !!User.findOne({
-      $or: [{ name: name }, { username: username }, { email: email }],
+      $or: [{ name: name }, { username: username }, { email: email }]
     });
+  }
+
+  async findByEmail(email: string) {
+    return await User.findOne({ email: email });
+  }
+
+  async findByEmailWithPassword(email: string) {
+    return await User.findOne({ email: email }).select("+password");
   }
 }

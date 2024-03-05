@@ -33,4 +33,18 @@ export class AuthController {
 
     return res.status(200).send({ userId: userId, token: token });
   }
+
+  async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+
+    const authService = new AuthService();
+
+    if (!email) throw new ApiError("email is required", 400);
+
+    if (!password) throw new ApiError("password is required", 400);
+
+    const { userId, token } = await authService.login(email, password);
+
+    return res.status(200).send({ userId: userId, token: token });
+  }
 }

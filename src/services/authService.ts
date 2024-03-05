@@ -1,12 +1,10 @@
-import jwt from "jsonwebtoken";
 import "dotenv/config";
 import { userResponseDB } from "../@types/DBresponses";
-import { IUser } from "../models/User";
 import { UserRepository } from "../repositories/userRepository";
 import { ApiError } from "../utils/ApiError";
 import { hashString } from "../utils/hashString";
-import { Types } from "mongoose";
 import { generateJwtToken } from "../utils/generateJwtToken";
+import bcrypt from "bcrypt";
 
 export class AuthService {
   constructor(private userRepository = new UserRepository()) {}
@@ -35,9 +33,34 @@ export class AuthService {
         throw error;
       });
 
-    if (!user) {
+    if (!user) 
       throw new ApiError("failure to create user", 500);
-    }
+    
+
+    const token = generateJwtToken(user?._id as string);
+
+    return {
+      userId: user?._id as string,
+      token: token
+    };
+  }
+
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ userId: string; token: string }> {
+    const user: userResponseDB =
+      await this.userRepository.findByEmailWithPassword(email);
+
+    if (!user) 
+      throw new ApiError("wrong email or password", 401);
+
+    const isPasswordValid: boolean = bcrypt.compareSync(
+      password,
+      user?.password as string
+    );
+
+    if (!isPasswordValid) throw new ApiError("wrong email or password", 401);
 
     const token = generateJwtToken(user?._id as string);
 

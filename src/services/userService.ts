@@ -9,8 +9,6 @@ export class UserService {
   }
 
   async findById(id: string): Promise<userResponseDB> {
-    const user: userResponseDB = await this.userRepository.findById(id);
-
-    return user;
+    return await this.userRepository.findById(id);
   }
 }
