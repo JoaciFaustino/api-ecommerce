@@ -3,6 +3,7 @@ import mongoose, { Types } from "mongoose";
 export interface ICake {
   _id?: Types.ObjectId | string;
   type: string;
+  pricing: number;
   frosting?: string[];
   filling?: string;
   size?: string;
@@ -14,10 +15,10 @@ const cakeSchema = new mongoose.Schema<ICake>(
   {
     type: { type: String, required: true },
     frosting: {
-      type: [String],
+      type: [String]
     },
     filling: { type: String },
-    size: { type: String },
+    size: { type: String }
   },
   { timestamps: true }
 );

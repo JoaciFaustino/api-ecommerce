@@ -3,7 +3,7 @@ import { userResponseDB } from "../@types/DBresponses";
 import { UserRepository } from "../repositories/userRepository";
 import { ApiError } from "../utils/ApiError";
 import { hashString } from "../utils/hashString";
-import { generateJwtToken } from "../utils/generateJwtToken";
+import { generateLoginToken } from "../utils/generateJwtToken";
 import bcrypt from "bcrypt";
 
 export class AuthService {
@@ -33,11 +33,9 @@ export class AuthService {
         throw error;
       });
 
-    if (!user) 
-      throw new ApiError("failure to create user", 500);
-    
+    if (!user) throw new ApiError("failure to create user", 500);
 
-    const token = generateJwtToken(user?._id as string);
+    const token = generateLoginToken(user?._id as string, "user");
 
     return {
       userId: user?._id as string,
@@ -52,8 +50,7 @@ export class AuthService {
     const user: userResponseDB =
       await this.userRepository.findByEmailWithPassword(email);
 
-    if (!user) 
-      throw new ApiError("wrong email or password", 401);
+    if (!user) throw new ApiError("wrong email or password", 401);
 
     const isPasswordValid: boolean = bcrypt.compareSync(
       password,
@@ -62,7 +59,9 @@ export class AuthService {
 
     if (!isPasswordValid) throw new ApiError("wrong email or password", 401);
 
-    const token = generateJwtToken(user?._id as string);
+    const roleUser = user?.role === "admin" ? "admin" : "user";
+
+    const token = generateLoginToken(user?._id as string, roleUser);
 
     return {
       userId: user?._id as string,
