@@ -3,8 +3,9 @@ import { userResponseDB } from "../@types/DBresponses";
 import { UserRepository } from "../repositories/userRepository";
 import { ApiError } from "../utils/ApiError";
 import { hashString } from "../utils/hashString";
-import { generateLoginToken } from "../utils/generateJwtToken";
+import { generateLoginToken, verifyLoginToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export class AuthService {
   constructor(private userRepository = new UserRepository()) {}
@@ -67,5 +68,20 @@ export class AuthService {
       userId: user?._id as string,
       token: token
     };
+  }
+
+  auth(headerAuth: string): { userId: string; role: string } {
+    const [bearer, token] = headerAuth?.split(" ");
+
+    if (
+      headerAuth?.split(" ").length !== 2 ||
+      !bearer ||
+      !token ||
+      bearer !== "Bearer"
+    ) {
+      return { userId: "", role: "" };
+    }
+
+    return verifyLoginToken(token);
   }
 }
