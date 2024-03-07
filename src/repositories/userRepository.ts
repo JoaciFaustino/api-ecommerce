@@ -1,10 +1,10 @@
 import { User } from "../models/User";
-import { userResponseDB } from "../@types/DBresponses";
+import { UserResponseDB } from "../@types/DBresponses";
 
 export class UserRepository {
   constructor() {}
 
-  async findById(id: string): Promise<userResponseDB> {
+  async findById(id: string): Promise<UserResponseDB> {
     return await User.findById({ _id: id });
   }
 
@@ -13,7 +13,7 @@ export class UserRepository {
     username: string,
     email: string,
     password: string
-  ): Promise<userResponseDB> {
+  ): Promise<UserResponseDB> {
     return await User.create({
       name: name,
       username: username,
@@ -39,6 +39,6 @@ export class UserRepository {
   async findByEmailWithPassword(email: string) {
     return await User.findOne({ email: email })
       .select("+password")
-      .select("+admin");
+      .select("+role");
   }
 }
