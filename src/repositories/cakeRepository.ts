@@ -40,4 +40,8 @@ export class CakeRepository {
       { new: true }
     );
   }
+
+  async delete(id: string): Promise<void> {
+    await Cake.findByIdAndDelete({ _id: id });
+  }
 }

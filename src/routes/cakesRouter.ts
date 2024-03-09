@@ -14,5 +14,9 @@ cakesRouter.patch(
   "/update/:id",
   asyncErrorHandler(new CakeController().update)
 );
+cakesRouter.delete(
+  "/delete/:id",
+  asyncErrorHandler(new CakeController().delete)
+);
 
 export default cakesRouter;

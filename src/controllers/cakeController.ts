@@ -33,7 +33,7 @@ export class CakeController {
   async update(req: Request, res: Response) {
     const { type, pricing, frosting, filling, size } = req.body;
 
-    const id = req.params.id;
+    const { id } = req.params;
 
     if (!id) throw new ApiError("id is required", 400);
 
@@ -49,5 +49,17 @@ export class CakeController {
       });
 
     res.status(200).send({ message: "cake updated sucessfully", cake: cake });
+  }
+
+  async delete(req: Request, res: Response) {
+    const { id } = req.params;
+
+    if (!id) throw new ApiError("id is required", 400);
+
+    const cakeService = new CakeService();
+
+    await cakeService.delete(id);
+
+    res.status(200).send({ message: "cake deleted sucessfully" });
   }
 }

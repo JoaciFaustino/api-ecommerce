@@ -37,4 +37,8 @@ export class CakeService {
       size
     );
   }
+
+  async delete(id: string): Promise<void> {
+    await this.cakeRepository.delete(id);
+  }
 }
