@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { userResponseDB } from "../@types/DBresponses";
+import { UserResponseDB } from "../@types/DBresponses";
 import { UserRepository } from "../repositories/userRepository";
 import { ApiError } from "../utils/ApiError";
 import { hashString } from "../utils/hashString";
@@ -18,7 +18,7 @@ export class AuthService {
   ): Promise<{ userId: string; token: string }> {
     const hashPassword = await hashString(password, 10);
 
-    const user: userResponseDB = await this.userRepository
+    const user: UserResponseDB = await this.userRepository
       .create(name, username, email, hashPassword)
       .catch((error: any) => {
         if (error.keyValue) {
@@ -48,7 +48,7 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<{ userId: string; token: string }> {
-    const user: userResponseDB =
+    const user: UserResponseDB =
       await this.userRepository.findByEmailWithPassword(email);
 
     if (!user) throw new ApiError("wrong email or password", 401);

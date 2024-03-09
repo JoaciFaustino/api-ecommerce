@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { UserService } from "../services/userService";
-import { userResponseDB } from "../@types/DBresponses";
+import { UserResponseDB } from "../@types/DBresponses";
 import { objectIdIsValid } from "../utils/objectIdIsValid";
 
 export class UserController {
@@ -10,7 +10,7 @@ export class UserController {
   async findById(req: Request, res: Response) {
     const userService = new UserService();
 
-    const user: userResponseDB = await userService.findById(req.params.id);
+    const user: UserResponseDB = await userService.findById(req.params.id);
 
     if (!user) {
       throw new ApiError("user not find", 404);

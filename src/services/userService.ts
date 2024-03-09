@@ -1,5 +1,5 @@
 import { UserRepository } from "../repositories/userRepository";
-import { userResponseDB } from "../@types/DBresponses";
+import { UserResponseDB } from "../@types/DBresponses";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -8,7 +8,7 @@ export class UserService {
     this.userRepository = new UserRepository();
   }
 
-  async findById(id: string): Promise<userResponseDB> {
+  async findById(id: string): Promise<UserResponseDB> {
     return await this.userRepository.findById(id);
   }
 }

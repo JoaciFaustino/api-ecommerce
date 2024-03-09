@@ -1,6 +1,22 @@
-export class cakeRepository {
+import { CakeResponseDB } from "../@types/DBresponses";
+import { Cake } from "../models/Cake";
+
+export class CakeRepository {
   constructor() {}
 
-  //lembrar de fazer um middleware para verificar se o usuario é admin,
-  //pois só pode ser possivel mexer nos bolos se for o admin
+  async create(
+    type: string,
+    pricing: number,
+    frosting?: string[],
+    filling?: string,
+    size?: string
+  ): Promise<CakeResponseDB> {
+    return await Cake.create({
+      type: type,
+      pricing: pricing,
+      frosting: frosting,
+      filling: filling,
+      size: size
+    });
+  }
 }
