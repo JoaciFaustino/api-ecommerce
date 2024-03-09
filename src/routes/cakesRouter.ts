@@ -5,16 +5,14 @@ import { AuthMiddleware } from "../middlewares/authMiddleware";
 
 const cakesRouter = Router();
 
-cakesRouter.get(
-  "/:id",
-  new AuthMiddleware().isAuthenticated,
-  asyncErrorHandler(new CakeController().getById)
-);
+cakesRouter.use(new AuthMiddleware().isAuthenticated);
+cakesRouter.get("/:id", asyncErrorHandler(new CakeController().getById));
 
-cakesRouter.post(
-  "/create",
-  new AuthMiddleware().isAdmin,
-  asyncErrorHandler(new CakeController().create)
+cakesRouter.use(new AuthMiddleware().isAdmin);
+cakesRouter.post("/create", asyncErrorHandler(new CakeController().create));
+cakesRouter.patch(
+  "/update/:id",
+  asyncErrorHandler(new CakeController().update)
 );
 
 export default cakesRouter;

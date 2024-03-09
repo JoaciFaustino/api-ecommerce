@@ -19,4 +19,22 @@ export class CakeService {
       size
     );
   }
+
+  async update(
+    id: string,
+    type?: string,
+    pricing?: number,
+    frosting?: string[],
+    filling?: string,
+    size?: string
+  ): Promise<CakeResponseDB> {
+    return await this.cakeRepository.update(
+      id,
+      type,
+      pricing,
+      frosting,
+      filling,
+      size
+    );
+  }
 }

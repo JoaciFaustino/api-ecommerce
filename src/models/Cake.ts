@@ -14,6 +14,7 @@ export interface ICake {
 const cakeSchema = new mongoose.Schema<ICake>(
   {
     type: { type: String, required: true },
+    pricing: { type: Number, required: true },
     frosting: {
       type: [String]
     },

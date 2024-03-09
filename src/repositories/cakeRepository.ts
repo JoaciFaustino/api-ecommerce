@@ -19,4 +19,25 @@ export class CakeRepository {
       size: size
     });
   }
+
+  async update(
+    id: string,
+    type?: string,
+    pricing?: number,
+    frosting?: string[],
+    filling?: string,
+    size?: string
+  ): Promise<CakeResponseDB> {
+    return await Cake.findByIdAndUpdate(
+      { _id: id },
+      {
+        type: type,
+        pricing: pricing,
+        frosting: frosting,
+        filling: filling,
+        size: size
+      },
+      { new: true }
+    );
+  }
 }
