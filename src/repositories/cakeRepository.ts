@@ -1,8 +1,28 @@
 import { CakeResponseDB } from "../@types/DBresponses";
+import { SortByCakes } from "../@types/cakes";
 import { Cake } from "../models/Cake";
 
 export class CakeRepository {
   constructor() {}
+
+  async countDocs(): Promise<number> {
+    return await Cake.countDocuments({});
+  }
+
+  async getAll(
+    limit: number,
+    page: number,
+    sortBy: SortByCakes
+  ): Promise<CakeResponseDB[]> {
+    return await Cake.find()
+      .limit(limit)
+      .skip(limit * (page - 1))
+      .sort(sortBy);
+  }
+
+  async findById(id: string): Promise<CakeResponseDB> {
+    return await Cake.findById(id);
+  }
 
   async create(
     type: string,

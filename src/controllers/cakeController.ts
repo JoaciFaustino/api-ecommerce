@@ -6,8 +6,39 @@ import { CakeResponseDB } from "../@types/DBresponses";
 export class CakeController {
   constructor() {}
 
+  async getAll(req: Request, res: Response) {
+    const query = req.query;
+
+    const limit = parseInt(query.limit as string) || 20;
+    const page = parseInt(query.page as string) || 1;
+    const sortBy = (query.sortBy as string) || "popularity";
+
+    const cakeService = new CakeService();
+
+    const { cakes, maxPages } = await cakeService.getAll(limit, page, sortBy);
+
+    res.status(200).send({
+      message: "get all cakes sucessfully",
+      maxPages: maxPages,
+      cakes: cakes
+    });
+  }
   async getById(req: Request, res: Response) {
-    res.status(200).send({ message: "passed through the middleware" });
+    const { id } = req.params;
+
+    if (!id) throw new ApiError("id is required", 400);
+
+    const cakeService = new CakeService();
+
+    const cake: CakeResponseDB = await cakeService
+      .findById(id)
+      .catch((error: any) => {
+        throw new ApiError("Failed to delete the cake", 400);
+      });
+
+    res
+      .status(200)
+      .send({ message: "passed through the middleware", cake: cake });
   }
 
   async create(req: Request, res: Response) {
@@ -58,8 +89,9 @@ export class CakeController {
 
     const cakeService = new CakeService();
 
-    await cakeService.delete(id);
-
+    await cakeService.delete(id).catch((error: any) => {
+      throw new ApiError("Failed to delete the cake", 400);
+    });
     res.status(200).send({ message: "cake deleted sucessfully" });
   }
 }

@@ -5,6 +5,8 @@ import { AuthMiddleware } from "../middlewares/authMiddleware";
 
 const cakesRouter = Router();
 
+cakesRouter.get("/", asyncErrorHandler(new CakeController().getAll));
+
 cakesRouter.use(new AuthMiddleware().isAuthenticated);
 cakesRouter.get("/:id", asyncErrorHandler(new CakeController().getById));
 

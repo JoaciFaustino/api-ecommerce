@@ -7,6 +7,7 @@ export interface ICake {
   frosting?: string[];
   filling?: string;
   size: string;
+  boughts?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -19,7 +20,8 @@ const cakeSchema = new mongoose.Schema<ICake>(
       type: [String]
     },
     filling: { type: String },
-    size: { type: String, required: true }
+    size: { type: String, required: true },
+    boughts: { type: Number, required: true, default: 0 }
   },
   { timestamps: true }
 );
