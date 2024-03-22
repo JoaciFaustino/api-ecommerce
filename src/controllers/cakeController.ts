@@ -36,13 +36,21 @@ export class CakeController {
         throw new ApiError("Failed to find the cake", 400);
       });
 
-    res
-      .status(200)
-      .send({ message: "passed through the middleware", cake: cake });
+    res.status(200).send({
+      message: "passed through the middleware",
+      cake: cake
+    });
+  }
+
+  async createMany(req: Request, res: Response) {
+    //to do later
   }
 
   async create(req: Request, res: Response) {
     const { type, pricing, frosting, filling, size } = req.body;
+    const imageCake = req.file;
+
+    const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
 
     if (!type) throw new ApiError("type is required", 400);
 
@@ -50,11 +58,14 @@ export class CakeController {
 
     if (!size) throw new ApiError("size is required", 400);
 
+    if (!imageCake) throw new ApiError("imageCake is required", 400);
+
     const cakeService = new CakeService();
 
     const cake: CakeResponseDB = await cakeService
-      .create(type, pricing, frosting, filling, size)
+      .create(hostUrl, type, pricing, imageCake, frosting, filling, size)
       .catch((error: any) => {
+        console.log(error.message);
         throw new ApiError("Failed to create the cake", 400);
       });
 
@@ -92,6 +103,7 @@ export class CakeController {
     await cakeService.delete(id).catch((error: any) => {
       throw new ApiError("Failed to delete the cake", 400);
     });
+
     res.status(200).send({ message: "cake deleted sucessfully" });
   }
 }

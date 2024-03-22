@@ -27,6 +27,7 @@ export class CakeRepository {
   async create(
     type: string,
     pricing: number,
+    imageUrl: string,
     frosting?: string[],
     filling?: string,
     size?: string
@@ -34,6 +35,7 @@ export class CakeRepository {
     return await Cake.create({
       type: type,
       pricing: pricing,
+      imageUrl: imageUrl,
       frosting: frosting,
       filling: filling,
       size: size

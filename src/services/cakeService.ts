@@ -2,6 +2,7 @@ import { CakeResponseDB } from "../@types/DBresponses";
 import { SortByCakes } from "../@types/cakes";
 import { CakeRepository } from "../repositories/cakeRepository";
 import { ApiError } from "../utils/ApiError";
+import { FilesService } from "./filesService";
 
 export class CakeService {
   constructor(private cakeRepository = new CakeRepository()) {}
@@ -53,15 +54,24 @@ export class CakeService {
   }
 
   async create(
+    hostUrl: string,
     type: string,
     pricing: number,
+    imageCake: Express.Multer.File,
     frosting?: string[],
     filling?: string,
     size?: string
   ): Promise<CakeResponseDB> {
+    const filesService = new FilesService();
+
+    const imageUrl = await filesService.upload(imageCake, hostUrl);
+
+    if (!imageUrl) throw new ApiError("failed to upload image", 500);
+
     return await this.cakeRepository.create(
       type,
       pricing,
+      imageUrl,
       frosting,
       filling,
       size

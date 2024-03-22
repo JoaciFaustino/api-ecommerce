@@ -16,8 +16,6 @@ export class UserController {
       throw new ApiError("user not find", 404);
     }
 
-    console.log(user);
-
     return res.status(200).send({ user });
   }
 }

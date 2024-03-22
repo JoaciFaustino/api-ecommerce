@@ -1,3 +1,5 @@
+/public/temp/uploads/*
+
 # Logs
 logs
 *.log
