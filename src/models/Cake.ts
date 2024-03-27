@@ -5,6 +5,7 @@ export interface ICake {
   type: string;
   pricing: number;
   imageUrl: string;
+  publicIdImage?: string;
   frosting?: string[];
   filling?: string;
   size: string;
@@ -18,6 +19,7 @@ const cakeSchema = new mongoose.Schema<ICake>(
     type: { type: String, required: true },
     pricing: { type: Number, required: true },
     imageUrl: { type: String, required: true },
+    publicIdImage: { type: String },
     frosting: {
       type: [String]
     },

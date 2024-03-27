@@ -64,7 +64,7 @@ export class CakeService {
   ): Promise<CakeResponseDB> {
     const filesService = new FilesService();
 
-    const imageUrl = await filesService.upload(imageCake, hostUrl);
+    const imageUrl = await filesService.uploadImageCake(imageCake, hostUrl);
 
     if (!imageUrl) throw new ApiError("failed to upload image", 500);
 
@@ -79,17 +79,36 @@ export class CakeService {
   }
 
   async update(
+    hostUrl: string,
     id: string,
     type?: string,
     pricing?: number,
+    imageCake?: Express.Multer.File,
     frosting?: string[],
     filling?: string,
     size?: string
   ): Promise<CakeResponseDB> {
+    const cake: CakeResponseDB = await this.cakeRepository.findById(id);
+
+    if (!cake) throw new ApiError("this cake isn't exists", 404);
+
+    let newUrlImage: string | undefined = undefined;
+
+    if (imageCake) {
+      const filesService = new FilesService();
+
+      newUrlImage = await filesService.updateImageCake(
+        cake.imageUrl,
+        imageCake,
+        hostUrl
+      );
+    }
+
     return await this.cakeRepository.update(
       id,
       type,
       pricing,
+      newUrlImage,
       frosting,
       filling,
       size

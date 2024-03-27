@@ -74,18 +74,20 @@ export class CakeController {
 
   async update(req: Request, res: Response) {
     const { type, pricing, frosting, filling, size } = req.body;
-
     const { id } = req.params;
+    const imageCake = req.file;
+
+    const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
 
     if (!id) throw new ApiError("id is required", 400);
 
-    if (!type && !pricing && !frosting && !filling && !size)
-      throw new ApiError("you need send some info to update", 400);
+    if (!type && !pricing && !frosting && !filling && !size && !imageCake)
+      throw new ApiError("you need send something to update", 400);
 
     const cakeService = new CakeService();
 
     const cake: CakeResponseDB = await cakeService
-      .update(id, type, pricing, frosting, filling, size)
+      .update(hostUrl, id, type, pricing, imageCake, frosting, filling, size)
       .catch((error: any) => {
         throw new ApiError("Failed to update the cake", 400);
       });

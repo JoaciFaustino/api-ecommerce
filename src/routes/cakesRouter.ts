@@ -19,6 +19,7 @@ cakesRouter.post(
 );
 cakesRouter.patch(
   "/update/:id",
+  upload.single("imageCake"),
   asyncErrorHandler(new CakeController().update)
 );
 cakesRouter.delete(

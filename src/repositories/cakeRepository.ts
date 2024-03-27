@@ -46,6 +46,7 @@ export class CakeRepository {
     id: string,
     type?: string,
     pricing?: number,
+    imageUrl?: string,
     frosting?: string[],
     filling?: string,
     size?: string
@@ -55,6 +56,7 @@ export class CakeRepository {
       {
         type: type,
         pricing: pricing,
+        imageUrl: imageUrl,
         frosting: frosting,
         filling: filling,
         size: size
