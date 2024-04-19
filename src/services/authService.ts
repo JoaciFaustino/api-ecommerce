@@ -5,7 +5,6 @@ import { ApiError } from "../utils/ApiError";
 import { hashString } from "../utils/hashString";
 import { generateLoginToken, verifyLoginToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 export class AuthService {
   constructor(private userRepository = new UserRepository()) {}

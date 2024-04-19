@@ -23,6 +23,7 @@ export class CakeController {
       cakes: cakes
     });
   }
+
   async getById(req: Request, res: Response) {
     const { id } = req.params;
 
