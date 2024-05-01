@@ -32,7 +32,7 @@ export class UserRepository {
     });
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<UserResponseDB> {
     return await User.findOne({ email: email });
   }
 

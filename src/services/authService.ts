@@ -22,13 +22,13 @@ export class AuthService {
       .catch((error: any) => {
         if (error.keyValue) {
           if (error.keyValue.name)
-            throw new ApiError("this name already exists", 400);
+            throw new ApiError("this name already exists", 409);
 
           if (error.keyValue.username)
-            throw new ApiError("this username already exists", 400);
+            throw new ApiError("this username already exists", 409);
 
           if (error.keyValue.email)
-            throw new ApiError("this email already exists", 400);
+            throw new ApiError("this email already exists", 409);
         }
         throw error;
       });

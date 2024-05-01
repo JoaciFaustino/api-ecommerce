@@ -45,8 +45,10 @@ export class AuthController {
 
     const { userId, token } = await authService.login(email, password);
 
-    return res
-      .status(200)
-      .send({ message: "signup completed successfully", userId: userId, token: token });
+    return res.status(200).send({
+      message: "signup completed successfully",
+      userId: userId,
+      token: token
+    });
   }
 }
