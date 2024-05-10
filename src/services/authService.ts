@@ -14,7 +14,7 @@ export class AuthService {
     username: string,
     email: string,
     password: string
-  ): Promise<{ userId: string; token: string }> {
+  ): Promise<{ userId: string; token: string; role: string }> {
     const hashPassword = await hashString(password, 10);
 
     const user: UserResponseDB = await this.userRepository
@@ -35,18 +35,19 @@ export class AuthService {
 
     if (!user) throw new ApiError("failure to create user", 500);
 
-    const token = generateLoginToken(user?._id as string, "user");
+    const token = "Bearer " + generateLoginToken(user?._id as string, "user");
 
     return {
       userId: user?._id as string,
-      token: token
+      token: token,
+      role: "user"
     };
   }
 
   async login(
     email: string,
     password: string
-  ): Promise<{ userId: string; token: string }> {
+  ): Promise<{ userId: string; token: string; role: string }> {
     const user: UserResponseDB =
       await this.userRepository.findByEmailWithPassword(email);
 
@@ -61,11 +62,12 @@ export class AuthService {
 
     const roleUser = user?.role === "admin" ? "admin" : "user";
 
-    const token = generateLoginToken(user?._id as string, roleUser);
+    const token = "Bearer " + generateLoginToken(user?._id as string, roleUser);
 
     return {
       userId: user?._id as string,
-      token: token
+      token: token,
+      role: roleUser
     };
   }
 

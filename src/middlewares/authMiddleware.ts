@@ -13,12 +13,12 @@ export class AuthMiddleware {
     if (!req.headers.authorization)
       throw new ApiError("you isn't authenticated", 401);
 
-    const { userId } = authService.auth(req.headers.authorization);
+    const { userId, role } = authService.auth(req.headers.authorization);
 
     if (!userId) throw new ApiError("you isn't authenticated", 401);
 
-    req.body.userId = userId;
-
+    req.body.decodedUserId = userId;
+    req.body.role = role;
     next();
   }
 
