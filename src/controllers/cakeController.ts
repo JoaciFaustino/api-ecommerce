@@ -66,7 +66,6 @@ export class CakeController {
     const cake: CakeResponseDB = await cakeService
       .create(hostUrl, type, pricing, imageCake, frosting, filling, size)
       .catch((error: any) => {
-        console.log(error.message);
         throw new ApiError("Failed to create the cake", 400);
       });
 

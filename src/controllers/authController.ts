@@ -24,14 +24,18 @@ export class AuthController {
         400
       );
 
-    const { userId, token, role } = await authService.signUp(
+    const { user, token } = await authService.signUp(
       name,
       username,
       email,
       password
     );
 
-    return res.status(200).send({ userId: userId, token: token, role: role });
+    return res.status(200).send({
+      message: "signup completed successfully",
+      user: user,
+      token: token
+    });
   }
 
   async login(req: Request, res: Response) {
@@ -43,12 +47,11 @@ export class AuthController {
 
     if (!password) throw new ApiError("password is required", 400);
 
-    const { userId, token, role } = await authService.login(email, password);
+    const { user, token } = await authService.login(email, password);
 
     return res.status(200).send({
-      message: "signup completed successfully",
-      userId: userId,
-      role: role,
+      message: "login completed successfully",
+      user: user,
       token: token
     });
   }

@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError";
 import { hashString } from "../utils/hashString";
 import { generateLoginToken, verifyLoginToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
+import { IUser } from "../models/User";
 
 export class AuthService {
   constructor(private userRepository = new UserRepository()) {}
@@ -14,7 +15,7 @@ export class AuthService {
     username: string,
     email: string,
     password: string
-  ): Promise<{ userId: string; token: string; role: string }> {
+  ): Promise<{ user: IUser; token: string }> {
     const hashPassword = await hashString(password, 10);
 
     const user: UserResponseDB = await this.userRepository
@@ -38,16 +39,23 @@ export class AuthService {
     const token = "Bearer " + generateLoginToken(user?._id as string, "user");
 
     return {
-      userId: user?._id as string,
-      token: token,
-      role: "user"
+      user: {
+        _id: user?._id,
+        name: user?.name,
+        username: user?.username,
+        email: user?.email,
+        role: "user",
+        createdAt: user?.createdAt,
+        updatedAt: user?.updatedAt
+      },
+      token: token
     };
   }
 
   async login(
     email: string,
     password: string
-  ): Promise<{ userId: string; token: string; role: string }> {
+  ): Promise<{ user: IUser; token: string }> {
     const user: UserResponseDB =
       await this.userRepository.findByEmailWithPassword(email);
 
@@ -65,9 +73,16 @@ export class AuthService {
     const token = "Bearer " + generateLoginToken(user?._id as string, roleUser);
 
     return {
-      userId: user?._id as string,
-      token: token,
-      role: roleUser
+      user: {
+        _id: user?._id,
+        name: user?.name,
+        username: user?.username,
+        email: user?.email,
+        role: roleUser,
+        createdAt: user?.createdAt,
+        updatedAt: user?.updatedAt
+      },
+      token: token
     };
   }
 

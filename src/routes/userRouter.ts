@@ -5,7 +5,7 @@ import { AuthMiddleware } from "../middlewares/authMiddleware";
 
 const userRouter = Router();
 
-new AuthMiddleware().isAuthenticated;
+userRouter.use(new AuthMiddleware().isAuthenticated);
 userRouter.get(
   "/findById/:id",
   asyncErrorHandler(new UserController().findById)
