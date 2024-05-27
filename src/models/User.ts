@@ -6,7 +6,7 @@ export interface IUser {
   username: string;
   email: string;
   password?: string; //precisa não ser obrigatorio se não quando o banco de dados retornar o usuario sem a senha não vai dar erro
-  role?: string;
+  role: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema<IUser>(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false, unique: true },
-    role: { type: String, required: false, select: false, default: "user" }
+    role: { type: String, required: false, default: "user" }
   },
   { timestamps: true }
 );

@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-import { ICake } from "./Cake";
+import { ICake } from "../@types/Cake";
 
 export interface IOrder {
   _id?: Types.ObjectId | string;
@@ -14,15 +14,15 @@ const orderSchema = new mongoose.Schema<IOrder>(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: true
     },
     cakes: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Cake" }],
       validate: [
         (cakes: any) => Array.isArray(cakes) && cakes.length > 0,
-        "Order must have cakes",
-      ],
-    },
+        "Order must have cakes"
+      ]
+    }
   },
   { timestamps: true }
 );

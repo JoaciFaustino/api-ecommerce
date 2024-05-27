@@ -1,5 +1,5 @@
 import { CakeResponseDB } from "../@types/DBresponses";
-import { SortByCakes } from "../@types/cakes";
+import { SortByCakes } from "../@types/Cake";
 import { CakeRepository } from "../repositories/cakeRepository";
 import { ApiError } from "../utils/ApiError";
 import { FilesService } from "./filesService";

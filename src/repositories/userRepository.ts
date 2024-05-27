@@ -37,8 +37,6 @@ export class UserRepository {
   }
 
   async findByEmailWithPassword(email: string) {
-    return await User.findOne({ email: email })
-      .select("+password")
-      .select("+role");
+    return await User.findOne({ email: email }).select("+password");
   }
 }

@@ -34,7 +34,7 @@ export class CakeController {
     const cake: CakeResponseDB = await cakeService
       .findById(id)
       .catch((error: any) => {
-        throw new ApiError("Failed to find the cake", 400);
+        throw new ApiError("Failed to find the cake", 500);
       });
 
     res.status(200).send({

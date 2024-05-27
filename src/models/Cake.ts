@@ -1,30 +1,65 @@
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
+import { CustomizablesParts, ICake, Size } from "../@types/Cake";
 
-export interface ICake {
-  _id?: Types.ObjectId | string;
-  type: string;
-  pricing: number;
-  imageUrl: string;
-  publicIdImage?: string;
-  frosting?: string[];
-  filling?: string;
-  size: string;
-  boughts?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+const sizesPossiblesEnum: Size[] = [
+  "pequeno",
+  "medio",
+  "grande",
+  "extra-grande"
+];
+
+const customizablesPartsEnum: CustomizablesParts[] = [
+  "filing",
+  "frosting",
+  "size",
+  "type"
+];
 
 const cakeSchema = new mongoose.Schema<ICake>(
   {
-    type: { type: String, required: true },
-    pricing: { type: Number, required: true },
+    name: { type: String, required: true },
+    type: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CakeType",
+      required: true
+    },
+    categories: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+      required: true,
+      default: []
+    },
+    frosting: { type: mongoose.Schema.Types.ObjectId, ref: "Frosting" },
+    filling: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Filling" }],
+      required: true,
+      default: []
+    },
+    size: {
+      type: String,
+      enum: sizesPossiblesEnum,
+      required: true
+    },
+    sizesPossibles: {
+      type: [String],
+      enum: sizesPossiblesEnum,
+      required: true,
+      default: []
+    },
+    pricePerSize: {
+      pequeno: { type: Number, required: false },
+      medio: { type: Number, required: false },
+      grande: { type: Number, required: false },
+      "extra-grande": { type: Number, required: false }
+    },
+    totalPricing: { type: Number, required: true },
+    customizableParts: {
+      type: [String],
+      enum: customizablesPartsEnum,
+      required: true,
+      default: []
+    },
     imageUrl: { type: String, required: true },
     publicIdImage: { type: String },
-    frosting: {
-      type: [String]
-    },
-    filling: { type: String },
-    size: { type: String, required: true },
     boughts: { type: Number, required: true, default: 0 }
   },
   { timestamps: true }

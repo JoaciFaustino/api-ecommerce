@@ -1,5 +1,5 @@
 import { CakeResponseDB } from "../@types/DBresponses";
-import { SortByCakes } from "../@types/cakes";
+import { ICake, SortByCakes } from "../@types/Cake";
 import { Cake } from "../models/Cake";
 
 export class CakeRepository {
