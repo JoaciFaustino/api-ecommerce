@@ -1,19 +1,9 @@
-import mongoose from "mongoose";
-import { CustomizablesParts, ICake, Size } from "../@types/Cake";
-
-const sizesPossiblesEnum: Size[] = [
-  "pequeno",
-  "medio",
-  "grande",
-  "extra-grande"
-];
-
-const customizablesPartsEnum: CustomizablesParts[] = [
-  "filing",
-  "frosting",
-  "size",
-  "type"
-];
+import mongoose, { Model } from "mongoose";
+import {
+  CUSTOMIZABLE_PARTS_ENUM,
+  ICake,
+  SIZES_POSSIBLES_ENUM
+} from "../@types/Cake";
 
 const cakeSchema = new mongoose.Schema<ICake>(
   {
@@ -29,19 +19,19 @@ const cakeSchema = new mongoose.Schema<ICake>(
       default: []
     },
     frosting: { type: mongoose.Schema.Types.ObjectId, ref: "Frosting" },
-    filling: {
+    fillings: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Filling" }],
       required: true,
       default: []
     },
     size: {
       type: String,
-      enum: sizesPossiblesEnum,
+      enum: SIZES_POSSIBLES_ENUM,
       required: true
     },
     sizesPossibles: {
       type: [String],
-      enum: sizesPossiblesEnum,
+      enum: SIZES_POSSIBLES_ENUM,
       required: true,
       default: []
     },
@@ -54,7 +44,7 @@ const cakeSchema = new mongoose.Schema<ICake>(
     totalPricing: { type: Number, required: true },
     customizableParts: {
       type: [String],
-      enum: customizablesPartsEnum,
+      enum: CUSTOMIZABLE_PARTS_ENUM,
       required: true,
       default: []
     },

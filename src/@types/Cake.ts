@@ -4,38 +4,44 @@ import { ICategory } from "./Category";
 import { IFrosting } from "./Frosting";
 import { IFilling } from "./Filling";
 
-export type SortByCakes =
-  | { bougths: "descending" }
-  | { created_at: "descending" }
-  | { pricing: "descending" }
-  | { pricing: "ascending" }
-  | null;
+export const CUSTOMIZABLE_PARTS_ENUM = [
+  "filing",
+  "frosting",
+  "size",
+  "type"
+] as const;
 
-export type CustomizablesParts = "filing" | "frosting" | "size" | "type";
+export type CustomizablesParts = (typeof CUSTOMIZABLE_PARTS_ENUM)[number];
 
-export type Size = "pequeno" | "medio" | "grande" | "extra-grande";
+export const SIZES_POSSIBLES_ENUM = [
+  "pequeno",
+  "medio",
+  "grande",
+  "extra-grande"
+] as const;
+
+export type Size = (typeof SIZES_POSSIBLES_ENUM)[number];
 
 export type PricePerSize = {
-  [size in Size]?: number;
+  [key in Size]?: number;
 };
 
 export interface ICake {
   _id?: Types.ObjectId | string;
 
   name: string;
-  type: Types.ObjectId | ICakeType | string; //(VAI VIR DO DB)
-  categories: Types.ObjectId | ICategory[] | string[]; //(VAI VIR DO DB)
-  frosting?: Types.ObjectId | IFrosting; //(VAI VIR DO DB)
-  filling?: Types.ObjectId | IFilling[]; //(VAI VIR DO DB) a quantidade vai depender do tamanho do bolo, se for "pequeno" pode ser 1, se for "medio" pode ter até 2 e se for "g" pode ter até 3
-
+  type: Types.ObjectId | ICakeType | string;
+  categories?: Types.ObjectId[] | ICategory[] | string[];
+  frosting?: Types.ObjectId | IFrosting;
+  fillings?: Types.ObjectId[] | IFilling[];
   size: Size;
   sizesPossibles: Size[];
   pricePerSize: PricePerSize;
 
-  totalPricing: number; //pricePerSize + price of frostings + price of filling
+  totalPricing: number;
   customizableParts: CustomizablesParts[];
   publicIdImage?: string;
-  imageUrl: string;
+  imageUrl?: string;
   boughts?: number;
   createdAt?: Date;
   updatedAt?: Date;

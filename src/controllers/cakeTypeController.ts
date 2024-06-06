@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeTypeService } from "../services/cakeTypeService";
+import { ICakeType } from "../@types/CakeType";
+import { z } from "zod";
 
 export class CakeTypeController {
   constructor() {}
 
   async getAll(req: Request, res: Response) {
     const cakeTypeService = new CakeTypeService();
-    const cakeTypes: string[] | undefined = await cakeTypeService.getAll();
+    const cakeTypes: ICakeType[] | undefined = await cakeTypeService.getAll();
 
     if (!cakeTypes) throw new ApiError("failed do get the cake types", 500);
 
@@ -17,7 +19,8 @@ export class CakeTypeController {
   async create(req: Request, res: Response) {
     const { cakeType } = req.body;
 
-    if (!cakeType) throw new ApiError("cake type is required", 400);
+    if (!cakeType || typeof cakeType !== "string")
+      throw new ApiError("cake type is required and must be string", 400);
 
     const cakeTypeService = new CakeTypeService();
 

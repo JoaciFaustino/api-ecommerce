@@ -5,7 +5,6 @@ import { FillingController } from "../controllers/fillingController";
 
 const fillingRouter = Router();
 
-fillingRouter.use(new AuthMiddleware().isAuthenticated);
 fillingRouter.get("/", asyncErrorHandler(new FillingController().getAll));
 
 fillingRouter.use(new AuthMiddleware().isAdmin);

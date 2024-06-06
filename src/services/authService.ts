@@ -2,7 +2,6 @@ import "dotenv/config";
 import { UserResponseDB } from "../@types/DBresponses";
 import { UserRepository } from "../repositories/userRepository";
 import { ApiError } from "../utils/ApiError";
-import { hashString } from "../utils/hashString";
 import { generateLoginToken, verifyLoginToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
 import { IUser } from "../models/User";
@@ -16,7 +15,7 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<{ user: IUser; token: string }> {
-    const hashPassword = await hashString(password, 10);
+    const hashPassword = await bcrypt.hash(password, 10);
 
     const user: UserResponseDB = await this.userRepository
       .create(name, username, email, hashPassword)

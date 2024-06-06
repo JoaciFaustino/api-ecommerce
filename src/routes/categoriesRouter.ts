@@ -5,7 +5,6 @@ import { CategoryController } from "../controllers/categoryController";
 
 const categoryRouter = Router();
 
-categoryRouter.use(new AuthMiddleware().isAuthenticated);
 categoryRouter.get("/", asyncErrorHandler(new CategoryController().getAll));
 
 categoryRouter.use(new AuthMiddleware().isAdmin);

@@ -5,7 +5,6 @@ import { CakeTypeController } from "../controllers/cakeTypeController";
 
 const cakeTypeRouter = Router();
 
-cakeTypeRouter.use(new AuthMiddleware().isAuthenticated);
 cakeTypeRouter.get("/", asyncErrorHandler(new CakeTypeController().getAll));
 
 cakeTypeRouter.use(new AuthMiddleware().isAdmin);

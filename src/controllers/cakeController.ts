@@ -2,20 +2,34 @@ import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeService } from "../services/cakeService";
 import { CakeResponseDB } from "../@types/DBresponses";
+import {
+  CUSTOMIZABLE_PARTS_ENUM,
+  ICake,
+  SIZES_POSSIBLES_ENUM
+} from "../@types/Cake";
+import { z } from "zod";
+import {
+  errorArrayString,
+  errorEnum,
+  errorNumberPositive,
+  errorObj,
+  errorString
+} from "../utils/zod";
+import { capitalize } from "../utils/capitalizeString";
+import { IQueryParamsGetAll } from "../@types/QueryParams";
+import { ReqBodyCreateCake } from "../@types/ReqBody";
 
 export class CakeController {
   constructor() {}
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request<{}, {}, {}, IQueryParamsGetAll>, res: Response) {
     const query = req.query;
-
-    const limit = parseInt(query.limit as string) || 20;
-    const page = parseInt(query.page as string) || 1;
-    const sortBy = (query.sortBy as string) || "popularity";
 
     const cakeService = new CakeService();
 
-    const { cakes, maxPages } = await cakeService.getAll(limit, page, sortBy);
+    const { cakes, maxPages } = await cakeService.getAll(query);
+
+    if (!cakes) throw new ApiError("failed to find the cakes", 500);
 
     res.status(200).send({
       message: "get all cakes sucessfully",
@@ -43,37 +57,100 @@ export class CakeController {
     });
   }
 
-  async createMany(req: Request, res: Response) {
-    //to do later
-  }
-
-  async create(req: Request, res: Response) {
-    const { type, pricing, frosting, filling, size } = req.body;
-    const imageCake = req.file;
-
+  async create(req: Request<{}, {}, ReqBodyCreateCake>, res: Response) {
+    // const imageCake = req.file;
     const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
 
-    if (!type) throw new ApiError("type is required", 400);
+    const fillingsValidation = z
+      .array(z.string({ message: errorString("fillings") }).trim(), {
+        message: errorArrayString("fillings")
+      })
+      .optional();
 
-    if (!pricing) throw new ApiError("pricing is required", 400);
+    const frostingValidation = z
+      .string({ message: errorString("frosting") })
+      .trim()
+      .optional();
 
-    if (!size) throw new ApiError("size is required", 400);
+    const pricePerSizeValidation = z.object(
+      {
+        pequeno: z
+          .number()
+          .min(1, {
+            message: errorNumberPositive("the prices in pricePerSize")
+          })
+          .optional(),
+        medio: z
+          .number()
+          .min(1, {
+            message: errorNumberPositive("the prices in pricePerSize")
+          })
+          .optional(),
+        grande: z
+          .number()
+          .min(1, {
+            message: errorNumberPositive("the prices in pricePerSize")
+          })
+          .optional(),
+        "extra-grande": z
+          .number()
+          .min(1, {
+            message: errorNumberPositive("the prices in pricePerSize")
+          })
+          .optional()
+      },
+      { message: errorObj("pricePerSize") }
+    );
 
-    if (!imageCake) throw new ApiError("imageCake is required", 400);
+    const reqBodyValidation = z.object({
+      name: z
+        .string({ message: errorString("name", true) })
+        .trim()
+        .transform((name) => capitalize(name)),
+      type: z.string({ message: errorString("type", true) }).trim(),
+      categories: z
+        .array(z.string({ message: errorString("category") }).trim(), {
+          message: errorArrayString("categories")
+        })
+        .optional(),
+      frosting: frostingValidation,
+      fillings: fillingsValidation,
+      size: z.enum(SIZES_POSSIBLES_ENUM, { message: errorEnum("size") }),
+      sizesPossibles: z.array(
+        z.enum(SIZES_POSSIBLES_ENUM, { message: errorEnum("sizesPossibles") })
+      ),
+      pricePerSize: pricePerSizeValidation,
+      customizableParts: z.array(
+        z.enum(CUSTOMIZABLE_PARTS_ENUM, {
+          message: errorEnum("customizableParts")
+        }),
+        { message: errorEnum("customizableParts") }
+      )
+    });
 
-    const cakeService = new CakeService();
+    try {
+      const bodyValidated = reqBodyValidation.parse(req.body);
 
-    const cake: CakeResponseDB = await cakeService
-      .create(hostUrl, type, pricing, imageCake, frosting, filling, size)
-      .catch((error: any) => {
-        throw new ApiError("Failed to create the cake", 400);
-      });
+      const cakeService = new CakeService();
 
-    res.status(200).send({ message: "cake created sucessfully", cake: cake });
+      const cake: ICake | undefined = await cakeService.create(
+        hostUrl,
+        bodyValidated
+      );
+
+      if (!cake) throw new ApiError("failed to create cake", 500);
+
+      res.status(200).send({ message: "cake created sucessfully", cake: cake });
+    } catch (error: any) {
+      if (error instanceof z.ZodError)
+        throw new ApiError(error.errors[0].message, 400);
+
+      throw error;
+    }
   }
 
   async update(req: Request, res: Response) {
-    const { type, pricing, frosting, filling, size } = req.body;
+    const { type, pricing, frosting, fillings, size } = req.body;
     const { id } = req.params;
     const imageCake = req.file;
 
@@ -81,13 +158,13 @@ export class CakeController {
 
     if (!id) throw new ApiError("id is required", 400);
 
-    if (!type && !pricing && !frosting && !filling && !size && !imageCake)
+    if (!type && !pricing && !frosting && !fillings && !size && !imageCake)
       throw new ApiError("you need send something to update", 400);
 
     const cakeService = new CakeService();
 
     const cake: CakeResponseDB = await cakeService
-      .update(hostUrl, id, type, pricing, imageCake, frosting, filling, size)
+      .update(hostUrl, id, type, pricing, imageCake, frosting, fillings, size)
       .catch((error: any) => {
         throw new ApiError("Failed to update the cake", 400);
       });

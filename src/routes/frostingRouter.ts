@@ -5,7 +5,6 @@ import { FrostingController } from "../controllers/frostingController";
 
 const frostingRouter = Router();
 
-frostingRouter.use(new AuthMiddleware().isAuthenticated);
 frostingRouter.get("/", asyncErrorHandler(new FrostingController().getAll));
 
 frostingRouter.use(new AuthMiddleware().isAdmin);
