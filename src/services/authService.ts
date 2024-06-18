@@ -61,7 +61,7 @@ export class AuthService {
 
     const isPasswordValid: boolean = bcrypt.compareSync(
       password,
-      user?.password as string
+      user.password || ""
     );
 
     if (!isPasswordValid) throw new ApiError("wrong email or password", 401);

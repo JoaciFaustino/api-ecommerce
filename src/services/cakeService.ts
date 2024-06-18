@@ -95,8 +95,6 @@ export class CakeService {
     if (!cakes) {
       return { cakes: undefined, maxPages: 0, prevUrl: null, nextUrl: null };
     }
-    console.log("page: " + pageNumber);
-    console.log("quantidade de bolos: " + cakes.length);
 
     if (cakes.length === 0) {
       throw new ApiError("the page requested isn't exists", 404);

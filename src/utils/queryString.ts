@@ -38,8 +38,6 @@ export const getPrevAndNextUrl = (
   url.searchParams.set("page", (actualPage - 1).toString());
   const prevUrl: string | null = actualPage > 1 ? url.toString() : null;
 
-  console.log(nextUrl, prevUrl);
-
   return {
     nextUrl,
     prevUrl

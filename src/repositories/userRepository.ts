@@ -89,6 +89,7 @@ export class UserRepository {
       name: user.name,
       username: user.username,
       email: user.email,
+      password: user.password,
       role: user.role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
