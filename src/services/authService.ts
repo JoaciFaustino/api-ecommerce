@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { UserResponseDB } from "../@types/DBresponses";
 import { UserRepository } from "../repositories/userRepository";
 import { ApiError } from "../utils/ApiError";
 import { generateLoginToken, verifyLoginToken } from "../utils/jwt";
@@ -17,7 +16,7 @@ export class AuthService {
   ): Promise<{ user: IUser; token: string }> {
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const user: UserResponseDB = await this.userRepository
+    const user: IUser | undefined = await this.userRepository
       .create(name, username, email, hashPassword)
       .catch((error: any) => {
         if (error.keyValue) {
@@ -55,7 +54,7 @@ export class AuthService {
     email: string,
     password: string
   ): Promise<{ user: IUser; token: string }> {
-    const user: UserResponseDB =
+    const user: IUser | undefined =
       await this.userRepository.findByEmailWithPassword(email);
 
     if (!user) throw new ApiError("wrong email or password", 401);

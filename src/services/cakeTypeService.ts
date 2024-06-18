@@ -1,5 +1,4 @@
 import { ICakeType } from "../@types/CakeType";
-import { CakeTypeResponseDB } from "../@types/DBresponses";
 import { CakeTypeRepository } from "../repositories/cakeTypeRepository";
 import { ApiError } from "../utils/ApiError";
 

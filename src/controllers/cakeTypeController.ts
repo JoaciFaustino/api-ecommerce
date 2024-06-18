@@ -13,7 +13,7 @@ export class CakeTypeController {
 
     if (!cakeTypes) throw new ApiError("failed do get the cake types", 500);
 
-    res.status(200).send({ cakeTypes });
+    return res.status(200).send({ cakeTypes });
   }
 
   async create(req: Request, res: Response) {
@@ -31,7 +31,7 @@ export class CakeTypeController {
     if (!cakeTypeCreated)
       throw new ApiError("failed to create the cake type", 400);
 
-    res.status(200).send({
+    return res.status(200).send({
       message: "cake type created sucessfully",
       cakeType: cakeTypeCreated
     });

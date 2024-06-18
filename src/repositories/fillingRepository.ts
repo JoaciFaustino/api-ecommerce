@@ -1,5 +1,4 @@
 import { Types } from "mongoose";
-import { FillingResponseDB } from "../@types/DBresponses";
 import { IFilling } from "../@types/Filling";
 import { Filling } from "../models/Filling";
 
@@ -21,15 +20,19 @@ export class FillingRepository {
       ...priceFilterObj
     };
 
-    const fillingsRes: FillingResponseDB[] = await Filling.find(filters);
+    const fillingsRes = await Filling.find(filters);
 
-    if (!fillingsRes) return;
+    if (!fillingsRes) {
+      return;
+    }
 
     const fillings: IFilling[] = [];
 
     for (let i = 0; i < fillingsRes.length; i++) {
       const filling = fillingsRes[i];
-      if (!filling) return;
+      if (!filling) {
+        return;
+      }
 
       const { _id, name, price } = filling;
       fillings.push({ _id, name, price });
@@ -38,11 +41,26 @@ export class FillingRepository {
     return fillings;
   }
 
-  async getById(id: string | Types.ObjectId): Promise<FillingResponseDB> {
-    return await Filling.findById(id);
+  async getById(id: string | Types.ObjectId): Promise<IFilling | undefined> {
+    const filling = await Filling.findById(id);
+
+    if (!filling) {
+      return;
+    }
+
+    return { _id: filling._id, name: filling.name, price: filling.price };
   }
 
-  async create(name: string, price: number): Promise<FillingResponseDB> {
-    return await Filling.create<IFilling>({ name: name, price: price });
+  async create(name: string, price: number): Promise<IFilling | undefined> {
+    const filling = await Filling.create({
+      name: name,
+      price: price
+    });
+
+    if (!filling) {
+      return;
+    }
+
+    return { _id: filling._id, name: filling.name, price: filling.price };
   }
 }

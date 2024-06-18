@@ -91,7 +91,7 @@ export class AuthController {
   auth(req: Request, res: Response) {
     const { decodedUserId, role } = req.body;
 
-    res.status(200).send({
+    return res.status(200).send({
       message: "authenticate sucessfully",
       userId: decodedUserId,
       role: role

@@ -1,5 +1,4 @@
 import { ICategory } from "../@types/Category";
-import { CategoryResponseDB } from "../@types/DBresponses";
 import { CategoryRepository } from "../repositories/categoryRepository";
 import { ApiError } from "../utils/ApiError";
 
@@ -12,11 +11,8 @@ export class CategoryService {
     return await this.categoryRepository.getAll(categoryFilters);
   }
 
-  async create(category: string): Promise<string | undefined> {
-    const categoryObj: CategoryResponseDB =
-      await this.categoryRepository.create(category);
-
-    return categoryObj?.category;
+  async create(category: string): Promise<ICategory | undefined> {
+    return await this.categoryRepository.create(category);
   }
 
   async validateAllCategoriesInCake(

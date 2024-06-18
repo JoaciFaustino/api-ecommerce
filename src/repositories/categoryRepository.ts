@@ -1,5 +1,4 @@
 import { ICategory } from "../@types/Category";
-import { CategoryResponseDB } from "../@types/DBresponses";
 import { Category } from "../models/Category";
 
 export class CategoryRepository {
@@ -26,7 +25,13 @@ export class CategoryRepository {
     return categories;
   }
 
-  async create(category: string): Promise<CategoryResponseDB> {
-    return await Category.create<ICategory>({ category: category });
+  async create(category: string): Promise<ICategory | undefined> {
+    const categoryCreated = await Category.create({ category: category });
+
+    if (!categoryCreated) {
+      return;
+    }
+
+    return { _id: categoryCreated._id, category: categoryCreated.category };
   }
 }

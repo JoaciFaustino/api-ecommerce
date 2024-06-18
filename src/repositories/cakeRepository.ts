@@ -1,17 +1,17 @@
-import { CakeResponseDB } from "../@types/DBresponses";
 import { Cake } from "../models/Cake";
 import { TypeKeysSortBy, typeSortByObj } from "../@types/SortBy";
 import { ICake } from "../@types/Cake";
-import { ICakeType } from "../@types/CakeType";
-import { ICategory } from "../@types/Category";
-import { IFilling } from "../@types/Filling";
-import { IFrosting } from "../@types/Frosting";
 import { SORT_BY_OBJS } from "../utils/constants";
+import {
+  JoinColectionData,
+  getJoinPipelines,
+  leaveJoinsWithoutFiltersLast
+} from "../lib/mongoose";
 
 export class CakeRepository {
   constructor() {}
 
-  async countDocs(): Promise<number> {
+  async countDocs(): Promise<number | undefined> {
     return await Cake.countDocuments({});
   }
 
@@ -19,85 +19,138 @@ export class CakeRepository {
     limit: number,
     page: number,
     sortBy: TypeKeysSortBy,
-    categoryIdFilters: string[] = [],
-    fillingIdFilters: string[] = [],
-    frostingIdFilters: string[] = [],
-    typeIdFilters: string[] = [],
+    categoryFilters: string[] = [],
+    fillingFilters: string[] = [],
+    frostingFilters: string[] = [],
+    typeFilters: string[] = [],
     sizeFilters: string[] = []
   ): Promise<ICake[] | undefined> {
     const sortByObj: typeSortByObj = SORT_BY_OBJS[sortBy];
 
-    const categoriesFilterObj =
-      categoryIdFilters.length > 0
-        ? { categories: { $in: categoryIdFilters } }
-        : {};
+    const joinTypesData: JoinColectionData = {
+      colectionName: "caketypes",
+      localField: "type",
+      relationship: "one-to-one",
+      filters: typeFilters,
+      joinFieldNameToQuery: "type"
+    };
 
-    const fillingIdFiltersObj =
-      fillingIdFilters.length > 0
-        ? { fillings: { $in: fillingIdFilters } }
-        : {};
+    const joinCategoriesData: JoinColectionData = {
+      colectionName: "categories",
+      localField: "categories",
+      relationship: "one-to-many",
+      filters: categoryFilters,
+      joinFieldNameToQuery: "category"
+    };
 
-    const frostingIdFiltersObj =
-      frostingIdFilters.length > 0
-        ? { frosting: { $in: frostingIdFilters } }
-        : {};
+    const joinFillingsData: JoinColectionData = {
+      colectionName: "fillings",
+      localField: "fillings",
+      relationship: "one-to-many",
+      filters: fillingFilters,
+      joinFieldNameToQuery: "name"
+    };
 
-    const typeIdFiltersObj =
-      typeIdFilters.length > 0 ? { type: { $in: typeIdFilters } } : {};
+    const joinFrostingData: JoinColectionData = {
+      colectionName: "frostings",
+      localField: "frosting",
+      relationship: "one-to-one",
+      filters: frostingFilters,
+      joinFieldNameToQuery: "name"
+    };
 
-    const sizeFiltersObj =
-      sizeFilters.length > 0 ? { size: { $in: sizeFilters } } : {};
+    const joinTypes = getJoinPipelines(joinTypesData);
+    const joinCategories = getJoinPipelines(joinCategoriesData);
+    const joinFillings = getJoinPipelines(joinFillingsData);
+    const joinFrosting = getJoinPipelines(joinFrostingData);
 
-    const cakesRes = await Cake.find({
-      ...categoriesFilterObj,
-      ...fillingIdFiltersObj,
-      ...frostingIdFiltersObj,
-      ...typeIdFiltersObj,
-      ...sizeFiltersObj
-    })
-      .limit(limit)
-      .skip(limit * (page - 1))
+    const sequencedJoins = leaveJoinsWithoutFiltersLast([
+      joinTypes,
+      joinCategories,
+      joinFillings,
+      joinFrosting
+    ]);
+
+    const sizeFilterObj =
+      sizeFilters.length > 0
+        ? { $match: { size: { $in: sizeFilters } } }
+        : { $match: {} };
+
+    const cakes: ICake[] | undefined = await Cake.aggregate<ICake>([
+      sizeFilterObj,
+      ...sequencedJoins,
+      // {
+      //   $group: {
+      //     _id: "$_id",
+      //     name: { $first: "$name" },
+      //     type: { $first: "$typeDetails.type" },
+      //     categories: { $first: "$categoriesDetails.category" },
+      //     fillings: { $first: "$fillingsDetails" },
+      //     frosting: { $first: "$frostingDetails" },
+      //     size: { $first: "$size" },
+      //     sizesPossibles: { $first: "$sizesPossibles" },
+      //     customizableParts: { $first: "$customizableParts" },
+      //     pricePerSize: { $first: "$pricePerSize" },
+      //     totalPricing: { $first: "$totalPricing" },
+      //     imageUrl: { $first: "$imageUrl" },
+      //     boughts: { $first: "$boughts" },
+      //     createdAt: { $first: "$createdAt" },
+      //     updatedAt: { $first: "$updatedAt" }
+      //   }
+      // },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          type: /**1 */ "$typeDetails.type",
+          categories: /**1 "*/ "$categoriesDetails.category",
+          fillings: /**1*/ "$fillingsDetails",
+          frosting: /**1 */ "$frostingDetails",
+          size: 1,
+          sizesPossibles: 1,
+          customizableParts: 1,
+          pricePerSize: 1,
+          totalPricing: 1,
+          imageUrl: 1,
+          boughts: 1,
+          createdAt: 1,
+          updatedAt: 1
+        }
+      }
+    ])
       .sort(sortByObj)
-      .populate<{ type: ICakeType }>("type")
-      .populate<{ categories: ICategory }>("categories")
-      .populate<{ fillings: IFilling }>("fillings")
-      .populate<{ frosting: IFrosting }>("frosting");
+      .limit(limit)
+      .skip(limit * (page - 1));
 
-    if (!cakesRes) return;
-
-    const cakes: ICake[] = cakesRes.map((cake) => {
-      const categoriesNormalized /*: string[]*/ = Array.isArray(cake.categories)
-        ? cake.categories /*.map((category) => category.category)*/
-        : [cake.categories]; /*.map((category) => category.category)*/
-
-      const fillingsNormalized: IFilling[] = Array.isArray(cake.fillings)
-        ? cake.fillings
-        : [cake.fillings];
-
-      return {
-        _id: cake._id,
-        name: cake.name,
-        type: cake.type /*.type*/,
-        size: cake.size,
-        sizesPossibles: cake.sizesPossibles,
-        pricePerSize: cake.pricePerSize,
-        fillings: fillingsNormalized,
-        customizableParts: cake.customizableParts,
-        totalPricing: cake.totalPricing,
-        boughts: cake.boughts,
-        categories: categoriesNormalized,
-        createdAt: cake.createdAt,
-        imageUrl: cake.imageUrl,
-        frosting: cake.frosting,
-        updatedAt: cake.updatedAt
-      };
-    });
+    if (!cakes) return;
 
     return cakes;
   }
 
-  async findById(id: string): Promise<CakeResponseDB> {
-    return await Cake.findById(id);
+  async findById(id: string): Promise<ICake | undefined> {
+    const cake = await Cake.findById(id);
+
+    if (!cake) {
+      return;
+    }
+
+    return {
+      _id: cake._id,
+      name: cake.name,
+      type: cake.type,
+      size: cake.size,
+      customizableParts: cake.customizableParts,
+      pricePerSize: cake.pricePerSize,
+      sizesPossibles: cake.sizesPossibles,
+      totalPricing: cake.totalPricing,
+      boughts: cake.boughts,
+      categories: cake.categories,
+      fillings: cake.fillings,
+      frosting: cake.frosting,
+      imageUrl: cake.imageUrl,
+      createdAt: cake.createdAt,
+      updatedAt: cake.updatedAt
+    };
   }
 
   async create({
@@ -113,21 +166,7 @@ export class CakeRepository {
     frosting,
     fillings
   }: ICake): Promise<ICake | undefined> {
-    const cake: ICake = {
-      name,
-      type,
-      categories,
-      size,
-      sizesPossibles,
-      pricePerSize,
-      totalPricing,
-      customizableParts,
-      imageUrl,
-      frosting,
-      fillings
-    };
-
-    const cakeCreated = await Cake.create<ICake>({
+    const cakeCreated = await Cake.create({
       name,
       type,
       categories,
@@ -141,24 +180,24 @@ export class CakeRepository {
       fillings
     });
 
-    if (!cake) return;
+    if (!cakeCreated) return;
 
     return {
-      _id: cake._id,
-      name: cake.name,
-      type: cake.type,
-      categories: cake.categories,
-      size: cake.size,
-      sizesPossibles: cake.sizesPossibles,
-      pricePerSize: cake.pricePerSize,
-      totalPricing: cake.totalPricing,
-      customizableParts: cake.customizableParts,
-      imageUrl: cake.imageUrl,
-      frosting: cake.frosting,
-      fillings: cake.fillings,
-      boughts: cake.boughts,
-      createdAt: cake.createdAt,
-      updatedAt: cake.updatedAt
+      _id: cakeCreated._id,
+      name: cakeCreated.name,
+      type: cakeCreated.type,
+      categories: cakeCreated.categories,
+      size: cakeCreated.size,
+      sizesPossibles: cakeCreated.sizesPossibles,
+      pricePerSize: cakeCreated.pricePerSize,
+      totalPricing: cakeCreated.totalPricing,
+      customizableParts: cakeCreated.customizableParts,
+      imageUrl: cakeCreated.imageUrl,
+      frosting: cakeCreated.frosting,
+      fillings: cakeCreated.fillings,
+      boughts: cakeCreated.boughts,
+      createdAt: cakeCreated.createdAt,
+      updatedAt: cakeCreated.updatedAt
     };
   }
 
@@ -170,8 +209,8 @@ export class CakeRepository {
     frosting?: string[],
     filling?: string,
     size?: string
-  ): Promise<CakeResponseDB> {
-    return await Cake.findByIdAndUpdate(
+  ): Promise<ICake | undefined> {
+    const cakeUpdated = await Cake.findByIdAndUpdate(
       { _id: id },
       {
         type: type,
@@ -183,6 +222,28 @@ export class CakeRepository {
       },
       { new: true }
     );
+
+    if (!cakeUpdated) {
+      return;
+    }
+
+    return {
+      _id: cakeUpdated._id,
+      name: cakeUpdated.name,
+      type: cakeUpdated.type,
+      categories: cakeUpdated.categories,
+      size: cakeUpdated.size,
+      sizesPossibles: cakeUpdated.sizesPossibles,
+      pricePerSize: cakeUpdated.pricePerSize,
+      totalPricing: cakeUpdated.totalPricing,
+      customizableParts: cakeUpdated.customizableParts,
+      imageUrl: cakeUpdated.imageUrl,
+      frosting: cakeUpdated.frosting,
+      fillings: cakeUpdated.fillings,
+      boughts: cakeUpdated.boughts,
+      createdAt: cakeUpdated.createdAt,
+      updatedAt: cakeUpdated.updatedAt
+    };
   }
 
   async delete(id: string): Promise<void> {

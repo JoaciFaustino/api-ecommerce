@@ -12,25 +12,30 @@ export class FrostingController {
 
     if (!frostings) throw new ApiError("failed to get the frostings", 500);
 
-    res.status(200).send({ frostings });
+    return res.status(200).send({ frostings });
   }
 
   async create(req: Request, res: Response) {
     const { name, price } = req.body;
 
-    if (!name) throw new ApiError("name is required", 400);
-    if (!price) throw new ApiError("price is required", 400);
+    if (!name || typeof name !== "string") {
+      throw new ApiError("name is required and must be string", 400);
+    }
+
+    if (!price || typeof parseFloat(price) !== "number") {
+      throw new ApiError("price is required and must be number", 400);
+    }
 
     const frostingService = new FrostingService();
     const frostingCreated: IFrosting | undefined = await frostingService.create(
       name,
-      price
+      parseFloat(price)
     );
 
     if (!frostingCreated)
       throw new ApiError("failed to create the frosting", 400);
 
-    res.status(400).send({
+    return res.status(400).send({
       message: "frosting created sucessfully",
       frosting: frostingCreated
     });

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { UserService } from "../services/userService";
-import { UserResponseDB } from "../@types/DBresponses";
+import { IUser } from "../models/User";
 
 export class UserController {
   constructor() {}
@@ -14,7 +14,7 @@ export class UserController {
 
     if (decodedUserId !== userId) throw new ApiError("unauthorized", 401);
 
-    const user: UserResponseDB = await userService.findById(req.params.id);
+    const user: IUser | undefined = await userService.findById(req.params.id);
 
     if (!user) throw new ApiError("user not find", 404);
 

@@ -1,12 +1,21 @@
-import { FrostingResponseDB } from "../@types/DBresponses";
 import { IFrosting } from "../@types/Frosting";
 import { Frosting } from "../models/Frosting";
 
 export class FrostingRepository {
   constructor() {}
 
-  async getAll(): Promise<FrostingResponseDB[]> {
-    return await Frosting.find();
+  async getAll(): Promise<IFrosting[] | undefined> {
+    const frostingsRes = await Frosting.find();
+
+    if (!frostingsRes) {
+      return;
+    }
+
+    const frostings: IFrosting[] = frostingsRes.map((frosting) => {
+      return { _id: frosting._id, name: frosting.name, price: frosting.price };
+    });
+
+    return frostings;
   }
 
   async getOne(
@@ -23,7 +32,7 @@ export class FrostingRepository {
     const priceFiltersObj =
       priceFilters.length > 0 ? { price: { $in: priceFilters } } : {};
 
-    const frostingRes: FrostingResponseDB = await Frosting.findOne({
+    const frostingRes = await Frosting.findOne({
       ...nameFiltersObj,
       ...priceFiltersObj
     });
@@ -39,7 +48,16 @@ export class FrostingRepository {
     };
   }
 
-  async create(name: string, price: number): Promise<FrostingResponseDB> {
-    return await Frosting.create<IFrosting>({ name: name, price: price });
+  async create(name: string, price: number): Promise<IFrosting | undefined> {
+    const frosting = await Frosting.create<IFrosting>({
+      name: name,
+      price: price
+    });
+
+    if (!frosting) {
+      return;
+    }
+
+    return { _id: frosting._id, name: frosting.name, price: frosting.price };
   }
 }

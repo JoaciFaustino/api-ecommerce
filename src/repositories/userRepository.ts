@@ -1,11 +1,24 @@
-import { User } from "../models/User";
-import { UserResponseDB } from "../@types/DBresponses";
+import { IUser, User } from "../models/User";
 
 export class UserRepository {
   constructor() {}
 
-  async findById(id: string): Promise<UserResponseDB> {
-    return await User.findById({ _id: id });
+  async findById(id: string): Promise<IUser | undefined> {
+    const user = await User.findById({ _id: id });
+
+    if (!user) {
+      return;
+    }
+
+    return {
+      _id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 
   async create(
@@ -13,13 +26,27 @@ export class UserRepository {
     username: string,
     email: string,
     password: string
-  ): Promise<UserResponseDB> {
-    return await User.create({
+  ): Promise<IUser | undefined> {
+    const user = await User.create({
       name: name,
       username: username,
       email: email,
       password: password
     });
+
+    if (!user) {
+      return;
+    }
+
+    return {
+      _id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 
   async userAlreadyExists(
@@ -32,11 +59,39 @@ export class UserRepository {
     });
   }
 
-  async findByEmail(email: string): Promise<UserResponseDB> {
-    return await User.findOne({ email: email });
+  async findByEmail(email: string): Promise<IUser | undefined> {
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return;
+    }
+
+    return {
+      _id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 
-  async findByEmailWithPassword(email: string) {
-    return await User.findOne({ email: email }).select("+password");
+  async findByEmailWithPassword(email: string): Promise<IUser | undefined> {
+    const user = await User.findOne({ email: email }).select("+password");
+
+    if (!user) {
+      return;
+    }
+
+    return {
+      _id: user._id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 }

@@ -7,8 +7,8 @@ const errorMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(error.message);
   console.log("");
+  console.log(error);
 
   if (error instanceof ApiError) {
     return res.status(error.status).send({ message: error.message });

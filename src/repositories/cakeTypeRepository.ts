@@ -1,13 +1,19 @@
 import { ICakeType } from "../@types/CakeType";
-import { CakeTypeResponseDB } from "../@types/DBresponses";
 import { CakeType } from "../models/CakeType";
-import { ApiError } from "../utils/ApiError";
 
 export class CakeTypeRepository {
   constructor() {}
 
   async getAll(): Promise<ICakeType[] | undefined> {
-    return await CakeType.find();
+    const cakeTypes = await CakeType.find();
+
+    if (!cakeTypes) {
+      return;
+    }
+
+    return cakeTypes.map((cakeType) => {
+      return { _id: cakeType._id, type: cakeType.type };
+    });
   }
 
   async getOne(typeNameFilters: string[]): Promise<ICakeType | undefined> {
@@ -16,7 +22,9 @@ export class CakeTypeRepository {
 
     const cakeTypeRes = await CakeType.findOne(filter);
 
-    if (!cakeTypeRes) return;
+    if (!cakeTypeRes) {
+      return;
+    }
 
     const { _id, type } = cakeTypeRes;
 
@@ -24,11 +32,13 @@ export class CakeTypeRepository {
   }
 
   async create(type: string): Promise<ICakeType | undefined> {
-    const cakeTypeRes: CakeTypeResponseDB = await CakeType.create<ICakeType>({
+    const cakeTypeRes = await CakeType.create({
       type: type
     });
 
-    if (!cakeTypeRes) return;
+    if (!cakeTypeRes) {
+      return;
+    }
 
     return { _id: cakeTypeRes._id, type: cakeTypeRes.type };
   }

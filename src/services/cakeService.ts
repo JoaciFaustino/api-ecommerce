@@ -1,4 +1,3 @@
-import { CakeResponseDB } from "../@types/DBresponses";
 import { CakeRepository } from "../repositories/cakeRepository";
 import { ApiError } from "../utils/ApiError";
 import { FilesService } from "./filesService";
@@ -18,6 +17,11 @@ import { CakeTypeService } from "./cakeTypeService";
 import { FrostingService } from "./frostingService";
 import { IQueryParamsGetAll } from "../@types/QueryParams";
 import { ReqBodyCreateCake } from "../@types/ReqBody";
+import {
+  getPrevAndNextUrl,
+  normalizeQueryString,
+  normalizeQueryStringArray
+} from "../utils/queryString";
 
 export class CakeService {
   constructor(
@@ -29,51 +33,55 @@ export class CakeService {
     private filesService = new FilesService()
   ) {}
 
-  async getAll({
-    limit = "20",
-    page = "1",
-    sortBy = "popularity",
-    categoryId = [],
-    fillingId = [],
-    frostingId = [],
-    typeId = [],
-    size = []
-  }: IQueryParamsGetAll): Promise<{
-    cakes: ICake[] | undefined;
+  async getAll(
+    url: string,
+    {
+      limit = "20",
+      page = "1",
+      sortBy = "popularity",
+      category = [],
+      filling = [],
+      frosting = [],
+      type = [],
+      size = []
+    }: IQueryParamsGetAll
+  ): Promise<{
+    cakes?: ICake[];
     maxPages: number;
+    prevUrl: string | null;
+    nextUrl: string | null;
   }> {
-    const limitLastValue: string =
-      typeof limit === "string" ? limit : limit[limit.length - 1];
-    const limitNumber = parseInt(limitLastValue) || 20;
+    const limitNumber = parseInt(normalizeQueryString(limit)) || 20;
+    const pageNumber = parseInt(normalizeQueryString(page)) || 1;
+    const quantityCakesOnDb = await this.cakeRepository.countDocs();
 
-    const pageLastValue: string =
-      typeof page === "string" ? page : page[page.length - 1];
-    const pageNumber = parseInt(pageLastValue) || 1;
+    if (!quantityCakesOnDb) throw new ApiError("failed to get maxPages", 500);
 
-    const sortByLastValue =
-      typeof sortBy === "string" ? sortBy : sortBy[sortBy.length - 1];
+    const maxPages =
+      quantityCakesOnDb !== 0 ? Math.ceil(quantityCakesOnDb / limitNumber) : 1;
 
+    if (pageNumber > maxPages) {
+      throw new ApiError("the page requested isn't exists", 404);
+    }
+
+    const sortByLastValue = normalizeQueryString(sortBy);
     const newSortBy = SORT_BY_OPTIONS.includes(
       sortByLastValue as TypeKeysSortBy
     )
       ? (sortBy as TypeKeysSortBy)
       : "popularity";
 
-    const typeFilters = Array.isArray(typeId) ? typeId : [typeId];
-    const categoryFilters = Array.isArray(categoryId)
-      ? categoryId
-      : [categoryId];
-    const fillingFilters = Array.isArray(fillingId) ? fillingId : [fillingId];
-    const frostingFilters = Array.isArray(frostingId)
-      ? frostingId
-      : [frostingId];
+    const typeFilters = normalizeQueryStringArray(type);
+    const categoryFilters = normalizeQueryStringArray(category);
+    const fillingFilters = normalizeQueryStringArray(filling);
+    const frostingFilters = normalizeQueryStringArray(frosting);
+    const sizeFilters = normalizeQueryStringArray(size);
 
-    const sizeFilters = Array.isArray(size) ? size : [size];
     const sizeFiltersValids = sizeFilters.filter((size) =>
       SIZES_POSSIBLES_ENUM.includes(size as Size)
     );
 
-    const cakes = await this.cakeRepository.getAll(
+    const cakes: ICake[] | undefined = await this.cakeRepository.getAll(
       limitNumber,
       pageNumber,
       newSortBy,
@@ -84,24 +92,28 @@ export class CakeService {
       sizeFiltersValids
     );
 
-    if (!cakes) return { cakes: undefined, maxPages: 0 };
+    if (!cakes) {
+      return { cakes: undefined, maxPages: 0, prevUrl: null, nextUrl: null };
+    }
+    console.log("page: " + pageNumber);
+    console.log("quantidade de bolos: " + cakes.length);
 
-    const maxPages: number =
-      cakes.length > 0 ? Math.ceil((cakes.length - 1) / limitNumber) : 0;
-
-    if (pageNumber > maxPages) {
+    if (cakes.length === 0) {
       throw new ApiError("the page requested isn't exists", 404);
     }
 
-    return { cakes, maxPages };
+    const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);
+
+    return { cakes, maxPages, nextUrl, prevUrl };
   }
 
-  async findById(id: string): Promise<CakeResponseDB> {
+  async findById(id: string): Promise<ICake | undefined> {
     return await this.cakeRepository.findById(id);
   }
 
   async create(
     hostUrl: string,
+    imageCake: Express.Multer.File,
     {
       name,
       type,
@@ -139,12 +151,7 @@ export class CakeService {
       );
     }
 
-    const pricePerSizeIsValid = this.validatePricePerSize(
-      pricePerSize,
-      sizesPossibles
-    );
-
-    if (!pricePerSizeIsValid) {
+    if (!this.validatePricePerSize(pricePerSize, sizesPossibles)) {
       throw new ApiError(
         "the sizes in pricePerSize must be in sizesPossibles",
         400
@@ -173,9 +180,12 @@ export class CakeService {
       if (totalPricing < 0)
         throw new ApiError("totalPricing can't be negative number", 400);
 
-      // const imageUrl = await this.filesService.uploadImageCake(imageCake, hostUrl);
-      // if (!imageUrl) throw new ApiError("failed to upload image", 500);
-      const imageUrl = "http://localhost:3001/api/images/chocolate-cake.png";
+      const imageUrl = await this.filesService.uploadImageCake(
+        imageCake,
+        hostUrl
+      );
+
+      if (!imageUrl) throw new ApiError("failed to upload image", 500);
 
       return await this.cakeRepository.create({
         name,
@@ -204,8 +214,8 @@ export class CakeService {
     frosting?: string[],
     filling?: string,
     size?: string
-  ): Promise<CakeResponseDB> {
-    const cake: CakeResponseDB = await this.cakeRepository.findById(id);
+  ): Promise<ICake | undefined> {
+    const cake: ICake | undefined = await this.cakeRepository.findById(id);
 
     if (!cake) throw new ApiError("this cake isn't exists", 404);
 

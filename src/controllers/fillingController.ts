@@ -12,22 +12,28 @@ export class FillingController {
 
     if (!fillings) throw new ApiError("failed to get the fillings", 500);
 
-    res.status(200).send({ fillings });
+    return res.status(200).send({ fillings });
   }
 
   async create(req: Request, res: Response) {
     const { name, price } = req.body;
 
-    if (!name) throw new ApiError("name is required", 400);
-    if (!price) throw new ApiError("price is required", 400);
+    if (!name || typeof name !== "string") {
+      throw new ApiError("name is required and must be string", 400);
+    }
+
+    if (!price || typeof parseFloat(price) !== "number") {
+      throw new ApiError("price is required and must be number", 400);
+    }
 
     const fillingService = new FillingService();
-    const fillingCreated = await fillingService.create(name, price);
+    const fillingCreated = await fillingService.create(name, parseFloat(price));
 
-    if (!fillingCreated)
+    if (!fillingCreated) {
       throw new ApiError("failed to create the filling", 500);
+    }
 
-    res.status(200).send({
+    return res.status(200).send({
       message: "filling created sucessfully",
       filling: fillingCreated
     });
