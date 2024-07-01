@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeTypeService } from "../services/cakeTypeService";
 import { ICakeType } from "../@types/CakeType";
-import { z } from "zod";
 
 export class CakeTypeController {
   constructor() {}

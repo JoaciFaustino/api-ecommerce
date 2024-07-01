@@ -1,7 +1,7 @@
 export type typeSortByObj =
-  | { boughts: "descending" | "ascending" }
-  | { created_at: "descending" | "ascending" }
-  | { totalPricing: "descending" | "ascending" };
+  | { boughts: "descending" | "ascending"; _id: 1 }
+  | { created_at: "descending" | "ascending"; _id: 1 }
+  | { totalPricing: "descending" | "ascending"; _id: 1 };
 
 export const SORT_BY_OPTIONS = [
   "popularity",

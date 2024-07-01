@@ -13,8 +13,8 @@ export const MAX_LAYER_OF_FILLINGS: MaxLayerOfFillings = {
 };
 
 export const SORT_BY_OBJS: typeSortByOptions = {
-  popularity: { boughts: "descending" },
-  latest: { created_at: "descending" },
-  price_high_to_low: { totalPricing: "descending" },
-  price_low_to_high: { totalPricing: "ascending" }
+  popularity: { boughts: "descending", _id: 1 },
+  latest: { created_at: "descending", _id: 1 },
+  price_high_to_low: { totalPricing: "descending", _id: 1 },
+  price_low_to_high: { totalPricing: "ascending", _id: 1 }
 };
