@@ -124,8 +124,6 @@ export class CakeRepository {
 
     if (!cakes) return;
 
-    console.log(cakes);
-
     return cakes;
   }
 
@@ -168,6 +166,10 @@ export class CakeRepository {
     frosting,
     fillings
   }: ICake): Promise<ICake | undefined> {
+    if (!imageUrl) {
+      return;
+    }
+    
     const cakeCreated = await Cake.create({
       name,
       type,

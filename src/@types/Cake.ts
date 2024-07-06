@@ -40,8 +40,8 @@ export interface ICake {
 
   totalPricing: number;
   customizableParts: CustomizablesParts[];
+  imageUrl: string;
   publicIdImage?: string;
-  imageUrl?: string;
   boughts?: number;
   createdAt?: Date;
   updatedAt?: Date;
