@@ -5,8 +5,10 @@ import { CakeTypeController } from "../controllers/cakeTypeController";
 
 const cakeTypeRouter = Router();
 
+//public routes
 cakeTypeRouter.get("/", asyncErrorHandler(new CakeTypeController().getAll));
 
+//admin routes
 cakeTypeRouter.use(new AuthMiddleware().isAdmin);
 cakeTypeRouter.post(
   "/create",

@@ -4,9 +4,14 @@ import { ApiError } from "../utils/ApiError";
 import { generateLoginToken, verifyLoginToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
 import { IUser } from "../models/User";
+import { CartRepository } from "../repositories/cartRepository";
+import { ICart } from "../@types/Cart";
 
 export class AuthService {
-  constructor(private userRepository = new UserRepository()) {}
+  constructor(
+    private userRepository = new UserRepository(),
+    private cartRepository = new CartRepository()
+  ) {}
 
   async signUp(
     name: string,
@@ -16,8 +21,14 @@ export class AuthService {
   ): Promise<{ user: IUser; token: string }> {
     const hashPassword = await bcrypt.hash(password, 10);
 
+    const cart: ICart | undefined = await this.cartRepository.create();
+
+    if (!cart || !cart?._id) {
+      throw new ApiError("internal database error", 500);
+    }
+
     const user: IUser | undefined = await this.userRepository
-      .create(name, username, email, hashPassword)
+      .create(name, username, email, hashPassword, cart._id.toString())
       .catch((error: any) => {
         if (error.keyValue) {
           if (error.keyValue.name)
@@ -32,19 +43,22 @@ export class AuthService {
         throw error;
       });
 
-    if (!user) throw new ApiError("failure to create user", 500);
+    if (!user || !user._id) {
+      throw new ApiError("internal database error", 500);
+    }
 
-    const token = "Bearer " + generateLoginToken(user?._id as string, "user");
+    const token = "Bearer " + generateLoginToken(user?._id.toString(), "user");
 
     return {
       user: {
-        _id: user?._id,
-        name: user?.name,
-        username: user?.username,
-        email: user?.email,
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
         role: "user",
-        createdAt: user?.createdAt,
-        updatedAt: user?.updatedAt
+        cartId: cart._id,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
       },
       token: token
     };
@@ -59,26 +73,31 @@ export class AuthService {
 
     if (!user) throw new ApiError("wrong email or password", 401);
 
+    if (!user.password || !user._id) {
+      throw new ApiError("failure in database", 500);
+    }
+
     const isPasswordValid: boolean = bcrypt.compareSync(
       password,
-      user.password || ""
+      user.password
     );
 
     if (!isPasswordValid) throw new ApiError("wrong email or password", 401);
 
     const roleUser = user?.role === "admin" ? "admin" : "user";
 
-    const token = "Bearer " + generateLoginToken(user?._id as string, roleUser);
+    const token = "Bearer " + generateLoginToken(user._id.toString(), roleUser);
 
     return {
       user: {
-        _id: user?._id,
-        name: user?.name,
-        username: user?.username,
-        email: user?.email,
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
         role: roleUser,
-        createdAt: user?.createdAt,
-        updatedAt: user?.updatedAt
+        cartId: user.cartId,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
       },
       token: token
     };

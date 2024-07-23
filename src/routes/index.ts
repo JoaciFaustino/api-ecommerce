@@ -7,25 +7,10 @@ import categoryRouter from "./categoriesRouter";
 import cakeTypeRouter from "./cakeTypeRouter";
 import fillingRouter from "./fillingRouter";
 import frostingRouter from "./frostingRouter";
+import ordersRouter from "./orderRouter";
+import cartRouter from "./cartRouter";
 
 const router = Router();
-
-//temporary code
-//middleware to simulate delay in the request just for tests in front end
-import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
-router.use(
-  asyncErrorHandler(async (req, res, next) => {
-    const delay = Math.floor(Math.random() * 7) + 1;
-
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve("");
-      }, delay * 1000);
-    });
-
-    next();
-  })
-);
 
 router.use(
   "/images",
@@ -40,5 +25,7 @@ router.use("/categories", categoryRouter);
 router.use("/cakeTypes", cakeTypeRouter);
 router.use("/fillings", fillingRouter);
 router.use("/frostings", frostingRouter);
+router.use("/cart", cartRouter);
+router.use("/orders", ordersRouter);
 
 export default router;

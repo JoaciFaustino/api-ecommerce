@@ -7,7 +7,10 @@ import {
 
 const cakeSchema = new mongoose.Schema<ICake>(
   {
-    name: { type: String, required: true },
+    name: {
+      type: String,
+      required: true
+    },
     type: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "CakeType",
@@ -18,7 +21,10 @@ const cakeSchema = new mongoose.Schema<ICake>(
       required: true,
       default: []
     },
-    frosting: { type: mongoose.Schema.Types.ObjectId, ref: "Frosting" },
+    frosting: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Frosting"
+    },
     fillings: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Filling" }],
       required: true,
@@ -41,16 +47,28 @@ const cakeSchema = new mongoose.Schema<ICake>(
       grande: { type: Number, required: false },
       "extra-grande": { type: Number, required: false }
     },
-    totalPricing: { type: Number, required: true },
+    totalPricing: {
+      type: Number,
+      required: true
+    },
     customizableParts: {
       type: [String],
       enum: CUSTOMIZABLE_PARTS_ENUM,
       required: true,
       default: []
     },
-    imageUrl: { type: String, required: true },
-    publicIdImage: { type: String },
-    boughts: { type: Number, required: true, default: 0 }
+    imageUrl: {
+      type: String,
+      required: true
+    },
+    publicIdImage: {
+      type: String
+    },
+    boughts: {
+      type: Number,
+      required: true,
+      default: 0
+    }
   },
   { timestamps: true }
 );

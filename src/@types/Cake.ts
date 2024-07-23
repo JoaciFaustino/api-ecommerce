@@ -30,10 +30,10 @@ export interface ICake {
   _id?: Types.ObjectId | string;
 
   name: string;
-  type: Types.ObjectId | ICakeType | string;
-  categories?: Types.ObjectId[] | ICategory[] | string[];
-  frosting?: Types.ObjectId | IFrosting;
-  fillings?: Types.ObjectId[] | IFilling[];
+  type: ICakeType | string;
+  categories?: ICategory[] | string[];
+  frosting?: IFrosting | string;
+  fillings?: IFilling[] | string[];
   size: Size;
   sizesPossibles: Size[];
   pricePerSize: PricePerSize;

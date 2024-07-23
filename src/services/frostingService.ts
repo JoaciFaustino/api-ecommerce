@@ -29,7 +29,9 @@ export class FrostingService {
   async validateFrostingInCake(
     frostingName?: string
   ): Promise<IFrosting | undefined> {
-    if (!frostingName) return undefined;
+    if (!frostingName) {
+      return;
+    }
 
     const frostingInDB: IFrosting | undefined = await this.getOne([
       frostingName

@@ -5,8 +5,10 @@ import { CategoryController } from "../controllers/categoryController";
 
 const categoryRouter = Router();
 
+//public routes
 categoryRouter.get("/", asyncErrorHandler(new CategoryController().getAll));
 
+//admin routes
 categoryRouter.use(new AuthMiddleware().isAdmin);
 categoryRouter.post(
   "/create",

@@ -6,11 +6,14 @@ import { upload } from "../config/multer";
 
 const cakesRouter = Router();
 
+//public routes
 cakesRouter.get("/", asyncErrorHandler(new CakeController().getAll));
 
+//authenticated routes
 cakesRouter.use(new AuthMiddleware().isAuthenticated);
 cakesRouter.get("/:id", asyncErrorHandler(new CakeController().getById));
 
+//admin routes
 cakesRouter.use(new AuthMiddleware().isAdmin);
 cakesRouter.post(
   "/create",

@@ -16,8 +16,8 @@ export class AuthMiddleware {
 
     if (!userId) throw new ApiError("you isn't authenticated", 401);
 
-    req.body.decodedUserId = userId;
-    req.body.role = role;
+    req.body = { ...req.body, decodedUserId: userId, role: role };
+
     next();
   }
 
@@ -27,9 +27,11 @@ export class AuthMiddleware {
     if (!req.headers.authorization)
       throw new ApiError("you isn't authenticated", 401);
 
-    const { role } = authService.auth(req.headers.authorization);
+    const { userId, role } = authService.auth(req.headers.authorization);
 
     if (role !== "admin") throw new ApiError("anauthorized", 401);
+
+    req.body = { ...req.body, decodedUserId: userId, role: role };
 
     next();
   }

@@ -7,6 +7,10 @@ import {
   getJoinPipelines,
   leaveJoinsWithoutFiltersLast
 } from "../lib/mongoose";
+import { ICategory } from "../@types/Category";
+import { ICakeType } from "../@types/CakeType";
+import { IFilling } from "../@types/Filling";
+import { IFrosting } from "../@types/Frosting";
 
 export class CakeRepository {
   constructor() {}
@@ -128,11 +132,23 @@ export class CakeRepository {
   }
 
   async findById(id: string): Promise<ICake | undefined> {
-    const cake = await Cake.findById(id);
+    const cake = await Cake.findById(id)
+      .populate<{ type: ICakeType }>("type")
+      .populate<{ categories: ICategory }>("categories")
+      .populate<{ fillings: IFilling }>("fillings")
+      .populate<{ frosting: IFrosting }>("frosting");
 
     if (!cake) {
       return;
     }
+
+    const categoriesNormalized: ICategory[] = Array.isArray(cake.categories)
+      ? cake.categories
+      : [cake.categories];
+
+    const fillingsNormalized: IFilling[] = Array.isArray(cake.fillings)
+      ? cake.fillings
+      : [cake.fillings];
 
     return {
       _id: cake._id,
@@ -144,8 +160,8 @@ export class CakeRepository {
       sizesPossibles: cake.sizesPossibles,
       totalPricing: cake.totalPricing,
       boughts: cake.boughts,
-      categories: cake.categories,
-      fillings: cake.fillings,
+      categories: categoriesNormalized,
+      fillings: fillingsNormalized,
       frosting: cake.frosting,
       imageUrl: cake.imageUrl,
       createdAt: cake.createdAt,
@@ -169,7 +185,7 @@ export class CakeRepository {
     if (!imageUrl) {
       return;
     }
-    
+
     const cakeCreated = await Cake.create({
       name,
       type,
@@ -215,7 +231,7 @@ export class CakeRepository {
     size?: string
   ): Promise<ICake | undefined> {
     const cakeUpdated = await Cake.findByIdAndUpdate(
-      { _id: id },
+      id,
       {
         type: type,
         pricing: pricing,

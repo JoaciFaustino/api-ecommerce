@@ -5,6 +5,7 @@ import { AuthMiddleware } from "../middlewares/authMiddleware";
 
 const userRouter = Router();
 
+//authenticated routes
 userRouter.use(new AuthMiddleware().isAuthenticated);
 userRouter.get(
   "/findById/:id",

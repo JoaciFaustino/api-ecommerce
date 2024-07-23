@@ -5,8 +5,10 @@ import { FillingController } from "../controllers/fillingController";
 
 const fillingRouter = Router();
 
+//public routes
 fillingRouter.get("/", asyncErrorHandler(new FillingController().getAll));
 
+//admin routes
 fillingRouter.use(new AuthMiddleware().isAdmin);
 fillingRouter.post(
   "/create",

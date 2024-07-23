@@ -5,8 +5,10 @@ import { FrostingController } from "../controllers/frostingController";
 
 const frostingRouter = Router();
 
+//public routes
 frostingRouter.get("/", asyncErrorHandler(new FrostingController().getAll));
 
+//admin routes
 frostingRouter.use(new AuthMiddleware().isAdmin);
 frostingRouter.post(
   "/create",

@@ -16,6 +16,7 @@ export class UserRepository {
       username: user.username,
       email: user.email,
       role: user.role,
+      cartId: user.cartId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     };
@@ -25,13 +26,15 @@ export class UserRepository {
     name: string,
     username: string,
     email: string,
-    password: string
+    password: string,
+    cartId: string
   ): Promise<IUser | undefined> {
     const user = await User.create({
-      name: name,
-      username: username,
-      email: email,
-      password: password
+      name,
+      username,
+      email,
+      password,
+      cartId
     });
 
     if (!user) {
@@ -44,6 +47,7 @@ export class UserRepository {
       username: user.username,
       email: user.email,
       role: user.role,
+      cartId: user.cartId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     };
@@ -72,6 +76,7 @@ export class UserRepository {
       username: user.username,
       email: user.email,
       role: user.role,
+      cartId: user.cartId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     };
@@ -91,6 +96,7 @@ export class UserRepository {
       email: user.email,
       password: user.password,
       role: user.role,
+      cartId: user.cartId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt
     };

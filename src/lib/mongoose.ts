@@ -75,11 +75,6 @@ export const getJoinPipelines = (
   return [LookupPipeline, matchPipeline];
 };
 
-/*
-This function is used to place joins without filters last in the query, to avoid
-joining documents that will be discarded after filtering and consequently lose 
-performance. 
-*/
 export const leaveJoinsWithoutFiltersLast = (
   joinPipelines: TupleJoinPipelines[]
 ): (LookupPipeline | UnwindPipeline | MatchPipeline)[] => {
