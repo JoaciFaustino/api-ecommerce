@@ -23,6 +23,13 @@ import {
   normalizeQueryStringArray
 } from "../utils/queryString";
 
+type getAllReturn = {
+  cakes?: ICake[];
+  maxPages: number;
+  prevUrl: string | null;
+  nextUrl: string | null;
+};
+
 export class CakeService {
   constructor(
     private cakeRepository = new CakeRepository(),
@@ -39,20 +46,16 @@ export class CakeService {
       limit = "20",
       page = "1",
       sortBy = "popularity",
+      search = [],
       category = [],
       filling = [],
       frosting = [],
       type = [],
       size = []
     }: IQueryParamsGetAll
-  ): Promise<{
-    cakes?: ICake[];
-    maxPages: number;
-    prevUrl: string | null;
-    nextUrl: string | null;
-  }> {
-    const limitNumber = parseInt(normalizeQueryString(limit)) || 20;
-    const pageNumber = parseInt(normalizeQueryString(page)) || 1;
+  ): Promise<getAllReturn> {
+    const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
+    const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
     const quantityCakesOnDb = await this.cakeRepository.countDocs();
 
     if (!quantityCakesOnDb) throw new ApiError("failed to get maxPages", 500);
@@ -64,18 +67,20 @@ export class CakeService {
       throw new ApiError("the page requested isn't exists", 404);
     }
 
-    const sortByLastValue = normalizeQueryString(sortBy);
+    const sortByLastValue: string | undefined = normalizeQueryString(sortBy);
     const newSortBy = SORT_BY_OPTIONS.includes(
       sortByLastValue as TypeKeysSortBy
     )
       ? (sortBy as TypeKeysSortBy)
       : "popularity";
 
-    const typeFilters = normalizeQueryStringArray(type);
-    const categoryFilters = normalizeQueryStringArray(category);
-    const fillingFilters = normalizeQueryStringArray(filling);
-    const frostingFilters = normalizeQueryStringArray(frosting);
-    const sizeFilters = normalizeQueryStringArray(size);
+    const searchByName: string | undefined = normalizeQueryString(search);
+
+    const typeFilters: string[] = normalizeQueryStringArray(type);
+    const categoryFilters: string[] = normalizeQueryStringArray(category);
+    const fillingFilters: string[] = normalizeQueryStringArray(filling);
+    const frostingFilters: string[] = normalizeQueryStringArray(frosting);
+    const sizeFilters: string[] = normalizeQueryStringArray(size);
 
     const sizeFiltersValids = sizeFilters.filter((size) =>
       SIZES_POSSIBLES_ENUM.includes(size as Size)
@@ -89,7 +94,8 @@ export class CakeService {
       fillingFilters,
       frostingFilters,
       typeFilters,
-      sizeFiltersValids
+      sizeFiltersValids,
+      searchByName
     );
 
     if (!cakes) {

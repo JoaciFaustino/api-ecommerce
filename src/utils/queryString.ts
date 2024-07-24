@@ -12,14 +12,20 @@ export const normalizeQueryStringArray = (
   return paramsDecodeds;
 };
 
-export const normalizeQueryString = (queryParam: string | string[]): string => {
-  const lastIndex = queryParam.length - 1;
+export const normalizeQueryString = (
+  queryParam: string | string[] | undefined = []
+): string | undefined => {
+  if (queryParam.length === 0) {
+    return;
+  }
 
-  const lastValue: string = Array.isArray(queryParam)
+  const lastIndex = queryParam.length > 0 ? queryParam.length - 1 : 0;
+
+  const lastValue: string | undefined = Array.isArray(queryParam)
     ? queryParam[lastIndex]
     : queryParam;
 
-  return lastValue;
+  return lastValue ? decodeURIComponent(lastValue) : undefined;
 };
 
 export const getPrevAndNextUrl = (

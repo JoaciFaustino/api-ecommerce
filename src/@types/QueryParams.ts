@@ -9,4 +9,5 @@ export interface IQueryParamsGetAll extends core.Query {
   filling?: string | string[];
   frosting?: string | string[];
   size?: string | string[];
+  search?: string | string[];
 }

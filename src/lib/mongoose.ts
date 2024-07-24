@@ -82,7 +82,7 @@ export const leaveJoinsWithoutFiltersLast = (
     (joinsAcummulator: TupleJoinPipelines[], join: TupleJoinPipelines) => {
       const lastIndex = join.length - 1;
 
-      const filterMatchExist = join[lastIndex] === undefined ? false : true;
+      const filterMatchExist = join[lastIndex] === undefined;
 
       if (!filterMatchExist) {
         return [...joinsAcummulator, join];
@@ -93,9 +93,11 @@ export const leaveJoinsWithoutFiltersLast = (
     []
   );
 
-  const sequencedJoinsFlatted = sequencedJoins.flat();
+  const pipelinesInOnlyOneArray = sequencedJoins.flat();
 
-  return sequencedJoinsFlatted.filter(
-    (value) => typeof value !== "undefined"
+  const cleanPipelines = pipelinesInOnlyOneArray.filter(
+    (pipeline) => pipeline !== undefined
   ) as (LookupPipeline | UnwindPipeline | MatchPipeline)[];
+
+  return cleanPipelines;
 };
