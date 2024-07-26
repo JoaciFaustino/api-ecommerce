@@ -9,7 +9,7 @@ export interface DeliveryAddress {
   street: string;
   number: number;
   neighborhood: string;
-  adicionalInfo: string;
+  adicionalInfo?: string;
 }
 
 export interface ContactDetails {

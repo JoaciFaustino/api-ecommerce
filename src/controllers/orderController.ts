@@ -66,6 +66,7 @@ export class OrderController {
           type: "chocolate",
           fillings: ["chocolate", "morango"],
           frosting: "chocolate",
+          imageUrl: "localhost:3001/images/123",
           totalPricing: 20 //CLIENTE NÃO VAI MANDAR
         },
         {
@@ -75,6 +76,7 @@ export class OrderController {
           type: "cenoura",
           fillings: ["chocolate", "morango"],
           frosting: "chocolate",
+          imageUrl: "localhost:3001/images/123",
           totalPricing: 20 //CLIENTE NÃO VAI MANDAR
         }
       ],

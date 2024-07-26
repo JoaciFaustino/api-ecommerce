@@ -1,6 +1,7 @@
 import { CustomizablesParts, PricePerSize, Size } from "./Cake";
+import { ContactDetails, TypeOfReceiptOptions } from "./Order";
 
-interface DecodedToken {
+export interface TokenDecodedByAuthMiddleware {
   decodedUserId: string;
   role: string;
 }
@@ -30,7 +31,7 @@ export interface ReqBodyCreateCake {
   customizableParts?: CustomizablesParts[];
 }
 
-export interface ReqBodyCreateCart extends DecodedToken {
+export interface ReqBodyCreateCart extends TokenDecodedByAuthMiddleware {
   cakeId: string;
   type?: string;
   frosting?: string;
@@ -39,4 +40,10 @@ export interface ReqBodyCreateCart extends DecodedToken {
   quantity?: number;
 }
 
-export interface ReqBodyCreateOrder {}
+export interface ReqBodyCreateOrder extends TokenDecodedByAuthMiddleware {
+  userId: string;
+  cartId: string;
+  typeOfReceipt: TypeOfReceiptOptions;
+  contactDetails: ContactDetails;
+  observations?: string;
+}

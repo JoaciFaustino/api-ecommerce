@@ -24,23 +24,14 @@ export class CartRepository {
     return { _id: cart._id, cakes: cart.cakes };
   }
 
-  async addCake(
-    cartId: string,
-    newCakeItem: IPersonalizedCake
-  ): Promise<ICart | undefined> {
-    const cart = await Cart.findByIdAndUpdate(
-      cartId,
-      { $push: { cakes: newCakeItem } },
-      { new: true }
+  async addCake(cartId: string, newCakeItem: IPersonalizedCake): Promise<void> {
+    await Cart.updateOne({ _id: cartId }, { $push: { cakes: newCakeItem } });
+  }
+
+  async removeCake(cartId: string, itemCartId: string): Promise<void> {
+    await Cart.updateOne(
+      { _id: cartId },
+      { $pull: { cakes: { _id: itemCartId } } }
     );
-
-    if (!cart) {
-      return;
-    }
-
-    return {
-      _id: cart._id,
-      cakes: cart.cakes
-    };
   }
 }

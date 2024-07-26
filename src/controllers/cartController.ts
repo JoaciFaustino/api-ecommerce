@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
-import { ReqBodyCreateCart } from "../@types/ReqBody";
-import { ReqParamsAddToCart } from "../@types/ReqParams";
+import {
+  ReqBodyCreateCart,
+  TokenDecodedByAuthMiddleware
+} from "../@types/ReqBody";
 import { ApiError } from "../utils/ApiError";
 import { z } from "zod";
 import {
@@ -17,8 +19,30 @@ import mongoose from "mongoose";
 export class CartController {
   constructor() {}
 
+  async getById(
+    req: Request<{ cartId?: string }, {}, TokenDecodedByAuthMiddleware, {}>,
+    res: Response
+  ) {
+    const cartId = req.params.cartId;
+    const { decodedUserId } = req.body;
+
+    if (!cartId) {
+      throw new ApiError("the param cartId is required", 400);
+    }
+
+    const cartService = new CartService();
+
+    const cart = await cartService.getById(cartId, decodedUserId);
+
+    if (!cart) {
+      throw new ApiError("failed to get the cart", 500);
+    }
+
+    return res.status(200).send({ cart });
+  }
+
   async addCake(
-    req: Request<ReqParamsAddToCart, {}, ReqBodyCreateCart, {}>,
+    req: Request<{ cartId?: string }, {}, ReqBodyCreateCart, {}>,
     res: Response
   ) {
     const reqBodyValidation = z.object({
@@ -50,7 +74,7 @@ export class CartController {
 
     const { cartId } = req.params;
     if (!cartId || !mongoose.Types.ObjectId.isValid(cartId)) {
-      throw new ApiError("param cartId is not valid", 400);
+      throw new ApiError("the param cartId is not valid", 400);
     }
 
     try {
@@ -70,7 +94,7 @@ export class CartController {
 
       const cartService = new CartService();
 
-      const newCart: ICart | undefined = await cartService.addCake(
+      await cartService.addCake(
         cartId,
         userId,
         cakeId,
@@ -81,16 +105,35 @@ export class CartController {
         size
       );
 
-      if (!newCart) {
-        throw new ApiError("failed to add item to cart", 500)
-      } 
-      
-      return res.status(200).send({ newCart: newCart });
+      return res.status(200).send({
+        message: "cake added to cart sucessfully"
+      });
     } catch (error: any) {
-      if (error instanceof z.ZodError)
+      if (error instanceof z.ZodError) {
         throw new ApiError(error.errors[0].message, 400);
+      }
 
       throw error;
+    }
+  }
+
+  async removeCake(
+    req: Request<
+      { cartId?: string; itemCartId?: string },
+      {},
+      ReqBodyCreateCart,
+      {}
+    >,
+    res: Response
+  ) {
+    const { cartId, itemCartId } = req.params;
+
+    if (!cartId) {
+      throw new ApiError("the param cartId is required", 400);
+    }
+
+    if (!itemCartId) {
+      throw new ApiError("the param itemCartId is required", 400);
     }
   }
 }

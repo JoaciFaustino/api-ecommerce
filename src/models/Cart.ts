@@ -15,6 +15,7 @@ const cartSchema = new mongoose.Schema<ICart>({
         frosting: { type: String, required: false },
         fillings: { type: [String], required: false, default: [] },
         size: { type: String, enum: SIZES_POSSIBLES_ENUM, required: true },
+        imageUrl: { type: String, required: true },
         totalPricing: { type: Number, required: true },
         quantity: { type: Number, required: true, default: 1 }
       }

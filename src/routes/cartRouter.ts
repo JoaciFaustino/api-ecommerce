@@ -9,9 +9,14 @@ const cartRouter = Router();
 
 //authenticated routes
 cartRouter.use(new AuthMiddleware().isAuthenticated);
+cartRouter.get("/:cartId", asyncErrorHandler(new CartController().getById));
 cartRouter.patch(
-  "/add/:cartId",
+  "/add-cake/:cartId",
   asyncErrorHandler(new CartController().addCake)
+);
+cartRouter.delete(
+  "/remove-cake/:cartId/:itemCartId",
+  new CartController().removeCake
 );
 
 //admin routes

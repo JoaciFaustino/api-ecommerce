@@ -32,6 +32,8 @@ const ORDER_STATE_OPTIONS: OrderState[] = [
   "done"
 ] as const;
 
+const DEFAULT_STATE_OPTION: OrderState = "pending";
+
 const orderSchema = new mongoose.Schema<IOrder>(
   {
     userId: {
@@ -51,6 +53,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
           frosting: { type: String, required: false },
           fillings: { type: [String], required: false, default: [] },
           size: { type: String, enum: SIZES_POSSIBLES_ENUM, required: true },
+          imageUrl: { type: String, required: true },
           totalPricing: { type: Number, required: true },
           quantity: { type: Number, required: true, default: 1 }
         }
@@ -65,9 +68,12 @@ const orderSchema = new mongoose.Schema<IOrder>(
       required: true
     },
     contactDetails: {
-      name: { type: String, required: true },
-      phoneNumber: { type: String, required: true },
-      email: { type: String, required: true }
+      type: {
+        name: { type: String, required: true },
+        phoneNumber: { type: String, required: true },
+        email: { type: String, required: true }
+      },
+      required: false
     },
     observations: {
       type: String,
@@ -90,7 +96,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
       type: String,
       enum: ORDER_STATE_OPTIONS,
       required: true,
-      default: "pending"
+      default: DEFAULT_STATE_OPTION
     },
     totalPricing: {
       type: Number,
