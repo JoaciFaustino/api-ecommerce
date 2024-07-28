@@ -1,105 +1,99 @@
 import { Request, Response } from "express";
-import { IOrder } from "../@types/Order";
+import { IOrder, TYPE_OF_RECEIPT_OPTIONS } from "../@types/Order";
 import { Order } from "../models/Order";
 import { ReqBodyCreateOrder } from "../@types/ReqBody";
+import { z } from "zod";
+import mongoose from "mongoose";
+import { errorEnum, errorString } from "../utils/zod";
+import { phoneNumberValidator } from "../utils/regexValidators";
+import { ApiError } from "../utils/ApiError";
+import { OrderService } from "../services/OrderService";
 
 export class OrderController {
   constructor() {}
 
   async create(req: Request<{}, {}, ReqBodyCreateOrder>, res: Response) {
-    //*==AÇÕES==*
-    //*
-    //====
-    //====ISSO VAI SER NO SERVICE DE ADD TO CART
-    //- Verificação de tipos
+    const deliveryAdressValidation = z.object({
+      street: z.string({ message: errorString("street", true) }).trim(),
+      number: z.string({ message: errorString("number", true) }),
+      neighborhood: z.string({ message: errorString("neighborhood", true) }),
+      adicionalInfo: z
+        .string({ message: errorString("adicionalInfo", true) })
+        .optional()
+    });
 
-    //- (depois coloque o cartId na modelUser e depois faça uma limpa na
-    //colection no database) Verificar se id do cart pertence mesmo ao usuario
-    //fornecido
+    const contactDetailsValidation = z.object({
+      name: z.string({ message: errorString("name", true) }).trim(),
+      phoneNumber: z
+        .string({ message: errorString("phone Number", true) })
+        .trim()
+        .refine((value) => phoneNumberValidator(value), {
+          message: "phone number is not valid"
+        }),
+      email: z
+        .string({ message: errorString("email", true) })
+        .trim()
+        .email({ message: "email is not valid" })
+    });
 
-    //- Verificar se o cakeId de todos os bolos existe
+    const reqBodyValidation = z.object({
+      cartId: z
+        .string({ message: errorString("cartId", true) })
+        .trim()
+        .refine((value) => mongoose.Types.ObjectId.isValid(value), {
+          message: "cartId is not valid id"
+        }),
+      typeOfReceipt: z.enum(TYPE_OF_RECEIPT_OPTIONS, {
+        message: errorEnum("typeOfReceipt")
+      }),
+      observations: z
+        .string({ message: errorString("observations") })
+        .trim()
+        .optional(),
+      deliveryAddress: deliveryAdressValidation.optional(),
+      contactDetails: contactDetailsValidation
+    });
 
-    //- Verificar se os valores de frosting, filling, type, size de um bolo forem diferentes
-    //dos padrões do bolo, vai precisar fazer a verificação se o bolo tem aquela
-    //opção de customização nas propriedades de "customizableParts" e "sizesPossible"
+    try {
+      const bodyValidated = reqBodyValidation.parse({
+        cartId: req.body.cartId,
+        typeOfReceipt: req.body.typeOfReceipt,
+        observations: req.body.observations,
+        contactDetails: req.body.contactDetails,
+        deliveryAddress: req.body.deliveryAddress
+      });
 
-    //- Verificar se os valores de frosting, filling, type, size de um bolo forem
-    //undefined ele vai usar os valores padrão do bolo
+      const orderService = new OrderService();
 
-    //- Verificar se a quantidade de todos os bolos é maior ou igual a 1
+      const { decodedUserId } = req.body;
+      const {
+        cartId,
+        typeOfReceipt,
+        contactDetails,
+        deliveryAddress,
+        observations
+      } = bodyValidated;
 
-    //- Verificar se todas os valores passados para frosting, filling, type
-    //existem no banco de dados
+      const order = await orderService.create(
+        cartId,
+        decodedUserId,
+        typeOfReceipt,
+        contactDetails,
+        deliveryAddress,
+        observations
+      );
 
-    //====
-    //====
+      if (!order) {
+        throw new ApiError("failed to create the order", 500);
+      }
 
-    //====
-    //====ISSO VAI SER NO SERVICE DE ORDER
-    //- Verificação de tipos
+      return res.status(200).send({ order });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        throw new ApiError(error.errors[0].message, 400);
+      }
 
-    //- Verificar se userId existe
-
-    //- Tomar cuidado para não deixar o cliente modificar o valor de nenhum
-    //preço, ou seja, tudo precisa vir sempre do banco de dados. As alterações
-    //de preço precisam ser feitas nas rotas de admin
-
-    //- Se o typeOfReceipt for "pick-up", o deliveryAddress vai precisar ser
-    //automaticamente undefined, se o cliente mandar precisa ser ignorado
-
-    //- Depois que terminar de fazer o pedido precisa apagar todos os bolos do
-    //carrinho do cliente
-
-    //- Depois que terminar de fazer o pedido precisa aumentar a quantidade de
-    //"broughts" de todos os bolos que foram comprados conforme a quantidade que
-    //foi comprada de cada um
-
-    //- Remover todos os bolos comprados do cart do usuário
-
-    const order: IOrder = {
-      userId: "6633939f91ffeadfa3c4a7c3",
-      cakes: [
-        {
-          cakeId: "665b5a00fae06e351e3e0a9e",
-          size: "extra-grande",
-          quantity: 1,
-          type: "chocolate",
-          fillings: ["chocolate", "morango"],
-          frosting: "chocolate",
-          imageUrl: "localhost:3001/images/123",
-          totalPricing: 20 //CLIENTE NÃO VAI MANDAR
-        },
-        {
-          cakeId: "665b5afdfae06e351e3e0aa4",
-          size: "extra-grande",
-          quantity: 1,
-          type: "cenoura",
-          fillings: ["chocolate", "morango"],
-          frosting: "chocolate",
-          imageUrl: "localhost:3001/images/123",
-          totalPricing: 20 //CLIENTE NÃO VAI MANDAR
-        }
-      ],
-      contactDetails: {
-        email: "reiDoSuco@gmail.com",
-        name: "João Batista",
-        phoneNumber: "999999999999"
-      },
-      typeOfReceipt: "delivery",
-      observations: "can i put my balls in your jaws",
-      dateAndTimeDelivery: new Date(), //CLIENTE NÃO VAI MANDAR
-      deliveryAddress: {
-        street: "João Batista Rei do Suco",
-        neighborhood: "Centro",
-        number: 777,
-        adicionalInfo: "perto de acolá"
-      },
-      state: "pending", //CLIENTE NÃO VAI MANDAR
-      totalPricing: 20 //CLIENTE NÃO VAI MANDAR
-    };
-
-    const data = await Order.create(order);
-
-    console.log(data);
+      throw error;
+    }
   }
 }

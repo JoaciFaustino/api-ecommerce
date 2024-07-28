@@ -1,5 +1,5 @@
 import { CustomizablesParts, PricePerSize, Size } from "./Cake";
-import { ContactDetails, TypeOfReceiptOptions } from "./Order";
+import { ContactDetails, DeliveryAddress, TypeOfReceiptOptions } from "./Order";
 
 export interface TokenDecodedByAuthMiddleware {
   decodedUserId: string;
@@ -41,9 +41,9 @@ export interface ReqBodyCreateCart extends TokenDecodedByAuthMiddleware {
 }
 
 export interface ReqBodyCreateOrder extends TokenDecodedByAuthMiddleware {
-  userId: string;
   cartId: string;
   typeOfReceipt: TypeOfReceiptOptions;
   contactDetails: ContactDetails;
   observations?: string;
+  deliveryAddress?: DeliveryAddress;
 }

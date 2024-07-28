@@ -2,6 +2,7 @@ import { Router } from "express";
 import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { AuthMiddleware } from "../middlewares/authMiddleware";
 import { CartController } from "../controllers/cartController";
+import { CartService } from "../services/cartService";
 
 const cartRouter = Router();
 
@@ -14,7 +15,7 @@ cartRouter.patch(
   "/add-cake/:cartId",
   asyncErrorHandler(new CartController().addCake)
 );
-cartRouter.delete(
+cartRouter.patch(
   "/remove-cake/:cartId/:itemCartId",
   new CartController().removeCake
 );

@@ -276,4 +276,16 @@ export class CakeRepository {
   async delete(id: string): Promise<void> {
     await Cake.findByIdAndDelete({ _id: id });
   }
+
+  async increaseTheBoughtsOfTheCake(
+    id: string,
+    quantityToIncrease: number
+  ): Promise<void> {
+    await Cake.updateOne(
+      { _id: id },
+      { $inc: { boughts: quantityToIncrease } }
+    );
+
+    return;
+  }
 }

@@ -34,4 +34,8 @@ export class CartRepository {
       { $pull: { cakes: { _id: itemCartId } } }
     );
   }
+
+  async update(cartId: string, cakes: IPersonalizedCake[]): Promise<void> {
+    await Cart.updateOne({ _id: cartId }, { cakes });
+  }
 }

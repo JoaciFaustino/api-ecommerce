@@ -1,38 +1,17 @@
 import mongoose from "mongoose";
-import { IOrder, OrderState, TypeOfReceiptOptions } from "../@types/Order";
+import {
+  IOrder,
+  ORDER_STATE_OPTIONS,
+  OrderState,
+  TYPE_OF_RECEIPT_OPTIONS
+} from "../@types/Order";
 import { SIZES_POSSIBLES_ENUM } from "../@types/Cake";
-
-//  userId: Types.ObjectId | string;
-//  cakes: {
-//    cakeId: Types.ObjectId | string;
-//    type: string;
-//    frosting?: string;
-//    fillings?: string[];
-//    size: Size;
-//    quantity: number;
-//  }[];
-//  typeOfReceipt: "pick-up" | "delivery";
-//  contactDetails: ContactDetails;
-//  observations: string;
-//  deliveryAddress?: DeliveryAddress;
-//  dateAndTimeDelivery?: Date;
 
 function validateCakesOrder(cakes: any) {
   return Array.isArray(cakes) && cakes.length > 0;
 }
 
-const TYPE_OF_RECEIPT_OPTIONS: TypeOfReceiptOptions[] = [
-  "delivery",
-  "pick-up"
-] as const;
-
-const ORDER_STATE_OPTIONS: OrderState[] = [
-  "pending",
-  "preparing",
-  "done"
-] as const;
-
-const DEFAULT_STATE_OPTION: OrderState = "pending";
+const defaultStateOption: OrderState = "pending";
 
 const orderSchema = new mongoose.Schema<IOrder>(
   {
@@ -86,7 +65,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
     deliveryAddress: {
       type: {
         street: { type: String, required: true },
-        number: { type: Number, required: true },
+        number: { type: String, required: true },
         neighborhood: { type: String, required: true },
         adicionalInfo: { type: String }
       },
@@ -96,7 +75,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
       type: String,
       enum: ORDER_STATE_OPTIONS,
       required: true,
-      default: DEFAULT_STATE_OPTION
+      default: defaultStateOption
     },
     totalPricing: {
       type: Number,

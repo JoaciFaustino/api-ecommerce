@@ -95,4 +95,8 @@ export class CartService {
 
     return { user, cart };
   }
+
+  async clearCart(cartId: string): Promise<void> {
+    await this.cartRepository.update(cartId, []);
+  }
 }

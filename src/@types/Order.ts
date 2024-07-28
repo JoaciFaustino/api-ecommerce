@@ -1,13 +1,17 @@
 import { Types } from "mongoose";
 import { IPersonalizedCake } from "./Cart";
 
-export type TypeOfReceiptOptions = "pick-up" | "delivery";
+export const TYPE_OF_RECEIPT_OPTIONS = ["delivery", "pick-up"] as const;
 
-export type OrderState = "pending" | "done" | "preparing";
+export type TypeOfReceiptOptions = (typeof TYPE_OF_RECEIPT_OPTIONS)[number];
+
+export const ORDER_STATE_OPTIONS = ["pending", "preparing", "done"] as const;
+
+export type OrderState = (typeof ORDER_STATE_OPTIONS)[number];
 
 export interface DeliveryAddress {
   street: string;
-  number: number;
+  number: string; //vai ser string por que existem casas (pelo menos no Brasil) com número com esse formato "A123", "B123"
   neighborhood: string;
   adicionalInfo?: string;
 }
