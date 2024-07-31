@@ -17,7 +17,7 @@ cartRouter.patch(
 );
 cartRouter.patch(
   "/remove-cake/:cartId/:itemCartId",
-  new CartController().removeCake
+  asyncErrorHandler(new CartController().removeCake)
 );
 
 //admin routes

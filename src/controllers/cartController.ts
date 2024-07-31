@@ -121,12 +121,13 @@ export class CartController {
     req: Request<
       { cartId?: string; itemCartId?: string },
       {},
-      ReqBodyCreateCart,
+      TokenDecodedByAuthMiddleware,
       {}
     >,
     res: Response
   ) {
     const { cartId, itemCartId } = req.params;
+    const { decodedUserId } = req.body;
 
     if (!cartId) {
       throw new ApiError("the param cartId is required", 400);
@@ -135,5 +136,11 @@ export class CartController {
     if (!itemCartId) {
       throw new ApiError("the param itemCartId is required", 400);
     }
+
+    const cartService = new CartService();
+
+    await cartService.removeCake(cartId, decodedUserId, itemCartId);
+
+    return res.status(200).send({ message: "cake removed sucessfully" });
   }
 }

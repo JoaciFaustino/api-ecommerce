@@ -8,7 +8,7 @@ const userRouter = Router();
 //authenticated routes
 userRouter.use(new AuthMiddleware().isAuthenticated);
 userRouter.get(
-  "/findById/:id",
+  "/:id",
   asyncErrorHandler(new UserController().findById)
 );
 
