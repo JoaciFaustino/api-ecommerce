@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
             ref: "Cake",
             required: true
           },
+          name: { type: String, required: true },
           type: { type: String, required: true },
           frosting: { type: String, required: false },
           fillings: { type: [String], required: false, default: [] },

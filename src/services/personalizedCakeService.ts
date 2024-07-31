@@ -122,6 +122,7 @@ export class PersonalizedCakeService {
       isValid: true,
       data: {
         cakeId: cake._id!,
+        name: cake.name,
         type: typeValidated,
         fillings: fillingsValidated,
         frosting: frostingValidated,

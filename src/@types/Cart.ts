@@ -4,6 +4,7 @@ import { Size } from "./Cake";
 export interface IPersonalizedCake {
   _id?: Types.ObjectId | string;
   cakeId: Types.ObjectId | string;
+  name: string;
   type: string;
   frosting?: string;
   fillings: string[];
