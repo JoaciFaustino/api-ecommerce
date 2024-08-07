@@ -13,7 +13,6 @@ import {
 } from "../utils/zod";
 import { SIZES_POSSIBLES_ENUM } from "../@types/Cake";
 import { CartService } from "../services/cartService";
-import { ICart } from "../@types/Cart";
 import mongoose from "mongoose";
 
 export class CartController {
@@ -142,5 +141,23 @@ export class CartController {
     await cartService.removeCake(cartId, decodedUserId, itemCartId);
 
     return res.status(200).send({ message: "cake removed sucessfully" });
+  }
+
+  async clearCart(
+    req: Request<{ cartId?: string }, {}, TokenDecodedByAuthMiddleware, {}>,
+    res: Response
+  ) {
+    const cartId = req.params.cartId;
+    const { decodedUserId } = req.body;
+
+    if (!cartId) {
+      throw new ApiError("the param cartId is required", 400);
+    }
+
+    const cartService = new CartService();
+
+    await cartService.clearCart(cartId, decodedUserId);
+
+    return res.status(200).send({ message: "cart cleared sucessfully" });
   }
 }

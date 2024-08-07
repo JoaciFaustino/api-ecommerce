@@ -19,7 +19,10 @@ cartRouter.patch(
   "/remove-cake/:cartId/:itemCartId",
   asyncErrorHandler(new CartController().removeCake)
 );
-
+cartRouter.patch(
+  "/clear/:cartId",
+  asyncErrorHandler(new CartController().clearCart)
+);
 //admin routes
 
 export default cartRouter;
