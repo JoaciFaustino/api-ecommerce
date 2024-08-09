@@ -140,4 +140,22 @@ export class CartController {
 
     return res.status(200).send({ message: "cake removed sucessfully" });
   }
+
+  async clearCart(
+    req: Request<{ cartId?: string }, {}, TokenDecodedByAuthMiddleware, {}>,
+    res: Response
+  ) {
+    const cartId = req.params.cartId;
+    const { decodedUserId } = req.body;
+
+    if (!cartId) {
+      throw new ApiError("the param cartId is required", 400);
+    }
+
+    const cartService = new CartService();
+
+    await cartService.clearCart(cartId, decodedUserId);
+
+    return res.status(200).send({ message: "cart cleared sucessfully" });
+  }
 }

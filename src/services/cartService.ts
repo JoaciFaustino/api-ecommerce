@@ -77,6 +77,16 @@ export class CartService {
     await this.cartRepository.removeCake(cartId, itemCartId);
   }
 
+  async clearCart(cartId: string, userId: string): Promise<void> {
+    await this.validateUserCart(cartId, userId);
+
+    try {
+      await this.cartRepository.update(cartId, []);
+    } catch (error) {
+      throw new ApiError("failed to clear cart", 500);
+    }
+  }
+
   async validateUserCart(
     cartId: string,
     userId: string
@@ -94,9 +104,5 @@ export class CartService {
     }
 
     return { user, cart };
-  }
-
-  async clearCart(cartId: string): Promise<void> {
-    await this.cartRepository.update(cartId, []);
   }
 }
