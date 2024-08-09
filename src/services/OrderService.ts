@@ -6,7 +6,6 @@ import {
   TypeOfReceiptOptions
 } from "../@types/Order";
 import { CakeRepository } from "../repositories/cakeRepository";
-import { CartRepository } from "../repositories/cartRepository";
 import { OrderRepository } from "../repositories/orderRepository";
 import { ApiError } from "../utils/ApiError";
 import { CartService } from "./cartService";
@@ -15,8 +14,7 @@ export class OrderService {
   constructor(
     private cartService = new CartService(),
     private cakeRepository = new CakeRepository(),
-    private orderRepository = new OrderRepository(),
-    private cartRepository = new CartRepository()
+    private orderRepository = new OrderRepository()
   ) {}
 
   async create(
@@ -46,7 +44,7 @@ export class OrderService {
     );
 
     try {
-      await this.cartRepository.update(cartId, []);
+      await this.cartService.clearCart(cartId);
     } catch (error: any) {
       throw new ApiError("clear the user cart failed", 500);
     }
