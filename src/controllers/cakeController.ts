@@ -53,12 +53,8 @@ export class CakeController {
     const cake: ICake | undefined = await cakeService
       .findById(id)
       .catch((_) => {
-        throw new ApiError("Failed to find the cake", 500);
+        throw new ApiError("this cake doesn't exists", 404);
       });
-
-    if (!cake) {
-      throw new ApiError("this cake doesn't exists", 404);
-    }
 
     return res.status(200).send({ cake });
   }
