@@ -52,14 +52,15 @@ export class CakeController {
 
     const cake: ICake | undefined = await cakeService
       .findById(id)
-      .catch((error: any) => {
+      .catch((_) => {
         throw new ApiError("Failed to find the cake", 500);
       });
 
-    return res.status(200).send({
-      message: "passed through the middleware",
-      cake: cake
-    });
+    if (!cake) {
+      throw new ApiError("this cake doesn't exists", 404);
+    }
+
+    return res.status(200).send({ cake });
   }
 
   async create(req: Request<{}, {}, { cake: string }>, res: Response) {

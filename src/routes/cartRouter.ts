@@ -2,7 +2,6 @@ import { Router } from "express";
 import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { AuthMiddleware } from "../middlewares/authMiddleware";
 import { CartController } from "../controllers/cartController";
-import { CartService } from "../services/cartService";
 
 const cartRouter = Router();
 

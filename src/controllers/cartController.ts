@@ -45,10 +45,7 @@ export class CartController {
     res: Response
   ) {
     const reqBodyValidation = z.object({
-      cakeId: z
-        .string({ message: errorString("cakeId", true) })
-        .trim()
-        .refine((value) => mongoose.Types.ObjectId.isValid(value)),
+      cakeId: z.string({ message: errorString("cakeId", true) }).trim(),
       type: z
         .string({ message: errorString("type") })
         .trim()
@@ -72,8 +69,8 @@ export class CartController {
     });
 
     const { cartId } = req.params;
-    if (!cartId || !mongoose.Types.ObjectId.isValid(cartId)) {
-      throw new ApiError("the param cartId is not valid", 400);
+    if (!cartId) {
+      throw new ApiError("the param cartId is required", 400);
     }
 
     try {
