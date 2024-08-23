@@ -157,19 +157,31 @@ export class CakeRepository {
       return;
     }
 
+    const { categories, fillings, frosting } = cake;
+
+    const categoriesNormalized =
+      categories?.map(({ category }) => category) || [];
+
+    const fillingsNormalized =
+      fillings?.map(({ name, price }) => ({ name, price })) || [];
+
+    const frostingNormalized = frosting
+      ? { name: frosting.name, price: frosting.price }
+      : undefined;
+
     return {
       _id: cake._id,
       name: cake.name,
-      type: cake.type,
+      type: cake.type.type,
       size: cake.size,
       customizableParts: cake.customizableParts,
       pricePerSize: cake.pricePerSize,
       sizesPossibles: cake.sizesPossibles,
       totalPricing: cake.totalPricing,
       boughts: cake.boughts,
-      categories: cake.categories,
-      fillings: cake.fillings,
-      frosting: cake.frosting,
+      categories: categoriesNormalized,
+      fillings: fillingsNormalized,
+      frosting: frostingNormalized,
       imageUrl: cake.imageUrl,
       createdAt: cake.createdAt,
       updatedAt: cake.updatedAt
