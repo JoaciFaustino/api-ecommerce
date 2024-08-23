@@ -5,6 +5,7 @@ import { SORT_BY_OPTIONS, TypeKeysSortBy } from "../@types/SortBy";
 import { IFrosting } from "../@types/Frosting";
 import { IFilling } from "../@types/Filling";
 import {
+  CustomizablesParts,
   ICake,
   PricePerSize,
   SIZES_POSSIBLES_ENUM,
@@ -130,11 +131,15 @@ export class CakeService {
       fillings = []
     }: ReqBodyCreateCake
   ): Promise<ICake | undefined> {
-    if (fillings.length > MAX_LAYER_OF_FILLINGS[size]) {
-      throw new ApiError(
-        `it is only possible to have a maximum of ${MAX_LAYER_OF_FILLINGS[size]} layers of fillings in cakes of size '${size}'`,
-        400
-      );
+    const validationFillingsLayers = this.validateMaxLayersOfFillings(
+      fillings,
+      size,
+      sizesPossibles,
+      customizableParts
+    );
+
+    if (!validationFillingsLayers.isValid) {
+      throw new ApiError(validationFillingsLayers.errorMessage, 400);
     }
 
     const mainSizeIsInSizesPossibles = sizesPossibles.includes(size);
@@ -191,6 +196,10 @@ export class CakeService {
 
       if (!imageUrl) throw new ApiError("failed to upload image", 500);
 
+      const sizesPossiblesNormalized = !customizableParts.includes("size")
+        ? [size]
+        : sizesPossibles;
+
       return await this.cakeRepository.create({
         name,
         type: typeValidated,
@@ -198,7 +207,7 @@ export class CakeService {
         fillings: fillingsValidated,
         frosting: frostingValidated,
         size,
-        sizesPossibles,
+        sizesPossibles: sizesPossiblesNormalized,
         pricePerSize,
         totalPricing,
         customizableParts,
@@ -267,7 +276,7 @@ export class CakeService {
     );
   }
 
-  validatePricePerSize(
+  private validatePricePerSize(
     pricePerSize: PricePerSize,
     sizesPossibles: Size[]
   ): boolean {
@@ -278,5 +287,40 @@ export class CakeService {
         pricePerSize[size] !== undefined && sizesInPricesPerSize.includes(size)
       );
     });
+  }
+
+  private validateMaxLayersOfFillings(
+    fillings: string[],
+    defaultSize: Size,
+    sizesPossibles: Size[],
+    customizableParts: CustomizablesParts[]
+  ): { isValid: true } | { isValid: false; errorMessage: string } {
+    if (
+      !customizableParts.includes("filing") &&
+      customizableParts.includes("size")
+    ) {
+      const fillingsIsValid = sizesPossibles.some(
+        (sizePossible) => fillings.length <= MAX_LAYER_OF_FILLINGS[sizePossible]
+      );
+
+      if (!fillingsIsValid) {
+        return {
+          isValid: false,
+          errorMessage:
+            "this cake cannot have this number of filling layers because one of the sizesPossibles does not support this number of layers"
+        };
+      }
+
+      return { isValid: true };
+    }
+
+    if (fillings.length > MAX_LAYER_OF_FILLINGS[defaultSize]) {
+      return {
+        isValid: false,
+        errorMessage: `it is only possible to have a maximum of ${MAX_LAYER_OF_FILLINGS[defaultSize]} layers of fillings in cakes of size '${defaultSize}'`
+      };
+    }
+
+    return { isValid: true };
   }
 }
