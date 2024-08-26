@@ -3,6 +3,7 @@ import { ICakeType } from "../@types/CakeType";
 import { IPersonalizedCake } from "../@types/Cart";
 import { IFilling } from "../@types/Filling";
 import { IFrosting } from "../@types/Frosting";
+import { areStringArraysEqual } from "../utils/arrayUtils";
 import { CakeService } from "./cakeService";
 import { CakeTypeService } from "./cakeTypeService";
 import { FillingService } from "./fillingService";
@@ -84,7 +85,7 @@ export class PersonalizedCakeService {
       await Promise.all([
         this.verifyIfTypeCakeExists(
           typePersonalized,
-          cakeTypeDefault as ICakeType,
+          cakeTypeDefault as string,
           customizableParts,
           cakeId!.toString()
         ),
@@ -136,15 +137,12 @@ export class PersonalizedCakeService {
 
   private async verifyIfTypeCakeExists(
     type: string | undefined,
-    defaultType: ICakeType,
+    defaultType: string,
     customizableParts: CustomizablesParts[],
     cakeId: string
   ): CakePartsValidationResult<string> {
-    if (!type) {
-      return {
-        isValid: true,
-        data: defaultType.type
-      };
+    if (!type || type === defaultType) {
+      return { isValid: true, data: defaultType };
     }
 
     if (type && !customizableParts.includes("type")) {
@@ -163,9 +161,7 @@ export class PersonalizedCakeService {
       return {
         isValid: false,
         status: 404,
-        errorMessage:
-          // prettier-ignore
-          `the cake type "${type}" in the cake with id ${cakeId} isn't registered in the database`
+        errorMessage: `the cake type "${type}" in the cake with id ${cakeId} isn't registered in the database`
       };
     }
 
@@ -182,20 +178,14 @@ export class PersonalizedCakeService {
     cakeId: string
   ): CakePartsValidationResult<string[]> {
     const defaultFillingsNames = defaultFillings.map((filling) => filling.name);
-    const fillingsNotDefaults = fillings.filter(
-      (filling) => !defaultFillingsNames.includes(filling)
-    );
 
-    if (fillingsNotDefaults.length === 0) {
-      return {
-        isValid: true,
-        data: defaultFillingsNames
-      };
+    if (areStringArraysEqual(fillings, defaultFillingsNames)) {
+      return { isValid: true, data: defaultFillingsNames };
     }
 
     //depois você precisa corrigir esse erro de gramatica que tem no customizableParts, esta com "filing" ao inves de "fillings", depois dessa mudança vai precisar updatar todos os dados do banco de dados e os refazer
     if (
-      fillingsNotDefaults.length > 0 &&
+      !areStringArraysEqual(fillings, defaultFillingsNames) &&
       !customizableParts.includes("filing")
     ) {
       return {
@@ -204,6 +194,10 @@ export class PersonalizedCakeService {
         status: 400
       };
     }
+
+    const fillingsNotDefaults = fillings.filter(
+      (filling) => !defaultFillingsNames.includes(filling)
+    );
 
     const fillingsInDB: IFilling[] | undefined =
       await this.fillingService.getAll(fillingsNotDefaults);
@@ -240,7 +234,7 @@ export class PersonalizedCakeService {
     customizableParts: CustomizablesParts[],
     cakeId: string
   ): CakePartsValidationResult<string | undefined> {
-    if (!frosting) {
+    if (!frosting || frosting === defaultFrosting?.name) {
       return {
         isValid: true,
         data: defaultFrosting?.name
