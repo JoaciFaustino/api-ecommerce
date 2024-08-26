@@ -299,7 +299,7 @@ export class CakeService {
       !customizableParts.includes("filing") &&
       customizableParts.includes("size")
     ) {
-      const fillingsIsValid = sizesPossibles.some(
+      const fillingsIsValid = sizesPossibles.every(
         (sizePossible) => fillings.length <= MAX_LAYER_OF_FILLINGS[sizePossible]
       );
 
