@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ICart, IPersonalizedCake } from "../@types/Cart";
 import { Cart } from "../models/Cart";
 import { ApiError } from "../utils/ApiError";
@@ -28,15 +29,26 @@ export class CartRepository {
   async addCake(
     cartId: string,
     newPersonalizedCake: IPersonalizedCake
-  ): Promise<void> {
-    const responseInfoDB = await Cart.updateOne(
+  ): Promise<IPersonalizedCake | undefined> {
+    const newCakeId = new mongoose.Types.ObjectId();
+
+    const cart = await Cart.findOneAndUpdate(
       { _id: cartId },
-      { $push: { cakes: newPersonalizedCake } }
+      { $push: { cakes: { _id: newCakeId, ...newPersonalizedCake } } },
+      { new: true }
     );
 
-    if (responseInfoDB.modifiedCount === 0) {
-      throw new ApiError("this cart doesn't exists", 400);
+    if (!cart) {
+      return;
     }
+
+    const addedPersonalizedCake = cart.cakes.filter(
+      ({ _id }) =>
+        (typeof _id !== "string" && _id?.equals(newCakeId)) ||
+        _id === newCakeId.toString()
+    )[0];
+
+    return addedPersonalizedCake;
   }
 
   async removeCake(cartId: string, personalizedCakeId: string): Promise<void> {

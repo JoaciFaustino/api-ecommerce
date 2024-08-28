@@ -91,7 +91,7 @@ export class CartController {
 
       const cartService = new CartService();
 
-      await cartService.addCake(
+      const addedCake = await cartService.addCake(
         cartId,
         userId,
         cakeId,
@@ -102,9 +102,11 @@ export class CartController {
         size
       );
 
-      return res.status(200).send({
-        message: "cake added to cart sucessfully"
-      });
+      if (!addedCake) {
+        throw new ApiError("failed to add cake in the cart", 500);
+      }
+
+      return res.status(200).send({ addedCake });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         throw new ApiError(error.errors[0].message, 400);

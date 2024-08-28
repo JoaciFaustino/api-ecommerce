@@ -1,5 +1,5 @@
 import { ICake, Size } from "../@types/Cake";
-import { ICart } from "../@types/Cart";
+import { ICart, IPersonalizedCake } from "../@types/Cart";
 import { IUser } from "../models/User";
 import { CartRepository } from "../repositories/cartRepository";
 import { UserRepository } from "../repositories/userRepository";
@@ -36,7 +36,7 @@ export class CartService {
     frosting?: string,
     fillings?: string[],
     size?: Size
-  ): Promise<void> {
+  ): Promise<IPersonalizedCake | undefined> {
     await this.validateUserCart(cartId, userId);
 
     const cake: ICake | undefined = await this.cakeService.findById(cakeId);
