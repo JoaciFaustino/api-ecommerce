@@ -1,8 +1,12 @@
 import { ICakeType } from "../@types/CakeType";
-import { IQueryParamsGetAllCakeTypes } from "../@types/QueryParams";
+import { BaseQueryParams } from "../@types/QueryParams";
 import { CakeTypeRepository } from "../repositories/cakeTypeRepository";
 import { ApiError } from "../utils/ApiError";
-import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
+import {
+  getPrevAndNextUrl,
+  normalizeQueryString,
+  normalizeQueryStringArray
+} from "../utils/queryString";
 
 type GetAllReturn = {
   maxPages: number;
@@ -16,14 +20,14 @@ export class CakeTypeService {
 
   async getAll(
     url: string,
-    { limit = "20", page = "1", search = [] }: IQueryParamsGetAllCakeTypes
+    { limit = "20", page = "1", search = [] }: BaseQueryParams
   ): Promise<GetAllReturn> {
     const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
     const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
     const searchByName: string | undefined = normalizeQueryString(search);
 
     const quantityCakeTypesOnDb = await this.cakeTypeRepository.countDocs(
-      searchByName
+      searchByName ? [searchByName] : []
     );
     const maxPages =
       quantityCakeTypesOnDb > 0
@@ -37,7 +41,7 @@ export class CakeTypeService {
     const cakeTypes = await this.cakeTypeRepository.getAll(
       limitNumber,
       pageNumber,
-      searchByName
+      searchByName ? [searchByName] : []
     );
 
     const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);

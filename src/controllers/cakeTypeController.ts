@@ -1,16 +1,12 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeTypeService } from "../services/cakeTypeService";
-import { ICakeType } from "../@types/CakeType";
-import { IQueryParamsGetAllCakeTypes } from "../@types/QueryParams";
+import { BaseQueryParams } from "../@types/QueryParams";
 
 export class CakeTypeController {
   constructor() {}
 
-  async getAll(
-    req: Request<{}, {}, {}, IQueryParamsGetAllCakeTypes>,
-    res: Response
-  ) {
+  async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
     const url = req.protocol + "://" + req.get("host") + req.originalUrl;
 
     const cakeTypeService = new CakeTypeService();

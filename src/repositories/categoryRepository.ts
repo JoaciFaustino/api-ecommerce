@@ -1,28 +1,46 @@
+import { FilterQuery } from "mongoose";
 import { ICategory } from "../@types/Category";
 import { Category } from "../models/Category";
 
 export class CategoryRepository {
   constructor() {}
 
+  async countDocs(nameFilters: string[] = []): Promise<number> {
+    const query: FilterQuery<ICategory> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              category: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
+
+    return await Category.countDocuments(query);
+  }
+
   async getAll(
-    categoryFilters: string[] = []
+    limit: number,
+    page: number,
+    nameFilters: string[] = []
   ): Promise<ICategory[] | undefined> {
-    const filters =
-      categoryFilters.length > 0 ? { category: { $in: categoryFilters } } : {};
+    const query: FilterQuery<ICategory> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              category: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
 
-    const categoryObjs = await Category.find(filters);
+    const categories = await Category.find(query)
+      .skip(limit * (page - 1))
+      .limit(limit);
 
-    if (!categoryObjs) return;
-
-    const categories: ICategory[] = [];
-
-    for (let i = 0; i < categoryObjs.length; i++) {
-      const { _id, category } = categoryObjs[i];
-
-      categories.push({ _id, category });
+    if (!categories) {
+      return;
     }
 
-    return categories;
+    return categories.map(({ _id, category }) => ({ _id, category }));
   }
 
   async create(category: string): Promise<ICategory | undefined> {

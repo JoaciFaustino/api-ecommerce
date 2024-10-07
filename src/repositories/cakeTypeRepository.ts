@@ -1,23 +1,38 @@
+import { FilterQuery } from "mongoose";
 import { ICakeType } from "../@types/CakeType";
 import { CakeType } from "../models/CakeType";
 
 export class CakeTypeRepository {
   constructor() {}
 
-  async countDocs(nameFilter?: string): Promise<number> {
-    return await CakeType.countDocuments(
-      nameFilter ? { type: { $regex: nameFilter, $options: "i" } } : {}
-    );
+  async countDocs(nameFilters: string[] = []): Promise<number> {
+    const query: FilterQuery<ICakeType> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              type: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
+
+    return await CakeType.countDocuments(query);
   }
 
   async getAll(
     limit: number,
     page: number,
-    nameFilter?: string
+    nameFilters: string[] = []
   ): Promise<ICakeType[] | undefined> {
-    const cakeTypes = await CakeType.find(
-      nameFilter ? { type: { $regex: nameFilter, $options: "i" } } : {}
-    )
+    const query: FilterQuery<ICakeType> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              type: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
+
+    const cakeTypes = await CakeType.find(query)
       .skip(limit * (page - 1))
       .limit(limit);
 

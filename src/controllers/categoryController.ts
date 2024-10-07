@@ -2,19 +2,23 @@ import { Request, Response } from "express";
 import { CategoryService } from "../services/categoryService";
 import { ApiError } from "../utils/ApiError";
 import { ICategory } from "../@types/Category";
+import { BaseQueryParams } from "../@types/QueryParams";
 
 export class CategoryController {
   constructor() {}
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
+    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+
     const categoryService = new CategoryService();
-    const categories: ICategory[] | undefined = await categoryService.getAll();
+    const { maxPages, nextUrl, prevUrl, categories } =
+      await categoryService.getAll(url, req.query);
 
-    if (!categories) throw new ApiError("failed to get the categories", 500);
+    if (!categories) {
+      throw new ApiError("failed to get the categories", 500);
+    }
 
-    return res.status(200).send({
-      categories
-    });
+    return res.status(200).send({ categories, maxPages, nextUrl, prevUrl });
   }
 
   async create(req: Request, res: Response) {
