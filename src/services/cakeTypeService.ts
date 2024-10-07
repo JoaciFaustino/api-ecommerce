@@ -1,12 +1,48 @@
 import { ICakeType } from "../@types/CakeType";
+import { IQueryParamsGetAllCakeTypes } from "../@types/QueryParams";
 import { CakeTypeRepository } from "../repositories/cakeTypeRepository";
 import { ApiError } from "../utils/ApiError";
+import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
+
+type GetAllReturn = {
+  maxPages: number;
+  cakeTypes?: ICakeType[];
+  prevUrl: string | null;
+  nextUrl: string | null;
+};
 
 export class CakeTypeService {
   constructor(private cakeTypeRepository = new CakeTypeRepository()) {}
 
-  async getAll(): Promise<ICakeType[] | undefined> {
-    return await this.cakeTypeRepository.getAll();
+  async getAll(
+    url: string,
+    { limit = "20", page = "1", search = [] }: IQueryParamsGetAllCakeTypes
+  ): Promise<GetAllReturn> {
+    const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
+    const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
+    const searchByName: string | undefined = normalizeQueryString(search);
+
+    const quantityCakeTypesOnDb = await this.cakeTypeRepository.countDocs(
+      searchByName
+    );
+    const maxPages =
+      quantityCakeTypesOnDb > 0
+        ? Math.ceil(quantityCakeTypesOnDb / limitNumber)
+        : 1;
+
+    if (pageNumber > maxPages) {
+      throw new ApiError("the page requested isn't exists", 404);
+    }
+
+    const cakeTypes = await this.cakeTypeRepository.getAll(
+      limitNumber,
+      pageNumber,
+      searchByName
+    );
+
+    const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);
+
+    return { cakeTypes, maxPages, nextUrl, prevUrl };
   }
 
   async getOne(typeNameFilters: string[]): Promise<ICakeType | undefined> {

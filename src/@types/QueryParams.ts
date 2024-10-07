@@ -1,6 +1,6 @@
 import * as core from "express-serve-static-core";
 
-export interface IQueryParamsGetAll extends core.Query {
+export interface IQueryParamsGetAllCakes extends core.Query {
   limit?: string | string[];
   page?: string | string[];
   sortBy?: string | string[];
@@ -9,5 +9,11 @@ export interface IQueryParamsGetAll extends core.Query {
   filling?: string | string[];
   frosting?: string | string[];
   size?: string | string[];
+  search?: string | string[];
+}
+
+export interface IQueryParamsGetAllCakeTypes extends core.Query {
+  limit?: string | string[];
+  page?: string | string[];
   search?: string | string[];
 }

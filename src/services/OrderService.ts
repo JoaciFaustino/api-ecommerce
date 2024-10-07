@@ -11,6 +11,8 @@ import { OrderRepository } from "../repositories/orderRepository";
 import { ApiError } from "../utils/ApiError";
 import { CartService } from "./cartService";
 
+type UpdateBoughtsOfCake = () => Promise<void>;
+
 export class OrderService {
   constructor(
     private cartService = new CartService(),
@@ -74,7 +76,7 @@ export class OrderService {
   private async increaseTheBoughtsOfTheCakesOrder(
     cakes: IPersonalizedCake[]
   ): Promise<void> {
-    const promisesUpdateBoughtsOfCakes: (() => Promise<void>)[] = cakes.map(
+    const promisesUpdateBoughtsOfCakes: UpdateBoughtsOfCake[] = cakes.map(
       ({ cakeId, quantity }) => {
         return async (): Promise<void> => {
           await this.cakeRepository

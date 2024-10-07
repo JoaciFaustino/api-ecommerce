@@ -15,13 +15,16 @@ import {
   errorString
 } from "../utils/zod";
 import { capitalize } from "../utils/capitalizeString";
-import { IQueryParamsGetAll } from "../@types/QueryParams";
+import { IQueryParamsGetAllCakes } from "../@types/QueryParams";
 import { ReqBodyCreateCake } from "../@types/ReqBody";
 
 export class CakeController {
   constructor() {}
 
-  async getAll(req: Request<{}, {}, {}, IQueryParamsGetAll>, res: Response) {
+  async getAll(
+    req: Request<{}, {}, {}, IQueryParamsGetAllCakes>,
+    res: Response
+  ) {
     const query = req.query;
 
     const url = req.protocol + "://" + req.get("host") + req.originalUrl;
@@ -32,7 +35,9 @@ export class CakeController {
       query
     );
 
-    if (!cakes) throw new ApiError("failed to find the cakes", 500);
+    if (!cakes) {
+      throw new ApiError("failed to find the cakes", 500);
+    }
 
     return res.status(200).send({
       message: "get all cakes sucessfully",

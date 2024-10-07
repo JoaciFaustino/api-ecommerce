@@ -1,7 +1,10 @@
 import { CakeRepository } from "../repositories/cakeRepository";
 import { ApiError } from "../utils/ApiError";
 import { FilesService } from "./filesService";
-import { SORT_BY_OPTIONS, TypeKeysSortBy } from "../@types/SortBy";
+import {
+  SORT_BY_CAKES_OPTIONS,
+  TypeKeysSortByCakes
+} from "../utils/SortByCake";
 import { IFrosting } from "../@types/Frosting";
 import { IFilling } from "../@types/Filling";
 import {
@@ -16,7 +19,7 @@ import { MAX_LAYER_OF_FILLINGS } from "../utils/constants";
 import { CategoryService } from "./categoryService";
 import { CakeTypeService } from "./cakeTypeService";
 import { FrostingService } from "./frostingService";
-import { IQueryParamsGetAll } from "../@types/QueryParams";
+import { IQueryParamsGetAllCakes } from "../@types/QueryParams";
 import { ReqBodyCreateCake } from "../@types/ReqBody";
 import {
   getPrevAndNextUrl,
@@ -53,13 +56,11 @@ export class CakeService {
       frosting = [],
       type = [],
       size = []
-    }: IQueryParamsGetAll
+    }: IQueryParamsGetAllCakes
   ): Promise<getAllReturn> {
     const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
     const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
     const quantityCakesOnDb = await this.cakeRepository.countDocs();
-
-    if (!quantityCakesOnDb) throw new ApiError("failed to get maxPages", 500);
 
     const maxPages =
       quantityCakesOnDb !== 0 ? Math.ceil(quantityCakesOnDb / limitNumber) : 1;
@@ -69,10 +70,10 @@ export class CakeService {
     }
 
     const sortByLastValue: string | undefined = normalizeQueryString(sortBy);
-    const newSortBy = SORT_BY_OPTIONS.includes(
-      sortByLastValue as TypeKeysSortBy
+    const newSortBy = SORT_BY_CAKES_OPTIONS.includes(
+      sortByLastValue as TypeKeysSortByCakes
     )
-      ? (sortBy as TypeKeysSortBy)
+      ? (sortBy as TypeKeysSortByCakes)
       : "popularity";
 
     const searchByName: string | undefined = normalizeQueryString(search);

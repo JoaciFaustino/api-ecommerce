@@ -2,17 +2,26 @@ import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeTypeService } from "../services/cakeTypeService";
 import { ICakeType } from "../@types/CakeType";
+import { IQueryParamsGetAllCakeTypes } from "../@types/QueryParams";
 
 export class CakeTypeController {
   constructor() {}
 
-  async getAll(req: Request, res: Response) {
+  async getAll(
+    req: Request<{}, {}, {}, IQueryParamsGetAllCakeTypes>,
+    res: Response
+  ) {
+    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+
     const cakeTypeService = new CakeTypeService();
-    const cakeTypes: ICakeType[] | undefined = await cakeTypeService.getAll();
+    const { cakeTypes, maxPages, nextUrl, prevUrl } =
+      await cakeTypeService.getAll(url, req.query);
 
-    if (!cakeTypes) throw new ApiError("failed do get the cake types", 500);
+    if (!cakeTypes) {
+      throw new ApiError("failed do get the cake types", 500);
+    }
 
-    return res.status(200).send({ cakeTypes });
+    return res.status(200).send({ cakeTypes, maxPages, nextUrl, prevUrl });
   }
 
   async create(req: Request, res: Response) {

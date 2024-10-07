@@ -1,7 +1,10 @@
 import { Cake } from "../models/Cake";
-import { TypeKeysSortBy, typeSortByObj } from "../@types/SortBy";
 import { ICake } from "../@types/Cake";
-import { SORT_BY_OBJS } from "../utils/constants";
+import {
+  SORT_BY_CAKES_OBJS,
+  TypeKeysSortByCakes,
+  typeSortByCakesObj
+} from "../utils/SortByCake";
 import {
   JoinColectionData,
   MatchPipeline,
@@ -16,14 +19,14 @@ import { IFrosting } from "../@types/Frosting";
 export class CakeRepository {
   constructor() {}
 
-  async countDocs(): Promise<number | undefined> {
+  async countDocs(): Promise<number> {
     return await Cake.countDocuments({});
   }
 
   async getAll(
     limit: number,
     page: number,
-    sortBy: TypeKeysSortBy,
+    sortBy: TypeKeysSortByCakes,
     categoryFilters: string[] = [],
     fillingFilters: string[] = [],
     frostingFilters: string[] = [],
@@ -31,7 +34,7 @@ export class CakeRepository {
     sizeFilters: string[] = [],
     searchByName?: string
   ): Promise<ICake[] | undefined> {
-    const sortByObj: typeSortByObj = SORT_BY_OBJS[sortBy];
+    const sortByObj: typeSortByCakesObj = SORT_BY_CAKES_OBJS[sortBy];
 
     const joinTypesData: JoinColectionData = {
       colectionName: "caketypes",
@@ -80,19 +83,11 @@ export class CakeRepository {
     const sizeFilterPipeline: MatchPipeline[] =
       searchByName || sizeFilters.length === 0
         ? []
-        : [
-            {
-              $match: { size: { $in: sizeFilters } }
-            }
-          ];
+        : [{ $match: { size: { $in: sizeFilters } } }];
 
     const searchByNamePipeline: MatchPipeline[] = !searchByName
       ? []
-      : [
-          {
-            $match: { name: { $regex: searchByName, $options: "i" } }
-          }
-        ];
+      : [{ $match: { name: { $regex: searchByName, $options: "i" } } }];
 
     const cakes: ICake[] | undefined = await Cake.aggregate<ICake>([
       ...searchByNamePipeline,
