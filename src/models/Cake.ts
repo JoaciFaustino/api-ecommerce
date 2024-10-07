@@ -1,4 +1,4 @@
-import mongoose, { Model } from "mongoose";
+import mongoose from "mongoose";
 import {
   CUSTOMIZABLE_PARTS_ENUM,
   ICake,
@@ -9,6 +9,7 @@ const cakeSchema = new mongoose.Schema<ICake>(
   {
     name: {
       type: String,
+      unique: true,
       required: true
     },
     type: {
