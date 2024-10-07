@@ -1,15 +1,72 @@
 import { IFrosting } from "../@types/Frosting";
+import { BaseQueryParams } from "../@types/QueryParams";
 import { FrostingRepository } from "../repositories/frostingRepository";
 import { ApiError } from "../utils/ApiError";
+import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
+
+type GetAllReturn = {
+  maxPages: number;
+  frostings?: IFrosting[];
+  prevUrl: string | null;
+  nextUrl: string | null;
+};
 
 export class FrostingService {
   constructor(private frostingRepository = new FrostingRepository()) {}
 
-  async getAll(): Promise<IFrosting[] | undefined> {
-    const frostingsResponse: IFrosting[] | undefined =
-      await this.frostingRepository.getAll();
+  async getAll(
+    url: string,
+    { limit = "20", page = "1", search = [] }: BaseQueryParams
+  ): Promise<GetAllReturn> {
+    // const promises = coberturasBolo.map((cobertura) =>
+    //   (async (cobertura: string) => {
+    //     try {
+    //       const min = 3 * 4;
+    //       const max = 10.5 * 4;
 
-    return frostingsResponse;
+    //       const numeroAleatorio =
+    //         Math.floor(Math.random() * (max - min + 1)) + min;
+
+    //       const price = numeroAleatorio / 4;
+
+    //       const stressedOut = await this.create(cobertura, price);
+
+    //       console.log(stressedOut);
+    //     } catch (error) {
+    //       console.log(undefined);
+
+    //       return;
+    //     }
+    //   })(cobertura)
+    // );
+    // const resultados = await Promise.all(promises);
+
+    const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
+    const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
+    const searchByName: string | undefined = normalizeQueryString(search);
+
+    const quantityFrostingOnDb = await this.frostingRepository.countDocs(
+      searchByName ? [searchByName] : []
+    );
+
+    const maxPages =
+      quantityFrostingOnDb > 0
+        ? Math.ceil(quantityFrostingOnDb / limitNumber)
+        : 1;
+
+    if (pageNumber > maxPages) {
+      throw new ApiError("the page requested isn't exists", 404);
+    }
+
+    const frostings = await this.frostingRepository.getAll(
+      limitNumber,
+      pageNumber,
+      searchByName ? [searchByName] : []
+    );
+
+    const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);
+
+    return { frostings, maxPages, nextUrl, prevUrl };
   }
 
   async getOne(

@@ -2,17 +2,23 @@ import { Request, Response } from "express";
 import { FrostingService } from "../services/frostingService";
 import { IFrosting } from "../@types/Frosting";
 import { ApiError } from "../utils/ApiError";
+import { BaseQueryParams } from "../@types/QueryParams";
 
 export class FrostingController {
   constructor() {}
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
+    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+
     const frostingService = new FrostingService();
-    const frostings: IFrosting[] | undefined = await frostingService.getAll();
+    const { maxPages, nextUrl, prevUrl, frostings } =
+      await frostingService.getAll(url, req.query);
 
-    if (!frostings) throw new ApiError("failed to get the frostings", 500);
+    if (!frostings) {
+      throw new ApiError("failed to get the frostings", 500);
+    }
 
-    return res.status(200).send({ frostings });
+    return res.status(200).send({ maxPages, nextUrl, prevUrl, frostings });
   }
 
   async create(req: Request, res: Response) {

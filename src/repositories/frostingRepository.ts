@@ -1,21 +1,46 @@
+import { FilterQuery } from "mongoose";
 import { IFrosting } from "../@types/Frosting";
 import { Frosting } from "../models/Frosting";
 
 export class FrostingRepository {
   constructor() {}
 
-  async getAll(): Promise<IFrosting[] | undefined> {
-    const frostingsRes = await Frosting.find();
+  async countDocs(nameFilters: string[] = []): Promise<number> {
+    const query: FilterQuery<IFrosting> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              name: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
 
-    if (!frostingsRes) {
+    return Frosting.countDocuments(query);
+  }
+
+  async getAll(
+    limit: number,
+    page: number,
+    nameFilters: string[] = []
+  ): Promise<IFrosting[] | undefined> {
+    const query: FilterQuery<IFrosting> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              name: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
+
+    const frostings = await Frosting.find(query)
+      .skip(limit * (page - 1))
+      .limit(limit);
+
+    if (!frostings) {
       return;
     }
 
-    const frostings: IFrosting[] = frostingsRes.map((frosting) => {
-      return { _id: frosting._id, name: frosting.name, price: frosting.price };
-    });
-
-    return frostings;
+    return frostings.map(({ _id, name, price }) => ({ _id, name, price }));
   }
 
   async getOne(
