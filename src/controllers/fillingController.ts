@@ -2,17 +2,23 @@ import { Request, Response } from "express";
 import { FillingService } from "../services/fillingService";
 import { ApiError } from "../utils/ApiError";
 import { IFilling } from "../@types/Filling";
+import { BaseQueryParams } from "../@types/QueryParams";
 
 export class FillingController {
   constructor() {}
 
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
+    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+
     const fillingService = new FillingService();
-    const fillings: IFilling[] | undefined = await fillingService.getAll();
+    const { maxPages, nextUrl, prevUrl, fillings } =
+      await fillingService.getAll(url, req.query);
 
-    if (!fillings) throw new ApiError("failed to get the fillings", 500);
+    if (!fillings) {
+      throw new ApiError("failed to get the fillings", 500);
+    }
 
-    return res.status(200).send({ fillings });
+    return res.status(200).send({ maxPages, nextUrl, prevUrl, fillings });
   }
 
   async create(req: Request, res: Response) {

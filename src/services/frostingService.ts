@@ -18,29 +18,6 @@ export class FrostingService {
     url: string,
     { limit = "20", page = "1", search = [] }: BaseQueryParams
   ): Promise<GetAllReturn> {
-    // const promises = coberturasBolo.map((cobertura) =>
-    //   (async (cobertura: string) => {
-    //     try {
-    //       const min = 3 * 4;
-    //       const max = 10.5 * 4;
-
-    //       const numeroAleatorio =
-    //         Math.floor(Math.random() * (max - min + 1)) + min;
-
-    //       const price = numeroAleatorio / 4;
-
-    //       const stressedOut = await this.create(cobertura, price);
-
-    //       console.log(stressedOut);
-    //     } catch (error) {
-    //       console.log(undefined);
-
-    //       return;
-    //     }
-    //   })(cobertura)
-    // );
-    // const resultados = await Promise.all(promises);
-
     const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
     const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
     const searchByName: string | undefined = normalizeQueryString(search);

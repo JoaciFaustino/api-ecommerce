@@ -1,44 +1,46 @@
-import { Types } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { IFilling } from "../@types/Filling";
 import { Filling } from "../models/Filling";
 
 export class FillingRepository {
   constructor() {}
 
+  async countDocs(nameFilters: string[] = []): Promise<number> {
+    const query: FilterQuery<IFilling> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              name: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
+
+    return Filling.countDocuments(query);
+  }
+
   async getAll(
-    nameFilters: string[] = [],
-    priceFilters: number[] = []
+    limit: number,
+    page: number,
+    nameFilters: string[] = []
   ): Promise<IFilling[] | undefined> {
-    const nameFilterObj =
-      nameFilters.length > 0 ? { name: { $in: nameFilters } } : {};
+    const query: FilterQuery<IFilling> =
+      nameFilters.length > 0
+        ? {
+            $or: nameFilters.map((name) => ({
+              name: { $regex: name, $options: "i" }
+            }))
+          }
+        : {};
 
-    const priceFilterObj =
-      priceFilters.length > 0 ? { price: { $in: priceFilters } } : {};
+    const fillings = await Filling.find(query)
+      .skip(limit * (page - 1))
+      .limit(limit);
 
-    const filters = {
-      ...nameFilterObj,
-      ...priceFilterObj
-    };
-
-    const fillingsRes = await Filling.find(filters);
-
-    if (!fillingsRes) {
+    if (!fillings) {
       return;
     }
 
-    const fillings: IFilling[] = [];
-
-    for (let i = 0; i < fillingsRes.length; i++) {
-      const filling = fillingsRes[i];
-      if (!filling) {
-        return;
-      }
-
-      const { _id, name, price } = filling;
-      fillings.push({ _id, name, price });
-    }
-
-    return fillings;
+    return fillings.map(({ _id, name, price }) => ({ _id, name, price }));
   }
 
   async getById(id: string | Types.ObjectId): Promise<IFilling | undefined> {

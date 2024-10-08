@@ -1,15 +1,49 @@
 import { IFilling } from "../@types/Filling";
+import { BaseQueryParams } from "../@types/QueryParams";
 import { FillingRepository } from "../repositories/fillingRepository";
 import { ApiError } from "../utils/ApiError";
+import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
+
+type GetAllReturn = {
+  fillings?: IFilling[];
+  maxPages: number;
+  prevUrl: string | null;
+  nextUrl: string | null;
+};
 
 export class FillingService {
   constructor(private fillingRepository = new FillingRepository()) {}
 
   async getAll(
-    nameFilters: string[] = [],
-    priceFilters: number[] = []
-  ): Promise<IFilling[] | undefined> {
-    return await this.fillingRepository.getAll(nameFilters, priceFilters);
+    url: string,
+    { limit = "20", page = "1", search = [] }: BaseQueryParams
+  ): Promise<GetAllReturn> {
+    const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
+    const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
+    const searchByName: string | undefined = normalizeQueryString(search);
+
+    const quantityFillingsOnDb = await this.fillingRepository.countDocs(
+      searchByName ? [searchByName] : []
+    );
+
+    const maxPages =
+      quantityFillingsOnDb > 0
+        ? Math.ceil(quantityFillingsOnDb / limitNumber)
+        : 1;
+
+    if (pageNumber > maxPages) {
+      throw new ApiError("the page requested isn't exists", 404);
+    }
+
+    const fillings = await this.fillingRepository.getAll(
+      limitNumber,
+      pageNumber,
+      searchByName ? [searchByName] : []
+    );
+
+    const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);
+
+    return { fillings, maxPages, nextUrl, prevUrl };
   }
 
   async getById(id: string): Promise<IFilling | undefined> {
@@ -38,9 +72,11 @@ export class FillingService {
       return [];
     }
 
-    const fillingsInDB: IFilling[] | undefined = await this.getAll(
-      fillingNames
-    );
+    const limit = fillingNames.length;
+    const page = 1;
+
+    const fillingsInDB: IFilling[] | undefined =
+      await this.fillingRepository.getAll(limit, page, fillingNames);
 
     if (!fillingsInDB) {
       throw new ApiError("failed to find fillings in database", 500);

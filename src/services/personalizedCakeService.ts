@@ -3,10 +3,10 @@ import { ICakeType } from "../@types/CakeType";
 import { IPersonalizedCake } from "../@types/Cart";
 import { IFilling } from "../@types/Filling";
 import { IFrosting } from "../@types/Frosting";
+import { FillingRepository } from "../repositories/fillingRepository";
 import { areStringArraysEqual } from "../utils/arrayUtils";
 import { CakeService } from "./cakeService";
 import { CakeTypeService } from "./cakeTypeService";
-import { FillingService } from "./fillingService";
 import { FrostingService } from "./frostingService";
 
 type ValidResult<T> = {
@@ -26,7 +26,7 @@ export class PersonalizedCakeService {
   constructor(
     private cakeService = new CakeService(),
     private cakeTypeService = new CakeTypeService(),
-    private fillingService = new FillingService(),
+    private fillingRepository = new FillingRepository(),
     private frostingService = new FrostingService()
   ) {}
 
@@ -199,8 +199,11 @@ export class PersonalizedCakeService {
       (filling) => !defaultFillingsNames.includes(filling)
     );
 
+    const limit = fillingsNotDefaults.length;
+    const page = 1;
+
     const fillingsInDB: IFilling[] | undefined =
-      await this.fillingService.getAll(fillingsNotDefaults);
+      await this.fillingRepository.getAll(limit, page, fillingsNotDefaults);
 
     if (!fillingsInDB) {
       return {
