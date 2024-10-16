@@ -1,16 +1,48 @@
 import { Request, Response } from "express";
-import { IOrder, TYPE_OF_RECEIPT_OPTIONS } from "../@types/Order";
-import { Order } from "../models/Order";
-import { ReqBodyCreateOrder } from "../@types/ReqBody";
+import { TYPE_OF_RECEIPT_OPTIONS } from "../@types/Order";
+import {
+  ReqBodyCreateOrder,
+  TokenDecodedByAuthMiddleware
+} from "../@types/ReqBody";
 import { z } from "zod";
 import mongoose from "mongoose";
 import { errorEnum, errorString } from "../utils/zod";
 import { phoneNumberValidator } from "../utils/regexValidators";
 import { ApiError } from "../utils/ApiError";
 import { OrderService } from "../services/OrderService";
+import { BaseQueryParams } from "../@types/QueryParams";
 
 export class OrderController {
   constructor() {}
+
+  async getAllUserOrders(
+    req: Request<
+      { userId?: string },
+      {},
+      TokenDecodedByAuthMiddleware,
+      BaseQueryParams
+    >,
+    res: Response
+  ) {
+    const userId = req.params.userId;
+    const tokenUserId = req.body.decodedUserId;
+
+    if (userId !== tokenUserId) {
+      throw new ApiError("unauthorized", 401);
+    }
+
+    if (!userId || typeof userId !== "string") {
+      throw new ApiError("user id is invalid", 400);
+    }
+
+    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+    const orderService = new OrderService();
+
+    const { orders, maxPages, nextUrl, prevUrl } =
+      await orderService.getAllUserOrders(url, userId, req.query);
+
+    res.status(200).send({ orders, maxPages, nextUrl, prevUrl });
+  }
 
   async create(req: Request<{}, {}, ReqBodyCreateOrder>, res: Response) {
     const deliveryAdressValidation = z.object({

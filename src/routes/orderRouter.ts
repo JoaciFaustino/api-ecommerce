@@ -9,6 +9,10 @@ const ordersRouter = Router();
 
 //authenticated routes
 ordersRouter.use(new AuthMiddleware().isAuthenticated);
+ordersRouter.get(
+  "/:userId",
+  asyncErrorHandler(new OrderController().getAllUserOrders)
+);
 ordersRouter.post("/create", asyncErrorHandler(new OrderController().create));
 
 //admin routes

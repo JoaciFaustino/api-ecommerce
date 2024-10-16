@@ -5,13 +5,20 @@ import {
   IOrder,
   TypeOfReceiptOptions
 } from "../@types/Order";
+import { BaseQueryParams } from "../@types/QueryParams";
 import { CakeRepository } from "../repositories/cakeRepository";
 import { CartRepository } from "../repositories/cartRepository";
 import { OrderRepository } from "../repositories/orderRepository";
 import { ApiError } from "../utils/ApiError";
+import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
 import { CartService } from "./cartService";
 
-type UpdateBoughtsOfCake = () => Promise<void>;
+type getAllReturn = {
+  orders?: IOrder[];
+  maxPages: number;
+  prevUrl: string | null;
+  nextUrl: string | null;
+};
 
 export class OrderService {
   constructor(
@@ -20,6 +27,29 @@ export class OrderService {
     private orderRepository = new OrderRepository(),
     private cartRepository = new CartRepository()
   ) {}
+
+  async getAllUserOrders(
+    url: string,
+    userId: string,
+    { limit = "20", page = "1" }: BaseQueryParams
+  ): Promise<getAllReturn> {
+    const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
+    const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
+
+    const quantityOrdersOnDb = await this.orderRepository.countDocs(userId);
+    const maxPages =
+      quantityOrdersOnDb > 0 ? Math.ceil(quantityOrdersOnDb / limitNumber) : 1;
+
+    const orders = await this.orderRepository.getAllOrders(
+      limitNumber,
+      pageNumber,
+      userId
+    );
+
+    const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);
+
+    return { orders, maxPages, nextUrl, prevUrl };
+  }
 
   async create(
     cartId: string,
@@ -76,9 +106,9 @@ export class OrderService {
   private async increaseTheBoughtsOfTheCakesOrder(
     cakes: IPersonalizedCake[]
   ): Promise<void> {
-    const promisesUpdateBoughtsOfCakes: UpdateBoughtsOfCake[] = cakes.map(
+    const promisesUpdateBoughtsOfCakes: (() => Promise<void>)[] = cakes.map(
       ({ cakeId, quantity }) => {
-        return async (): Promise<void> => {
+        return async () => {
           await this.cakeRepository
             .increaseTheBoughtsOfTheCake(cakeId.toString(), quantity)
             .catch(() => undefined);
