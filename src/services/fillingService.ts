@@ -72,7 +72,7 @@ export class FillingService {
       return [];
     }
 
-    const limit = fillingNames.length;
+    const limit = 9999;
     const page = 1;
 
     const fillingsInDB: IFilling[] | undefined =
@@ -82,47 +82,26 @@ export class FillingService {
       throw new ApiError("failed to find fillings in database", 500);
     }
 
-    const fillingsInDbNames: string[] = fillingsInDB.map(
-      (fillingInDb) => fillingInDb.name
+    const fillingsWithCorrectLayers: IFilling[] = fillingNames.reduce(
+      (fillingsWithCorrectLayers: IFilling[], fillingName) => {
+        const filling: IFilling | undefined = fillingsInDB.find(
+          (fillingInDb) => fillingInDb.name === fillingName
+        );
+
+        return filling
+          ? [...fillingsWithCorrectLayers, filling]
+          : [...fillingsWithCorrectLayers];
+      },
+      []
     );
 
-    const someFillingInvalid: string[] = fillingNames.filter(
-      (fillingName) => !fillingsInDbNames.includes(fillingName)
-    );
-
-    if (someFillingInvalid.length > 0) {
+    if (fillingsWithCorrectLayers.length !== fillingNames.length) {
       throw new ApiError(
-        `the filling '${fillingNames[0]}' isn't registered in the database`,
+        "some fillings aren't registered in the database",
         400
       );
     }
 
-    return fillingsInDB;
+    return fillingsWithCorrectLayers;
   }
-
-  //IT IS NOT USED IN NOTHING IN THE CODE, BUT MAYBE IT CAN BE USED
-
-  // async allFillingsInCakeIsValid(fillings: IFilling[]): Promise<boolean> {
-  //   const fillingsNames = fillings.reduce(
-  //     (names: string[], filling: IFilling) => [...names, filling.name],
-  //     []
-  //   );
-
-  //   const fillingsRes: IFilling[] | undefined =
-  //     await this.fillingRepository.getAll(fillingsNames);
-
-  //   if (!fillingsRes) {
-  //     return false;
-  //   }
-
-  //   const allFillingsExist = fillingsRes.every((filling) =>
-  //     fillingsNames.includes(filling.name)
-  //   );
-
-  //   if (!allFillingsExist) {
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
 }
