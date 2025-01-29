@@ -57,7 +57,7 @@ export class CategoryService {
       return [];
     }
 
-    const limit = categories.length;
+    const limit = 9999;
     const page = 1;
 
     const categoriesInDB = await this.categoryRepository.getAll(
@@ -83,6 +83,8 @@ export class CategoryService {
       }
     }
 
-    return categoriesInDB;
+    return categoriesInDB.filter((category) =>
+      categories.includes(category.category)
+    );
   }
 }

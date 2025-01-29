@@ -20,12 +20,15 @@ import { CategoryService } from "./categoryService";
 import { CakeTypeService } from "./cakeTypeService";
 import { FrostingService } from "./frostingService";
 import { IQueryParamsGetAllCakes } from "../@types/QueryParams";
-import { ReqBodyCreateCake } from "../@types/ReqBody";
+import { ReqBodyCreateCake, ReqBodyUpdateCake } from "../@types/ReqBody";
 import {
   getPrevAndNextUrl,
   normalizeQueryString,
   normalizeQueryStringArray
 } from "../utils/queryString";
+import { ICategory } from "../@types/Category";
+import { ICakeType } from "../@types/CakeType";
+import { areStringArraysEqual } from "../utils/arrayUtils";
 
 type getAllReturn = {
   cakes?: ICake[];
@@ -195,7 +198,9 @@ export class CakeService {
         hostUrl
       );
 
-      if (!imageUrl) throw new ApiError("failed to upload image", 500);
+      if (!imageUrl) {
+        throw new ApiError("failed to upload image", 500);
+      }
 
       const sizesPossiblesNormalized = !customizableParts.includes("size")
         ? [size]
@@ -220,40 +225,154 @@ export class CakeService {
   }
 
   async update(
-    hostUrl: string,
     id: string,
-    type?: string,
-    pricing?: number,
-    imageCake?: Express.Multer.File,
-    frosting?: string[],
-    filling?: string,
-    size?: string
+    hostUrl: string,
+    imageCake: Express.Multer.File | undefined,
+    {
+      name,
+      type,
+      size,
+      pricePerSize,
+      frosting,
+      categories,
+      sizesPossibles,
+      customizableParts,
+      fillings
+    }: ReqBodyUpdateCake
   ): Promise<ICake | undefined> {
     const cake: ICake | undefined = await this.cakeRepository.findById(id);
 
-    if (!cake) throw new ApiError("this cake isn't exists", 404);
+    if (!cake) {
+      throw new ApiError("this cake isn't exists", 404);
+    }
 
-    let newUrlImage: string | undefined = undefined;
+    const notUpdatedType = (cake.type as ICakeType).type;
+    const notUpdatedFrosting = (cake.frosting as IFrosting | undefined)?.name;
+    const notUpdatedFillings = (cake.fillings as IFilling[]).map(
+      ({ name }) => name
+    );
+    const notUpdatedCategories = (cake.categories as ICategory[]).map(
+      ({ category }) => category
+    );
 
-    if (imageCake) {
-      const filesService = new FilesService();
+    const defaultPricePerSize = pricePerSize || cake.pricePerSize;
 
-      newUrlImage = await filesService.updateImageCake(
-        cake.imageUrl || "" /** ajeite depois*/,
-        imageCake,
-        hostUrl
+    const validationFillingsLayers = this.validateMaxLayersOfFillings(
+      fillings || notUpdatedFillings,
+      size || cake.size,
+      sizesPossibles || cake.sizesPossibles,
+      customizableParts || cake.customizableParts
+    );
+
+    if (!validationFillingsLayers.isValid) {
+      throw new ApiError(validationFillingsLayers.errorMessage, 400);
+    }
+
+    const newSizesPossibles = sizesPossibles || cake.sizesPossibles;
+    const mainSizeIsInSizesPossibles = newSizesPossibles.includes(
+      size || cake.size
+    );
+
+    if (!mainSizeIsInSizesPossibles) {
+      throw new ApiError("This size is not possible in this cake", 400);
+    }
+
+    const newSize = size || cake.size;
+    //prettier-ignore
+    const pricingWithoutFillingAndFrosting = 
+      (pricePerSize || cake.pricePerSize)[newSize];
+
+    if (!pricingWithoutFillingAndFrosting) {
+      throw new ApiError(
+        "there isn't price value in pricePerSize for this size",
+        400
       );
     }
 
-    return await this.cakeRepository.update(
-      id,
-      type,
-      pricing,
-      newUrlImage,
-      frosting,
-      filling,
-      size
-    );
+    if (!this.validatePricePerSize(defaultPricePerSize, newSizesPossibles)) {
+      throw new ApiError(
+        "the sizes in pricePerSize must be in sizesPossibles",
+        400
+      );
+    }
+
+    try {
+      const validateTypePromise = async () =>
+        type && type !== notUpdatedType
+          ? await this.cakeTypeService.validateCakeTypeInCake(type)
+          : undefined;
+
+      const validateCategoriesPromise = async () =>
+        categories && !areStringArraysEqual(categories, notUpdatedCategories)
+          ? await this.categoryService.validateAllCategoriesInCake(categories)
+          : undefined;
+
+      const validateFillingsPromise = async () =>
+        fillings && !areStringArraysEqual(fillings, notUpdatedFillings)
+          ? await this.fillingService.validateAllFillingsInCake(fillings)
+          : undefined;
+
+      const validateFrostingPromise = async () =>
+        frosting && frosting !== notUpdatedFrosting
+          ? await this.frostingService.validateFrostingInCake(frosting)
+          : undefined;
+
+      const [
+        newTypeValidated,
+        newCategoriesValidated,
+        newFillingsValidated,
+        newFrostingValidated
+      ] = await Promise.all([
+        validateTypePromise(),
+        validateCategoriesPromise(),
+        validateFillingsPromise(),
+        validateFrostingPromise()
+      ]);
+
+      const totalPricing = this.calculateTotalPricing(
+        newFillingsValidated || (cake.fillings as IFilling[] | undefined) || [],
+        pricingWithoutFillingAndFrosting,
+        newFrostingValidated || (cake.frosting as IFrosting | undefined)
+      );
+
+      if (totalPricing < 0) {
+        throw new ApiError("totalPricing can't be negative number", 400);
+      }
+
+      let newUrlImage: string | undefined = undefined;
+
+      if (imageCake) {
+        const filesService = new FilesService();
+
+        newUrlImage = await filesService.updateImageCake(
+          cake.imageUrl,
+          imageCake,
+          hostUrl
+        );
+      }
+
+      const sizesPossiblesNormalized = !(
+        customizableParts || cake.customizableParts
+      ).includes("size")
+        ? [size || cake.size]
+        : sizesPossibles;
+
+      return await this.cakeRepository.update(id, {
+        name,
+        type: newTypeValidated,
+        categories: newCategoriesValidated,
+        fillings: newFillingsValidated,
+        frosting: frosting !== null ? newFrostingValidated : null,
+        sizesPossibles: sizesPossiblesNormalized,
+        customizableParts,
+        size,
+        imageUrl: newUrlImage,
+        pricePerSize,
+        totalPricing
+      });
+    } catch (error: any) {
+      throw new ApiError(error.message, error.status);
+    }
   }
 
   async delete(id: string): Promise<void> {

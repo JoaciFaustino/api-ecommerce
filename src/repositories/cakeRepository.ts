@@ -15,6 +15,12 @@ import { ICategory } from "../@types/Category";
 import { ICakeType } from "../@types/CakeType";
 import { IFilling } from "../@types/Filling";
 import { IFrosting } from "../@types/Frosting";
+import { UpdateQuery } from "mongoose";
+
+type CakeWithoutFrosting = Omit<ICake, "frosting">;
+type CakeToUpdate = Partial<
+  CakeWithoutFrosting & { frosting?: IFrosting | string | null }
+>;
 
 export class CakeRepository {
   constructor() {}
@@ -196,10 +202,6 @@ export class CakeRepository {
     frosting,
     fillings
   }: ICake): Promise<ICake | undefined> {
-    if (!imageUrl) {
-      return;
-    }
-
     const cakeCreated = await Cake.create({
       name,
       type,
@@ -237,46 +239,77 @@ export class CakeRepository {
 
   async update(
     id: string,
-    type?: string,
-    pricing?: number,
-    imageUrl?: string,
-    frosting?: string[],
-    filling?: string,
-    size?: string
+    {
+      name,
+      type,
+      categories,
+      size,
+      sizesPossibles,
+      pricePerSize,
+      totalPricing,
+      customizableParts,
+      imageUrl,
+      frosting,
+      fillings
+    }: CakeToUpdate
   ): Promise<ICake | undefined> {
-    const cakeUpdated = await Cake.findByIdAndUpdate(
-      id,
-      {
-        type: type,
-        pricing: pricing,
-        imageUrl: imageUrl,
-        frosting: frosting,
-        filling: filling,
-        size: size
-      },
-      { new: true }
-    );
+    const updateData: Partial<ICake> & { $unset?: Record<string, any> } = {
+      name,
+      type,
+      categories,
+      size,
+      sizesPossibles,
+      pricePerSize,
+      totalPricing,
+      customizableParts,
+      imageUrl,
+      fillings
+    };
 
-    if (!cakeUpdated) {
+    if (frosting === null) {
+      updateData.$unset = { frosting: 1 };
+    }
+
+    if (frosting !== null) {
+      updateData.frosting = frosting;
+    }
+
+    const cake = await Cake.findByIdAndUpdate(id, updateData, { new: true })
+      .populate<{ type: ICakeType }>("type")
+      .populate<{ categories: ICategory[] | undefined }>("categories")
+      .populate<{ fillings: IFilling[] | undefined }>("fillings")
+      .populate<{ frosting: IFrosting | undefined }>("frosting");
+
+    if (!cake) {
       return;
     }
 
+    const categoriesNormalized =
+      cake.categories?.map(({ category }) => category) || [];
+
+    const fillingsNormalized =
+      cake.fillings?.map(({ name, price }) => ({ name, price })) || [];
+
+    const frostingNormalized = cake.frosting
+      ? { name: cake.frosting.name, price: cake.frosting.price }
+      : undefined;
+
     return {
-      _id: cakeUpdated._id,
-      name: cakeUpdated.name,
-      type: cakeUpdated.type,
-      categories: cakeUpdated.categories,
-      size: cakeUpdated.size,
-      sizesPossibles: cakeUpdated.sizesPossibles,
-      pricePerSize: cakeUpdated.pricePerSize,
-      totalPricing: cakeUpdated.totalPricing,
-      customizableParts: cakeUpdated.customizableParts,
-      imageUrl: cakeUpdated.imageUrl,
-      frosting: cakeUpdated.frosting,
-      fillings: cakeUpdated.fillings,
-      boughts: cakeUpdated.boughts,
-      createdAt: cakeUpdated.createdAt,
-      updatedAt: cakeUpdated.updatedAt
+      _id: cake._id,
+      name: cake.name,
+      type: cake.type.type,
+      size: cake.size,
+      customizableParts: cake.customizableParts,
+      pricePerSize: cake.pricePerSize,
+      sizesPossibles: cake.sizesPossibles,
+      totalPricing: cake.totalPricing,
+      boughts: cake.boughts,
+      categories: categoriesNormalized,
+      fillings: fillingsNormalized,
+      frosting: frostingNormalized,
+      imageUrl: cake.imageUrl,
+      createdAt: cake.createdAt,
+      updatedAt: cake.updatedAt
     };
   }
 

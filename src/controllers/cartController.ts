@@ -13,8 +13,6 @@ import {
 } from "../utils/zod";
 import { SIZES_POSSIBLES_ENUM } from "../@types/Cake";
 import { CartService } from "../services/cartService";
-import { ICart } from "../@types/Cart";
-import mongoose from "mongoose";
 
 export class CartController {
   constructor() {}

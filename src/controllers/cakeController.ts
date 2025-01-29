@@ -16,7 +16,8 @@ import {
 } from "../utils/zod";
 import { capitalize } from "../utils/capitalizeString";
 import { IQueryParamsGetAllCakes } from "../@types/QueryParams";
-import { ReqBodyCreateCake } from "../@types/ReqBody";
+import { ReqBodyCreateCake, ReqBodyUpdateCake } from "../@types/ReqBody";
+import { createCakeZodSchema } from "../utils/createCakeZodSchema";
 
 export class CakeController {
   constructor() {}
@@ -72,78 +73,8 @@ export class CakeController {
 
     if (!imageCake) throw new ApiError("imageCake is required", 400);
 
-    const fillingsValidation = z
-      .array(z.string({ message: errorString("fillings") }).trim(), {
-        message: errorArrayString("fillings")
-      })
-      .optional();
-
-    const frostingValidation = z
-      .string({ message: errorString("frosting") })
-      .trim()
-      .optional();
-
-    const pricePerSizeValidation = z.object(
-      {
-        pequeno: z
-          .number()
-          .min(1, {
-            message: errorNumberPositive("the prices in pricePerSize")
-          })
-          .optional(),
-        medio: z
-          .number()
-          .min(1, {
-            message: errorNumberPositive("the prices in pricePerSize")
-          })
-          .optional(),
-        grande: z
-          .number()
-          .min(1, {
-            message: errorNumberPositive("the prices in pricePerSize")
-          })
-          .optional(),
-        "extra-grande": z
-          .number()
-          .min(1, {
-            message: errorNumberPositive("the prices in pricePerSize")
-          })
-          .optional()
-      },
-      { message: errorObj("pricePerSize") }
-    );
-
-    const reqBodyValidation = z.object(
-      {
-        name: z
-          .string({ message: errorString("name", true) })
-          .trim()
-          .transform((name) => capitalize(name)),
-        type: z.string({ message: errorString("type", true) }).trim(),
-        categories: z
-          .array(z.string({ message: errorString("category") }).trim(), {
-            message: errorArrayString("categories")
-          })
-          .optional(),
-        frosting: frostingValidation,
-        fillings: fillingsValidation,
-        size: z.enum(SIZES_POSSIBLES_ENUM, { message: errorEnum("size") }),
-        sizesPossibles: z.array(
-          z.enum(SIZES_POSSIBLES_ENUM, { message: errorEnum("sizesPossibles") })
-        ),
-        pricePerSize: pricePerSizeValidation,
-        customizableParts: z.array(
-          z.enum(CUSTOMIZABLE_PARTS_ENUM, {
-            message: errorEnum("customizableParts")
-          }),
-          { message: errorEnum("customizableParts") }
-        )
-      },
-      { message: "cake is not valid" }
-    );
-
     try {
-      const bodyValidated = reqBodyValidation.parse(cakeParsed);
+      const bodyValidated = createCakeZodSchema.parse(cakeParsed);
 
       const cakeService = new CakeService();
 
@@ -167,39 +98,71 @@ export class CakeController {
     }
   }
 
-  async update(req: Request, res: Response) {
-    const { type, pricing, frosting, fillings, size } = req.body;
+  async update(
+    req: Request<{ id?: string }, {}, { cake: string }, {}>,
+    res: Response
+  ) {
     const { id } = req.params;
-    const imageCake = req.file;
 
-    const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
-
-    if (!id) throw new ApiError("id is required", 400);
-
-    if (!type && !pricing && !frosting && !fillings && !size && !imageCake)
-      throw new ApiError("you need send something to update", 400);
-
-    const cakeService = new CakeService();
-
-    const cake: ICake | undefined = await cakeService.update(
-      hostUrl,
-      id,
-      type,
-      pricing,
-      imageCake,
-      frosting,
-      fillings,
-      size
-    );
-
-    if (!cake) {
-      throw new ApiError("failed to create cake", 500);
+    if (!id) {
+      throw new ApiError("id is required", 400);
     }
 
-    return res.status(200).send({
-      message: "cake updated sucessfully",
-      cake: cake
+    const imageCake = req.file;
+    const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
+
+    const cakeParsed: ReqBodyUpdateCake = JSON.parse(req.body.cake);
+
+    const schemaCreateCake = createCakeZodSchema.shape;
+
+    const reqBodyValidation = z.object({
+      name: schemaCreateCake.name.optional(),
+      type: schemaCreateCake.type.optional(),
+      categories: schemaCreateCake.categories.optional(),
+      frosting: schemaCreateCake.frosting.optional(),
+      fillings: schemaCreateCake.fillings.optional(),
+      size: schemaCreateCake.size.optional(),
+      sizesPossibles: schemaCreateCake.sizesPossibles.optional(),
+      pricePerSize: schemaCreateCake.pricePerSize.optional(),
+      customizableParts: schemaCreateCake.customizableParts.optional()
     });
+
+    try {
+      const bodyValidated: ReqBodyUpdateCake =
+        reqBodyValidation.parse(cakeParsed);
+
+      const isEmptyObj =
+        Object.keys(bodyValidated).length === 0 ||
+        Object.values(bodyValidated).every((value) => value === undefined);
+
+      if (isEmptyObj) {
+        throw new ApiError("you need send something to update", 400);
+      }
+
+      const cakeService = new CakeService();
+
+      const cake: ICake | undefined = await cakeService.update(
+        id,
+        hostUrl,
+        imageCake,
+        bodyValidated
+      );
+
+      if (!cake) {
+        throw new ApiError("failed to update cake", 500);
+      }
+
+      return res.status(200).send({
+        message: "cake updated sucessfully",
+        cake: cake
+      });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        throw new ApiError(error.errors[0].message, 400);
+      }
+
+      throw error;
+    }
   }
 
   async delete(req: Request, res: Response) {

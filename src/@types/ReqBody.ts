@@ -31,6 +31,10 @@ export interface ReqBodyCreateCake {
   customizableParts?: CustomizablesParts[];
 }
 
+export type ReqBodyUpdateCake = Partial<Omit<ReqBodyCreateCake, "frosting">> & {
+  frosting?: string | null;
+};
+
 export interface ReqBodyCreateCart extends TokenDecodedByAuthMiddleware {
   cakeId: string;
   type?: string;

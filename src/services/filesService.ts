@@ -22,11 +22,11 @@ export class FilesService {
 
         return result.secure_url;
       } catch (error: any) {
-        return undefined;
+        return;
       }
     }
 
-    if (!file.filename) return undefined;
+    if (!file.filename) return;
 
     return hostUrl + "images/" + file.filename;
   }
@@ -58,11 +58,11 @@ export class FilesService {
 
         return result.secure_url;
       } catch (error: any) {
-        return undefined;
+        return;
       }
     }
 
-    if (!file.filename) return undefined;
+    if (!file.filename) return;
 
     const piecesUrl: string[] = oldImageUrl.split("/");
     const fileNameImage: string = oldImageUrl.split("/")[piecesUrl.length - 1];

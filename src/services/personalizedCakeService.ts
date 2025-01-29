@@ -165,10 +165,7 @@ export class PersonalizedCakeService {
       };
     }
 
-    return {
-      isValid: true,
-      data: typeInDb.type
-    };
+    return { isValid: true, data: typeInDb.type };
   }
 
   private async verifyIfFillingsOfCakeExists(
@@ -199,7 +196,7 @@ export class PersonalizedCakeService {
       (filling) => !defaultFillingsNames.includes(filling)
     );
 
-    const limit = fillingsNotDefaults.length;
+    const limit = 9999;
     const page = 1;
 
     const fillingsInDB: IFilling[] | undefined =
@@ -225,10 +222,7 @@ export class PersonalizedCakeService {
       }
     }
 
-    return {
-      isValid: true,
-      data: fillings
-    };
+    return { isValid: true, data: fillings };
   }
 
   private async verifyIfFrostingOfCakeExists(
@@ -238,10 +232,7 @@ export class PersonalizedCakeService {
     cakeId: string
   ): CakePartsValidationResult<string | undefined> {
     if (!frosting || frosting === defaultFrosting?.name) {
-      return {
-        isValid: true,
-        data: defaultFrosting?.name
-      };
+      return { isValid: true, data: defaultFrosting?.name };
     }
 
     if (frosting && !customizableParts.includes("frosting")) {
