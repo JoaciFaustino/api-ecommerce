@@ -119,7 +119,7 @@ export class CakeController {
       name: schemaCreateCake.name.optional(),
       type: schemaCreateCake.type.optional(),
       categories: schemaCreateCake.categories.optional(),
-      frosting: schemaCreateCake.frosting.optional(),
+      frosting: schemaCreateCake.frosting.nullable().optional(),
       fillings: schemaCreateCake.fillings.optional(),
       size: schemaCreateCake.size.optional(),
       sizesPossibles: schemaCreateCake.sizesPossibles.optional(),

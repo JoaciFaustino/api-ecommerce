@@ -376,6 +376,18 @@ export class CakeService {
   }
 
   async delete(id: string): Promise<void> {
+    const cake = await this.findById(id);
+
+    if (!cake) {
+      throw new ApiError("cake not found", 404);
+    }
+
+    const result = this.filesService.deleteImageCake(cake.imageUrl);
+
+    if (!result) {
+      throw new ApiError("failed to delete the image", 500);
+    }
+
     await this.cakeRepository.delete(id);
   }
 

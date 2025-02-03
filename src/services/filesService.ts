@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import path from "path";
+import { deleteLocalImage, getCloudinaryPublicId } from "../utils/cakeImage";
 
 export class FilesService {
   constructor() {}
@@ -44,9 +43,7 @@ export class FilesService {
       const b64: string = Buffer.from(file.buffer).toString("base64");
       const dataUri: string = `data:${file.mimetype};base64,${b64}`;
 
-      const piecesUrl: string[] = oldImageUrl.split("/");
-      const publicIdImage: string =
-        piecesUrl[piecesUrl.length - 1].split(".")[0];
+      const publicIdImage = getCloudinaryPublicId(oldImageUrl);
 
       try {
         const result = await cloudinary.uploader.upload(dataUri, {
@@ -64,18 +61,26 @@ export class FilesService {
 
     if (!file.filename) return;
 
-    const piecesUrl: string[] = oldImageUrl.split("/");
-    const fileNameImage: string = oldImageUrl.split("/")[piecesUrl.length - 1];
-
-    const pathOldImage = path.resolve(
-      __dirname,
-      "../../public/temp/uploads/" + fileNameImage
-    );
-
-    fs.unlink(pathOldImage, () => {
-      return;
-    });
+    deleteLocalImage(oldImageUrl);
 
     return hostUrl + "images/" + file.filename;
+  }
+
+  async deleteImageCake(imageUrl: string): Promise<boolean> {
+    if (process.env.DESTINATION_STORAGE_IMAGES === "cloudinary") {
+      const publicIdImage = getCloudinaryPublicId(imageUrl);
+
+      try {
+        await cloudinary.uploader.destroy(publicIdImage, { invalidate: true });
+
+        return true;
+      } catch (error: any) {
+        return false;
+      }
+    }
+
+    const result: boolean = deleteLocalImage(imageUrl);
+
+    return result;
   }
 }

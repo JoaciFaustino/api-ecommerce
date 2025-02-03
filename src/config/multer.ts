@@ -32,9 +32,7 @@ const storage =
 const upload = multer({
   storage: storage,
   dest: path.resolve(__dirname, "..", "..", "public", "temp", "uploads"),
-  limits: {
-    fileSize: 1024 * 1024 * 5
-  },
+  limits: { fileSize: 1024 * 1024 * 5 },
   fileFilter: (req, file, cb) => {
     if (!mimeTypesAllowed.includes(file.mimetype)) {
       cb(new ApiError("invalid file type", 400));
