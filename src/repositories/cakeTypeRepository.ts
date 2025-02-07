@@ -83,4 +83,8 @@ export class CakeTypeRepository {
 
     return { _id: cakeType._id, type: cakeType.type };
   }
+
+  async delete(id: string): Promise<void> {
+    await CakeType.findByIdAndDelete(id);
+  }
 }

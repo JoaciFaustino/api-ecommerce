@@ -70,4 +70,22 @@ export class CakeTypeController {
       cakeType
     });
   }
+
+  async delete(req: Request<{ id?: string }, {}, {}, {}>, res: Response) {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new ApiError("id is required", 400);
+    }
+
+    const cakeTypeService = new CakeTypeService();
+
+    try {
+      await cakeTypeService.delete(id);
+    } catch (error) {
+      throw new ApiError("Failed to delete the cake type", 400);
+    }
+
+    return res.status(200).send({ message: "cake type deleted sucessfully" });
+  }
 }

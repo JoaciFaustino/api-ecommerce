@@ -71,4 +71,8 @@ export class CakeTypeService {
   async update(id: string, cakeType: string): Promise<ICakeType | undefined> {
     return await this.cakeTypeRepository.update(id, cakeType);
   }
+
+  async delete(id: string): Promise<void> {
+    return await this.cakeTypeRepository.delete(id);
+  }
 }
