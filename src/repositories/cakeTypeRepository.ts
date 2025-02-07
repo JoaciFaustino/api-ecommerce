@@ -69,4 +69,18 @@ export class CakeTypeRepository {
 
     return { _id: cakeTypeRes._id, type: cakeTypeRes.type };
   }
+
+  async update(id: string, type: string): Promise<ICakeType | undefined> {
+    const cakeType = await CakeType.findByIdAndUpdate(
+      id,
+      { type },
+      { new: true }
+    );
+
+    if (!cakeType) {
+      return;
+    }
+
+    return { _id: cakeType._id, type: cakeType.type };
+  }
 }

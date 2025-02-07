@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeTypeService } from "../services/cakeTypeService";
 import { BaseQueryParams } from "../@types/QueryParams";
+import { ReqBodyUpdateCakeType } from "../@types/ReqBody";
 
 export class CakeTypeController {
   constructor() {}
@@ -38,6 +39,35 @@ export class CakeTypeController {
     return res.status(200).send({
       message: "cake type created sucessfully",
       cakeType: cakeTypeCreated
+    });
+  }
+
+  async update(
+    req: Request<{ id?: string }, {}, ReqBodyUpdateCakeType, {}>,
+    res: Response
+  ) {
+    const { id } = req.params;
+    const { type } = req.body;
+
+    if (!id) {
+      throw new ApiError("id is required", 400);
+    }
+
+    if (!type || typeof type !== "string") {
+      throw new ApiError("cake type is required and must be string", 400);
+    }
+
+    const cakeTypeService = new CakeTypeService();
+
+    const cakeType = await cakeTypeService.update(id, type);
+
+    if (!cakeType) {
+      throw new ApiError("failed to update the cake type", 400);
+    }
+
+    return res.status(200).send({
+      message: "cake type updated sucessfully",
+      cakeType
     });
   }
 }

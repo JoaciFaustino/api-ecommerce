@@ -14,5 +14,9 @@ cakeTypeRouter.post(
   "/create",
   asyncErrorHandler(new CakeTypeController().create)
 );
+cakeTypeRouter.patch(
+  "/update/:id",
+  asyncErrorHandler(new CakeTypeController().update)
+);
 
 export default cakeTypeRouter;

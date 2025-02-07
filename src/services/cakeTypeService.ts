@@ -2,11 +2,7 @@ import { ICakeType } from "../@types/CakeType";
 import { BaseQueryParams } from "../@types/QueryParams";
 import { CakeTypeRepository } from "../repositories/cakeTypeRepository";
 import { ApiError } from "../utils/ApiError";
-import {
-  getPrevAndNextUrl,
-  normalizeQueryString,
-  normalizeQueryStringArray
-} from "../utils/queryString";
+import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
 
 type GetAllReturn = {
   maxPages: number;
@@ -70,5 +66,9 @@ export class CakeTypeService {
     }
 
     return typeInDB;
+  }
+
+  async update(id: string, cakeType: string): Promise<ICakeType | undefined> {
+    return await this.cakeTypeRepository.update(id, cakeType);
   }
 }
