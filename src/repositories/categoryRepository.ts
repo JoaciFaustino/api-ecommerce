@@ -52,4 +52,22 @@ export class CategoryRepository {
 
     return { _id: categoryCreated._id, category: categoryCreated.category };
   }
+
+  async update(id: string, category: string): Promise<ICategory | undefined> {
+    const categoryUpdated = await Category.findByIdAndUpdate(
+      id,
+      { category },
+      { new: true }
+    );
+
+    if (!categoryUpdated) {
+      return;
+    }
+
+    return { _id: categoryUpdated._id, category: categoryUpdated.category };
+  }
+
+  async delete(id: string): Promise<void> {
+    await Category.findByIdAndDelete(id);
+  }
 }

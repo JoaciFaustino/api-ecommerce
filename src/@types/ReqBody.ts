@@ -39,6 +39,10 @@ export type ReqBodyUpdateCakeType = {
   type: string;
 };
 
+export type ReqBodyUpdateCategory = {
+  category: string;
+};
+
 export interface ReqBodyCreateCart extends TokenDecodedByAuthMiddleware {
   cakeId: string;
   type?: string;

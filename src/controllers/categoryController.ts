@@ -3,6 +3,7 @@ import { CategoryService } from "../services/categoryService";
 import { ApiError } from "../utils/ApiError";
 import { ICategory } from "../@types/Category";
 import { BaseQueryParams } from "../@types/QueryParams";
+import { ReqBodyUpdateCategory } from "../@types/ReqBody";
 
 export class CategoryController {
   constructor() {}
@@ -39,5 +40,52 @@ export class CategoryController {
       message: "category created sucessfully",
       category: categoryCreated
     });
+  }
+
+  async update(
+    req: Request<{ id?: string }, {}, ReqBodyUpdateCategory, {}>,
+    res: Response
+  ) {
+    const { id } = req.params;
+    const { category } = req.body;
+
+    if (!id) {
+      throw new ApiError("id is required", 400);
+    }
+
+    if (!category || typeof category !== "string") {
+      throw new ApiError("category is required and must be string", 400);
+    }
+
+    const categoryService = new CategoryService();
+
+    const categoryUpdated = await categoryService.update(id, category);
+
+    if (!category) {
+      throw new ApiError("failed to update the category", 400);
+    }
+
+    return res.status(200).send({
+      message: "category updated sucessfully",
+      category: categoryUpdated
+    });
+  }
+
+  async delete(req: Request<{ id?: string }, {}, {}, {}>, res: Response) {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new ApiError("id is required", 400);
+    }
+
+    const categoryService = new CategoryService();
+
+    try {
+      await categoryService.delete(id);
+    } catch (error) {
+      throw new ApiError("Failed to delete the category", 400);
+    }
+
+    return res.status(200).send({ message: "category deleted sucessfully" });
   }
 }

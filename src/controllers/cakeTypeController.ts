@@ -21,16 +21,17 @@ export class CakeTypeController {
     return res.status(200).send({ cakeTypes, maxPages, nextUrl, prevUrl });
   }
 
-  async create(req: Request, res: Response) {
-    const { cakeType } = req.body;
+  async create(req: Request<{}, {}, { type: string }, {}>, res: Response) {
+    const { type } = req.body;
 
-    if (!cakeType || typeof cakeType !== "string")
+    if (!type || typeof type !== "string") {
       throw new ApiError("cake type is required and must be string", 400);
+    }
 
     const cakeTypeService = new CakeTypeService();
 
     const cakeTypeCreated: string | undefined = await cakeTypeService.create(
-      cakeType
+      type
     );
 
     if (!cakeTypeCreated)

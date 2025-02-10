@@ -14,5 +14,13 @@ categoryRouter.post(
   "/create",
   asyncErrorHandler(new CategoryController().create)
 );
+categoryRouter.patch(
+  "/update/:id",
+  asyncErrorHandler(new CategoryController().update)
+);
+categoryRouter.delete(
+  "/delete/:id",
+  asyncErrorHandler(new CategoryController().delete)
+);
 
 export default categoryRouter;

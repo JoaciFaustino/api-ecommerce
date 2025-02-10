@@ -50,6 +50,14 @@ export class CategoryService {
     return await this.categoryRepository.create(category);
   }
 
+  async update(id: string, category: string): Promise<ICategory | undefined> {
+    return await this.categoryRepository.update(id, category);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.categoryRepository.delete(id);
+  }
+
   async validateAllCategoriesInCake(
     categories: string[]
   ): Promise<ICategory[]> {
