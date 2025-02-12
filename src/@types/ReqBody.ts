@@ -1,4 +1,5 @@
 import { CustomizablesParts, PricePerSize, Size } from "./Cake";
+import { IFilling } from "./Filling";
 import { ContactDetails, DeliveryAddress, TypeOfReceiptOptions } from "./Order";
 
 export interface TokenDecodedByAuthMiddleware {
@@ -42,6 +43,10 @@ export type ReqBodyUpdateCakeType = {
 export type ReqBodyUpdateCategory = {
   category: string;
 };
+
+export type ReqBodyUpdateFilling = Partial<Omit<IFilling, "_id">>;
+
+export type ReqBodyUpdateFrosting = Partial<Omit<IFilling, "_id">>;
 
 export interface ReqBodyCreateCart extends TokenDecodedByAuthMiddleware {
   cakeId: string;

@@ -65,4 +65,26 @@ export class FillingRepository {
 
     return { _id: filling._id, name: filling.name, price: filling.price };
   }
+
+  async update(
+    id: string,
+    name?: string,
+    price?: number
+  ): Promise<IFilling | undefined> {
+    const filling = await Filling.findByIdAndUpdate(
+      id,
+      { name, price },
+      { new: true }
+    );
+
+    if (!filling) {
+      return;
+    }
+
+    return { _id: filling._id, name: filling.name, price: filling.price };
+  }
+
+  async delete(id: string): Promise<void> {
+    await Filling.findByIdAndDelete(id);
+  }
 }

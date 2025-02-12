@@ -3,6 +3,7 @@ import { FillingService } from "../services/fillingService";
 import { ApiError } from "../utils/ApiError";
 import { IFilling } from "../@types/Filling";
 import { BaseQueryParams } from "../@types/QueryParams";
+import { ReqBodyUpdateFilling } from "../@types/ReqBody";
 
 export class FillingController {
   constructor() {}
@@ -43,5 +44,62 @@ export class FillingController {
       message: "filling created sucessfully",
       filling: fillingCreated
     });
+  }
+
+  async update(
+    req: Request<{ id?: string }, {}, ReqBodyUpdateFilling, {}>,
+    res: Response
+  ) {
+    const { id } = req.params;
+    const { name, price } = req.body;
+
+    if (!id) {
+      throw new ApiError("id is required", 400);
+    }
+
+    if (typeof name !== "string" && typeof name !== "undefined") {
+      throw new ApiError("name must be string", 400);
+    }
+
+    if (
+      (typeof price !== "number" && typeof price !== "undefined") ||
+      (price && price < 0.5)
+    ) {
+      throw new ApiError(
+        "price must be a positive number greater than 0.5",
+        400
+      );
+    }
+
+    const fillingService = new FillingService();
+
+    const filling = await fillingService.update(id, name, price);
+
+    if (!filling) {
+      throw new ApiError("failed to update the filling", 400);
+    }
+
+    return res.status(200).send({
+      message: "filling updated sucessfully",
+      filling
+    });
+  }
+
+  async delete(req: Request<{ id?: string }, {}, {}, {}>, res: Response) {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new ApiError("id is required", 400);
+    }
+
+    const fillingService = new FillingService();
+
+    try {
+      await fillingService.delete(id);
+    } catch (error) {
+      throw new ApiError("Failed to delete the filling", 400);
+    }
+
+    return res.status(200).send({ message: "Filling deleted successfully" });
   }
 }

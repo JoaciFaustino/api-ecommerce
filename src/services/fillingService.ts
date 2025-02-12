@@ -59,12 +59,19 @@ export class FillingService {
   }
 
   async create(name: string, price: number): Promise<IFilling | undefined> {
-    const fillingCreated: IFilling | undefined =
-      await this.fillingRepository.create(name, price);
+    return await this.fillingRepository.create(name, price);
+  }
 
-    if (!fillingCreated) return;
+  async update(
+    id: string,
+    name?: string,
+    price?: number
+  ): Promise<IFilling | undefined> {
+    return await this.fillingRepository.update(id, name, price);
+  }
 
-    return fillingCreated;
+  async delete(id: string): Promise<void> {
+    await this.fillingRepository.delete(id);
   }
 
   async validateAllFillingsInCake(fillingNames: string[]): Promise<IFilling[]> {

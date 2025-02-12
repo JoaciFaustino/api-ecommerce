@@ -14,5 +14,13 @@ fillingRouter.post(
   "/create",
   asyncErrorHandler(new FillingController().create)
 );
+fillingRouter.patch(
+  "/update/:id",
+  asyncErrorHandler(new FillingController().update)
+);
+fillingRouter.delete(
+  "/delete/:id",
+  asyncErrorHandler(new FillingController().delete)
+);
 
 export default fillingRouter;
