@@ -85,4 +85,26 @@ export class FrostingRepository {
 
     return { _id: frosting._id, name: frosting.name, price: frosting.price };
   }
+
+  async update(
+    id: string,
+    name?: string,
+    price?: number
+  ): Promise<IFrosting | undefined> {
+    const frosting = await Frosting.findByIdAndUpdate(
+      id,
+      { name, price },
+      { new: true }
+    );
+
+    if (!frosting) {
+      return;
+    }
+
+    return { _id: frosting._id, name: frosting.name, price: frosting.price };
+  }
+
+  async delete(id: string): Promise<void> {
+    await Frosting.findByIdAndDelete(id);
+  }
 }

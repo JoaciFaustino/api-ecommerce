@@ -14,5 +14,13 @@ frostingRouter.post(
   "/create",
   asyncErrorHandler(new FrostingController().create)
 );
+frostingRouter.patch(
+  "/update/:id",
+  asyncErrorHandler(new FrostingController().update)
+);
+frostingRouter.delete(
+  "/delete/:id",
+  asyncErrorHandler(new FrostingController().delete)
+);
 
 export default frostingRouter;

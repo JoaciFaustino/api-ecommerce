@@ -60,6 +60,18 @@ export class FrostingService {
     return frostingCreated;
   }
 
+  async update(
+    id: string,
+    name?: string,
+    price?: number
+  ): Promise<IFrosting | undefined> {
+    return await this.frostingRepository.update(id, name, price);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.frostingRepository.delete(id);
+  }
+
   async validateFrostingInCake(
     frostingName?: string
   ): Promise<IFrosting | undefined> {
