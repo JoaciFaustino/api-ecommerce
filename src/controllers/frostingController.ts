@@ -42,7 +42,7 @@ export class FrostingController {
     if (!frostingCreated)
       throw new ApiError("failed to create the frosting", 400);
 
-    return res.status(400).send({
+    return res.status(200).send({
       message: "frosting created sucessfully",
       frosting: frostingCreated
     });

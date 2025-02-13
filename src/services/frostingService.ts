@@ -54,10 +54,7 @@ export class FrostingService {
   }
 
   async create(name: string, price: number): Promise<IFrosting | undefined> {
-    const frostingCreated: IFrosting | undefined =
-      await this.frostingRepository.create(name, price);
-
-    return frostingCreated;
+    return await this.frostingRepository.create(name, price);
   }
 
   async update(
