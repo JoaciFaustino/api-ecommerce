@@ -4,7 +4,7 @@ import {
   SORT_BY_CAKES_OBJS,
   TypeKeysSortByCakes,
   typeSortByCakesObj
-} from "../utils/SortByCake";
+} from "../@types/SortByCake";
 import {
   JoinColectionData,
   MatchPipeline,

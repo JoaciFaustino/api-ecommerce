@@ -53,7 +53,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
         phoneNumber: { type: String, required: true },
         email: { type: String, required: true }
       },
-      required: false
+      required: true
     },
     observations: {
       type: String,

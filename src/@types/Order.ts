@@ -35,4 +35,7 @@ export interface IOrder {
   dateAndTimeDelivery?: Date; //it will be undefined when the typeOfReceipt is "pick-up"
   totalPricing: number;
   state: OrderState;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }

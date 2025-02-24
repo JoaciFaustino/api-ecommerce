@@ -10,10 +10,31 @@ import { errorEnum, errorString } from "../utils/zod";
 import { phoneNumberValidator } from "../utils/regexValidators";
 import { ApiError } from "../utils/ApiError";
 import { OrderService } from "../services/OrderService";
-import { BaseQueryParams } from "../@types/QueryParams";
+import {
+  BaseQueryParams,
+  IQueryParamsGetAllOrders
+} from "../@types/QueryParams";
 
 export class OrderController {
   constructor() {}
+
+  async getAll(
+    req: Request<{}, {}, {}, IQueryParamsGetAllOrders>,
+    res: Response
+  ) {
+    const query = req.query;
+
+    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+
+    const orderService = new OrderService();
+
+    const { maxPages, nextUrl, prevUrl, orders } = await orderService.getAll(
+      url,
+      query
+    );
+
+    return res.status(200).send({ orders, maxPages, nextUrl, prevUrl });
+  }
 
   async getAllUserOrders(
     req: Request<
@@ -41,7 +62,7 @@ export class OrderController {
     const { orders, maxPages, nextUrl, prevUrl } =
       await orderService.getAllUserOrders(url, userId, req.query);
 
-    res.status(200).send({ orders, maxPages, nextUrl, prevUrl });
+    return res.status(200).send({ orders, maxPages, nextUrl, prevUrl });
   }
 
   async create(req: Request<{}, {}, ReqBodyCreateOrder>, res: Response) {

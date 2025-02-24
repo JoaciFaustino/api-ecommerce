@@ -14,3 +14,8 @@ export interface IQueryParamsGetAllCakes extends BaseQueryParams {
   frosting?: string | string[];
   size?: string | string[];
 }
+
+export interface IQueryParamsGetAllOrders extends BaseQueryParams {
+  sortBy?: string | string[];
+  filters?: string | string[];
+}

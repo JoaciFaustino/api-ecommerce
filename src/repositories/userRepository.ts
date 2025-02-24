@@ -58,9 +58,9 @@ export class UserRepository {
     username: string,
     email: string
   ): Promise<boolean> {
-    return await !!User.findOne({
+    return !!(await User.findOne({
       $or: [{ name: name }, { username: username }, { email: email }]
-    });
+    }));
   }
 
   async findByEmail(email: string): Promise<IUser | undefined> {

@@ -5,12 +5,25 @@ import {
   IOrder,
   TypeOfReceiptOptions
 } from "../@types/Order";
-import { BaseQueryParams } from "../@types/QueryParams";
+import {
+  ORDERS_FILTERS_OPTIONS,
+  ORDERS_SORT_BY_OPTIONS,
+  OrdersFiltersOption,
+  OrdersSortByOption
+} from "../@types/OrdersFilters";
+import {
+  BaseQueryParams,
+  IQueryParamsGetAllOrders
+} from "../@types/QueryParams";
 import { CakeRepository } from "../repositories/cakeRepository";
 import { CartRepository } from "../repositories/cartRepository";
 import { OrderRepository } from "../repositories/orderRepository";
 import { ApiError } from "../utils/ApiError";
-import { getPrevAndNextUrl, normalizeQueryString } from "../utils/queryString";
+import {
+  getPrevAndNextUrl,
+  normalizeQueryString,
+  normalizeQueryStringArray
+} from "../utils/queryString";
 import { CartService } from "./cartService";
 
 type getAllReturn = {
@@ -28,6 +41,45 @@ export class OrderService {
     private cartRepository = new CartRepository()
   ) {}
 
+  async getAll(
+    url: string,
+    { page, limit, sortBy, search, filters }: IQueryParamsGetAllOrders
+  ): Promise<getAllReturn> {
+    const clientName = normalizeQueryString(search);
+    const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
+    const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
+
+    const sortByLastValue = normalizeQueryString(sortBy) || "latest";
+    const sortByNormalized: OrdersSortByOption =
+      ORDERS_SORT_BY_OPTIONS.includes(sortByLastValue as OrdersSortByOption)
+        ? (sortByLastValue as OrdersSortByOption)
+        : "latest";
+
+    const filtersNormalizeds = normalizeQueryStringArray(filters);
+    const validFilters = filtersNormalizeds.filter((filter) =>
+      ORDERS_FILTERS_OPTIONS.includes(filter as OrdersFiltersOption)
+    ) as OrdersFiltersOption[];
+
+    const quantityOrdersOnDb = await this.orderRepository.countDocs(
+      validFilters,
+      clientName
+    );
+    const maxPages =
+      quantityOrdersOnDb > 0 ? Math.ceil(quantityOrdersOnDb / limitNumber) : 1;
+
+    const orders = await this.orderRepository.getAll(
+      limitNumber,
+      pageNumber,
+      sortByNormalized,
+      validFilters,
+      clientName
+    );
+
+    const { nextUrl, prevUrl } = getPrevAndNextUrl(url, pageNumber, maxPages);
+
+    return { orders, maxPages, nextUrl, prevUrl };
+  }
+
   async getAllUserOrders(
     url: string,
     userId: string,
@@ -36,11 +88,15 @@ export class OrderService {
     const limitNumber = parseInt(normalizeQueryString(limit) || "") || 20;
     const pageNumber = parseInt(normalizeQueryString(page) || "") || 1;
 
-    const quantityOrdersOnDb = await this.orderRepository.countDocs(userId);
+    const quantityOrdersOnDb = await this.orderRepository.countDocs(
+      [],
+      undefined,
+      userId
+    );
     const maxPages =
       quantityOrdersOnDb > 0 ? Math.ceil(quantityOrdersOnDb / limitNumber) : 1;
 
-    const orders = await this.orderRepository.getAllOrders(
+    const orders = await this.orderRepository.getAllUserOrders(
       limitNumber,
       pageNumber,
       userId

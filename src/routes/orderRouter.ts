@@ -16,5 +16,7 @@ ordersRouter.get(
 ordersRouter.post("/create", asyncErrorHandler(new OrderController().create));
 
 //admin routes
+ordersRouter.use(new AuthMiddleware().isAdmin);
+ordersRouter.get("/", asyncErrorHandler(new OrderController().getAll));
 
 export default ordersRouter;

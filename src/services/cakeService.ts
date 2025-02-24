@@ -4,7 +4,7 @@ import { FilesService } from "./filesService";
 import {
   SORT_BY_CAKES_OPTIONS,
   TypeKeysSortByCakes
-} from "../utils/SortByCake";
+} from "../@types/SortByCake";
 import { IFrosting } from "../@types/Frosting";
 import { IFilling } from "../@types/Filling";
 import {
