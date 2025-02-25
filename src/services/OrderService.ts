@@ -3,6 +3,7 @@ import {
   ContactDetails,
   DeliveryAddress,
   IOrder,
+  OrderState,
   TypeOfReceiptOptions
 } from "../@types/Order";
 import {
@@ -15,6 +16,7 @@ import {
   BaseQueryParams,
   IQueryParamsGetAllOrders
 } from "../@types/QueryParams";
+import { ReqBodyUpdateOrder } from "../@types/ReqBody";
 import { CakeRepository } from "../repositories/cakeRepository";
 import { CartRepository } from "../repositories/cartRepository";
 import { OrderRepository } from "../repositories/orderRepository";
@@ -157,6 +159,28 @@ export class OrderService {
     await this.increaseTheBoughtsOfTheCakesOrder(cart.cakes);
 
     return order;
+  }
+
+  async update(
+    id: string,
+    state?: OrderState,
+    dateAndTimeDelivery?: Date
+  ): Promise<IOrder | undefined> {
+    const order = await this.orderRepository.update(
+      id,
+      state,
+      dateAndTimeDelivery
+    );
+
+    if (!order) {
+      return;
+    }
+
+    return order;
+  }
+
+  async delete(id: string): Promise<void> {
+    return await this.orderRepository.delete(id);
   }
 
   private async increaseTheBoughtsOfTheCakesOrder(

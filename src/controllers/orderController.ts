@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { TYPE_OF_RECEIPT_OPTIONS } from "../@types/Order";
+import { ORDER_STATE_OPTIONS, TYPE_OF_RECEIPT_OPTIONS } from "../@types/Order";
 import {
   ReqBodyCreateOrder,
+  ReqBodyUpdateOrder,
   TokenDecodedByAuthMiddleware
 } from "../@types/ReqBody";
 import { z } from "zod";
@@ -148,5 +149,94 @@ export class OrderController {
 
       throw error;
     }
+  }
+
+  async update(
+    req: Request<{ id?: string }, {}, ReqBodyUpdateOrder, {}>,
+    res: Response
+  ) {
+    const orderId = req.params.id;
+    const body = req.body;
+
+    if (!orderId || typeof orderId !== "string") {
+      throw new ApiError("id is required", 400);
+    }
+
+    const schema = z
+      .object({
+        state: z
+          .enum(ORDER_STATE_OPTIONS, { message: errorEnum("state") })
+          .optional(),
+        dateAndTimeDelivery: z
+          .string({ message: "dateAndTimeDelivery must be a ISOSstring" })
+          .datetime({ message: "dateAndTimeDelivery must be a ISOSstring" })
+          .optional()
+          .refine((dateString) => {
+            const deliveryDate = new Date(dateString || "invalid value");
+
+            return !dateString || deliveryDate > new Date();
+          }, "that date has already passed")
+          .refine((dateString) => {
+            const deliveryDate = new Date(dateString || "invalid value");
+
+            const oneYearFromToday = new Date();
+            oneYearFromToday.setFullYear(oneYearFromToday.getFullYear() + 1);
+
+            return !dateString || deliveryDate < oneYearFromToday;
+          }, "that date is too far away")
+      })
+      .refine(
+        ({ state, dateAndTimeDelivery }) => state || dateAndTimeDelivery,
+        { message: "send some field to update" }
+      );
+
+    try {
+      const { dateAndTimeDelivery, state } = schema.parse(body);
+
+      const dateDeliveryNormalized = dateAndTimeDelivery
+        ? new Date(dateAndTimeDelivery)
+        : undefined;
+
+      const orderService = new OrderService();
+
+      const updatedOrder = await orderService.update(
+        orderId,
+        state,
+        dateDeliveryNormalized
+      );
+
+      if (!updatedOrder) {
+        throw new ApiError("failed to update the order", 500);
+      }
+
+      return res.status(200).send({
+        message: "order was updated successfully",
+        order: updatedOrder
+      });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        throw new ApiError(error.errors[0].message, 400);
+      }
+
+      throw error;
+    }
+  }
+
+  async delete(req: Request<{ id?: string }, {}, {}, {}>, res: Response) {
+    const orderId = req.params.id;
+
+    if (!orderId || typeof orderId !== "string") {
+      throw new ApiError("id is required", 400);
+    }
+
+    const orderService = new OrderService();
+
+    try {
+      await orderService.delete(orderId);
+    } catch (error) {
+      throw new ApiError("Failed to delete the order", 400);
+    }
+
+    return res.status(200).send({ message: "order deleted successfully" });
   }
 }

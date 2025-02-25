@@ -64,3 +64,8 @@ export interface ReqBodyCreateOrder extends TokenDecodedByAuthMiddleware {
   observations?: string;
   deliveryAddress?: DeliveryAddress;
 }
+
+export interface ReqBodyUpdateOrder {
+  state?: string;
+  dateAndTimeDelivery?: string;
+}

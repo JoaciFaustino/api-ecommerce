@@ -39,8 +39,6 @@ export class OrderRepository {
 
     const query = this.normalizeGetAllFilters(filters, clientName);
 
-    
-
     const orders = await Order.find(query)
       .sort(sortByMongooseConfig)
       .skip(limit * (page - 1))
@@ -85,7 +83,9 @@ export class OrderRepository {
       deliveryAddress: order.deliveryAddress,
       dateAndTimeDelivery: order.dateAndTimeDelivery,
       totalPricing: order.totalPricing,
-      state: order.state
+      state: order.state,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt
     }));
   }
 
@@ -124,8 +124,45 @@ export class OrderRepository {
       state: order.state,
       deliveryAddress: order.deliveryAddress,
       observations: order.observations,
-      dateAndTimeDelivery: order.dateAndTimeDelivery
+      dateAndTimeDelivery: order.dateAndTimeDelivery,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt
     };
+  }
+
+  async update(
+    id: string,
+    state?: OrderState,
+    dateAndTimeDelivery?: Date
+  ): Promise<IOrder | undefined> {
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { state, dateAndTimeDelivery },
+      { new: true }
+    );
+
+    if (!order) {
+      return;
+    }
+
+    return {
+      _id: order._id,
+      userId: order.userId,
+      cakes: order.cakes,
+      typeOfReceipt: order.typeOfReceipt,
+      contactDetails: order.contactDetails,
+      totalPricing: order.totalPricing,
+      state: order.state,
+      deliveryAddress: order.deliveryAddress,
+      observations: order.observations,
+      dateAndTimeDelivery: order.dateAndTimeDelivery,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt
+    };
+  }
+
+  async delete(id: string): Promise<void> {
+    await Order.findByIdAndDelete(id);
   }
 
   private normalizeGetAllFilters(
