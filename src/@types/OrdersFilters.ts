@@ -24,8 +24,8 @@ export const sortByPossibleOptions: Record<
   oldest: { createdAt: 1, _id: 1 },
   "price: highest to lowest": { totalPricing: -1, _id: 1 },
   "price: lowest to highest": { totalPricing: 1, _id: 1 },
-  "delivery date: from future to overdue": { dateAndTimeDelivery: 1, _id: 1 },
-  "delivery date: from overdue to future": { dateAndTimeDelivery: -1, _id: 1 }
+  "delivery date: from future to overdue": { dateAndTimeDelivery: -1, _id: 1 },
+  "delivery date: from overdue to future": { dateAndTimeDelivery: 1, _id: 1 }
 };
 
 export const ORDERS_FILTERS_OPTIONS = [
