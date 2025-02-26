@@ -135,7 +135,7 @@ export class CakeController {
         Object.keys(bodyValidated).length === 0 ||
         Object.values(bodyValidated).every((value) => value === undefined);
 
-      if (isEmptyObj) {
+      if (isEmptyObj && !imageCake) {
         throw new ApiError("you need send something to update", 400);
       }
 
