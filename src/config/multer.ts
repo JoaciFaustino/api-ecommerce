@@ -4,7 +4,12 @@ import { ApiError } from "../utils/ApiError";
 import crypto from "crypto";
 import "dotenv/config";
 
-const mimeTypesAllowed = ["image/jpeg", "image/pjpeg", "image/png"];
+const mimeTypesAllowed = [
+  "image/jpeg",
+  "image/pjpeg",
+  "image/png",
+  "image/webp"
+];
 
 const storageType = {
   local: multer.diskStorage({
