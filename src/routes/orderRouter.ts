@@ -4,6 +4,8 @@ import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { AuthMiddleware } from "../middlewares/authMiddleware";
 
 const ordersRouter = Router();
+const orderController = new OrderController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
 
@@ -11,20 +13,14 @@ const ordersRouter = Router();
 ordersRouter.use(new AuthMiddleware().isAuthenticated);
 ordersRouter.get(
   "/:userId",
-  asyncErrorHandler(new OrderController().getAllUserOrders)
+  asyncErrorHandler(orderController.getAllUserOrders)
 );
-ordersRouter.post("/create", asyncErrorHandler(new OrderController().create));
+ordersRouter.post("/create", asyncErrorHandler(orderController.create));
 
 //admin routes
-ordersRouter.use(new AuthMiddleware().isAdmin);
-ordersRouter.get("/", asyncErrorHandler(new OrderController().getAll));
-ordersRouter.patch(
-  "/update/:id",
-  asyncErrorHandler(new OrderController().update)
-);
-ordersRouter.delete(
-  "/delete/:id",
-  asyncErrorHandler(new OrderController().delete)
-);
+ordersRouter.use(authMiddleware.isAdmin);
+ordersRouter.get("/", asyncErrorHandler(orderController.getAll));
+ordersRouter.patch("/update/:id", asyncErrorHandler(orderController.update));
+ordersRouter.delete("/delete/:id", asyncErrorHandler(orderController.delete));
 
 export default ordersRouter;

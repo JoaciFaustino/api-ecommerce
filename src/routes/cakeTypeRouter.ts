@@ -4,23 +4,22 @@ import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { CakeTypeController } from "../controllers/cakeTypeController";
 
 const cakeTypeRouter = Router();
+const cakeTypeController = new CakeTypeController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
-cakeTypeRouter.get("/", asyncErrorHandler(new CakeTypeController().getAll));
+cakeTypeRouter.get("/", asyncErrorHandler(cakeTypeController.getAll));
 
 //admin routes
-cakeTypeRouter.use(new AuthMiddleware().isAdmin);
-cakeTypeRouter.post(
-  "/create",
-  asyncErrorHandler(new CakeTypeController().create)
-);
+cakeTypeRouter.use(authMiddleware.isAdmin);
+cakeTypeRouter.post("/create", asyncErrorHandler(cakeTypeController.create));
 cakeTypeRouter.patch(
   "/update/:id",
-  asyncErrorHandler(new CakeTypeController().update)
+  asyncErrorHandler(cakeTypeController.update)
 );
 cakeTypeRouter.delete(
   "/delete/:id",
-  asyncErrorHandler(new CakeTypeController().delete)
+  asyncErrorHandler(cakeTypeController.delete)
 );
 
 export default cakeTypeRouter;

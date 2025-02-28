@@ -4,13 +4,15 @@ import { AuthController } from "../controllers/authController";
 import { AuthMiddleware } from "../middlewares/authMiddleware";
 
 const authRouter = Router();
+const authController = new AuthController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
-authRouter.post("/signup", asyncErrorHandler(new AuthController().signUp));
-authRouter.post("/login", asyncErrorHandler(new AuthController().login));
+authRouter.post("/signup", asyncErrorHandler(authController.signUp));
+authRouter.post("/login", asyncErrorHandler(authController.login));
 
 //authenticated routes
-authRouter.use(new AuthMiddleware().isAuthenticated);
-authRouter.get("/", new AuthController().auth);
+authRouter.use(authMiddleware.isAuthenticated);
+authRouter.get("/", authController.auth);
 
 export default authRouter;

@@ -5,29 +5,28 @@ import { AuthMiddleware } from "../middlewares/authMiddleware";
 import { upload } from "../config/multer";
 
 const cakesRouter = Router();
+const cakeController = new CakeController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
-cakesRouter.get("/", asyncErrorHandler(new CakeController().getAll));
+cakesRouter.get("/", asyncErrorHandler(cakeController.getAll));
 
 //authenticated routes
-cakesRouter.use(new AuthMiddleware().isAuthenticated);
-cakesRouter.get("/:id", asyncErrorHandler(new CakeController().getById));
+cakesRouter.use(authMiddleware.isAuthenticated);
+cakesRouter.get("/:id", asyncErrorHandler(cakeController.getById));
 
 //admin routes
-cakesRouter.use(new AuthMiddleware().isAdmin);
+cakesRouter.use(authMiddleware.isAdmin);
 cakesRouter.post(
   "/create",
   upload.single("imageCake"),
-  asyncErrorHandler(new CakeController().create)
+  asyncErrorHandler(cakeController.create)
 );
 cakesRouter.patch(
   "/update/:id",
   upload.single("imageCake"),
-  asyncErrorHandler(new CakeController().update)
+  asyncErrorHandler(cakeController.update)
 );
-cakesRouter.delete(
-  "/delete/:id",
-  asyncErrorHandler(new CakeController().delete)
-);
+cakesRouter.delete("/delete/:id", asyncErrorHandler(cakeController.delete));
 
 export default cakesRouter;

@@ -4,23 +4,22 @@ import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { FrostingController } from "../controllers/frostingController";
 
 const frostingRouter = Router();
+const frostingController = new FrostingController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
-frostingRouter.get("/", asyncErrorHandler(new FrostingController().getAll));
+frostingRouter.get("/", asyncErrorHandler(frostingController.getAll));
 
 //admin routes
-frostingRouter.use(new AuthMiddleware().isAdmin);
-frostingRouter.post(
-  "/create",
-  asyncErrorHandler(new FrostingController().create)
-);
+frostingRouter.use(authMiddleware.isAdmin);
+frostingRouter.post("/create", asyncErrorHandler(frostingController.create));
 frostingRouter.patch(
   "/update/:id",
-  asyncErrorHandler(new FrostingController().update)
+  asyncErrorHandler(frostingController.update)
 );
 frostingRouter.delete(
   "/delete/:id",
-  asyncErrorHandler(new FrostingController().delete)
+  asyncErrorHandler(frostingController.delete)
 );
 
 export default frostingRouter;

@@ -4,23 +4,19 @@ import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { FillingController } from "../controllers/fillingController";
 
 const fillingRouter = Router();
+const fillingController = new FillingController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
-fillingRouter.get("/", asyncErrorHandler(new FillingController().getAll));
+fillingRouter.get("/", asyncErrorHandler(fillingController.getAll));
 
 //admin routes
-fillingRouter.use(new AuthMiddleware().isAdmin);
-fillingRouter.post(
-  "/create",
-  asyncErrorHandler(new FillingController().create)
-);
-fillingRouter.patch(
-  "/update/:id",
-  asyncErrorHandler(new FillingController().update)
-);
+fillingRouter.use(authMiddleware.isAdmin);
+fillingRouter.post("/create", asyncErrorHandler(fillingController.create));
+fillingRouter.patch("/update/:id", asyncErrorHandler(fillingController.update));
 fillingRouter.delete(
   "/delete/:id",
-  asyncErrorHandler(new FillingController().delete)
+  asyncErrorHandler(fillingController.delete)
 );
 
 export default fillingRouter;

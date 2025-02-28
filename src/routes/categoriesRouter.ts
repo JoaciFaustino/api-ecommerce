@@ -4,23 +4,22 @@ import { asyncErrorHandler } from "../middlewares/asyncErrorHandler";
 import { CategoryController } from "../controllers/categoryController";
 
 const categoryRouter = Router();
+const categoryController = new CategoryController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
-categoryRouter.get("/", asyncErrorHandler(new CategoryController().getAll));
+categoryRouter.get("/", asyncErrorHandler(categoryController.getAll));
 
 //admin routes
-categoryRouter.use(new AuthMiddleware().isAdmin);
-categoryRouter.post(
-  "/create",
-  asyncErrorHandler(new CategoryController().create)
-);
+categoryRouter.use(authMiddleware.isAdmin);
+categoryRouter.post("/create", asyncErrorHandler(categoryController.create));
 categoryRouter.patch(
   "/update/:id",
-  asyncErrorHandler(new CategoryController().update)
+  asyncErrorHandler(categoryController.update)
 );
 categoryRouter.delete(
   "/delete/:id",
-  asyncErrorHandler(new CategoryController().delete)
+  asyncErrorHandler(categoryController.delete)
 );
 
 export default categoryRouter;

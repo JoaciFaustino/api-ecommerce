@@ -4,24 +4,23 @@ import { AuthMiddleware } from "../middlewares/authMiddleware";
 import { CartController } from "../controllers/cartController";
 
 const cartRouter = Router();
+const cartController = new CartController();
+const authMiddleware = new AuthMiddleware();
 
 //public routes
 
 //authenticated routes
-cartRouter.use(new AuthMiddleware().isAuthenticated);
-cartRouter.get("/:cartId", asyncErrorHandler(new CartController().getById));
+cartRouter.use(authMiddleware.isAuthenticated);
+cartRouter.get("/:cartId", asyncErrorHandler(cartController.getById));
 cartRouter.patch(
   "/add-cake/:cartId",
-  asyncErrorHandler(new CartController().addCake)
+  asyncErrorHandler(cartController.addCake)
 );
 cartRouter.patch(
   "/remove-cake/:cartId/:itemCartId",
-  asyncErrorHandler(new CartController().removeCake)
+  asyncErrorHandler(cartController.removeCake)
 );
-cartRouter.patch(
-  "/clear/:cartId",
-  asyncErrorHandler(new CartController().clearCart)
-);
+cartRouter.patch("/clear/:cartId", asyncErrorHandler(cartController.clearCart));
 
 //admin routes
 
