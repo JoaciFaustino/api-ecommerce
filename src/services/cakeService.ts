@@ -428,7 +428,7 @@ export class CakeService {
     customizableParts: CustomizablesParts[]
   ): { isValid: true } | { isValid: false; errorMessage: string } {
     if (
-      !customizableParts.includes("filing") &&
+      !customizableParts.includes("fillings") &&
       customizableParts.includes("size")
     ) {
       const fillingsIsValid = sizesPossibles.every(

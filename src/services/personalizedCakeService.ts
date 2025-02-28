@@ -180,10 +180,10 @@ export class PersonalizedCakeService {
       return { isValid: true, data: defaultFillingsNames };
     }
 
-    //depois você precisa corrigir esse erro de gramatica que tem no customizableParts, esta com "filing" ao inves de "fillings", depois dessa mudança vai precisar updatar todos os dados do banco de dados e os refazer
+    //depois você precisa corrigir esse erro de gramatica que tem no customizableParts, esta com "fillings" ao inves de "fillings", depois dessa mudança vai precisar updatar todos os dados do banco de dados e os refazer
     if (
       !areStringArraysEqual(fillings, defaultFillingsNames) &&
-      !customizableParts.includes("filing")
+      !customizableParts.includes("fillings")
     ) {
       return {
         isValid: false,

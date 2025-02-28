@@ -5,7 +5,7 @@ import { IFrosting } from "./Frosting";
 import { IFilling } from "./Filling";
 
 export const CUSTOMIZABLE_PARTS_ENUM = [
-  "filing",
+  "fillings",
   "frosting",
   "size",
   "type"
