@@ -4,6 +4,9 @@
   "description": "api of ecommerce",
   "main": "server.ts",
   "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "start": "node ./dist/server.js",
     "dev": "nodemon --exec ts-node ./server.ts"
   },
   "author": "Joaci Faustino",
