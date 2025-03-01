@@ -1,23 +1,12 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
 import { CakeService } from "../services/cakeService";
-import {
-  CUSTOMIZABLE_PARTS_ENUM,
-  ICake,
-  SIZES_POSSIBLES_ENUM
-} from "../@types/Cake";
+import { ICake } from "../@types/Cake";
 import { z } from "zod";
-import {
-  errorArrayString,
-  errorEnum,
-  errorNumberPositive,
-  errorObj,
-  errorString
-} from "../utils/zod";
-import { capitalize } from "../utils/capitalizeString";
 import { IQueryParamsGetAllCakes } from "../@types/QueryParams";
 import { ReqBodyCreateCake, ReqBodyUpdateCake } from "../@types/ReqBody";
 import { createCakeZodSchema } from "../utils/createCakeZodSchema";
+import "dotenv/config";
 
 export class CakeController {
   constructor() {}
@@ -28,7 +17,9 @@ export class CakeController {
   ) {
     const query = req.query;
 
-    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+    const protocol = process.env.API_PROTOCOL || "https";
+    const url = protocol + "://" + req.get("host") + req.originalUrl;
+
     const cakeService = new CakeService();
 
     const { cakes, maxPages, nextUrl, prevUrl } = await cakeService.getAll(

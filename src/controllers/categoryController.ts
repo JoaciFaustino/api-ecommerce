@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
 import { CategoryService } from "../services/categoryService";
 import { ApiError } from "../utils/ApiError";
-import { ICategory } from "../@types/Category";
 import { BaseQueryParams } from "../@types/QueryParams";
 import { ReqBodyUpdateCategory } from "../@types/ReqBody";
+import "dotenv/config";
 
 export class CategoryController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+    const protocol = process.env.API_PROTOCOL || "https";
+    const url = protocol + "://" + req.get("host") + req.originalUrl;
 
     const categoryService = new CategoryService();
     const { maxPages, nextUrl, prevUrl, categories } =
