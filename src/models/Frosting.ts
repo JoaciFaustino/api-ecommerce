@@ -23,12 +23,10 @@ frostingSchema.pre("findOneAndDelete", async function (next) {
 
     next();
   } catch (error) {
-    next(
-      new ApiError(
-        "failed to delete this frosting of cakes that are using this frosting",
-        500
-      )
-    );
+    const message =
+      "failed to delete this frosting of cakes that are using this frosting";
+
+    next(new ApiError(message, 500));
   }
 });
 

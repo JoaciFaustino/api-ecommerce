@@ -33,7 +33,7 @@ export class CartService {
     cakeId: string,
     quantity: number = 1,
     type?: string,
-    frosting?: string,
+    frosting?: string | null,
     fillings?: string[],
     size?: Size
   ): Promise<IPersonalizedCake | undefined> {

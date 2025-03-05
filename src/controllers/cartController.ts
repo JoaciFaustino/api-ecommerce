@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import {
-  ReqBodyCreateCart,
+  ReqBodyAddItemInCart,
   TokenDecodedByAuthMiddleware
 } from "../@types/ReqBody";
 import { ApiError } from "../utils/ApiError";
@@ -40,7 +40,7 @@ export class CartController {
   }
 
   async addCake(
-    req: Request<{ cartId?: string }, {}, ReqBodyCreateCart, {}>,
+    req: Request<{ cartId?: string }, {}, ReqBodyAddItemInCart, {}>,
     res: Response
   ) {
     const reqBodyValidation = z.object({
@@ -52,6 +52,7 @@ export class CartController {
       frosting: z
         .string({ message: errorString("frosting") })
         .trim()
+        .nullable()
         .optional(),
       fillings: z
         .array(z.string({ message: errorString("fillings") }).trim(), {

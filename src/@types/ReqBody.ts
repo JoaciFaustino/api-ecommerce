@@ -48,10 +48,10 @@ export type ReqBodyUpdateFilling = Partial<Omit<IFilling, "_id">>;
 
 export type ReqBodyUpdateFrosting = Partial<Omit<IFilling, "_id">>;
 
-export interface ReqBodyCreateCart extends TokenDecodedByAuthMiddleware {
+export interface ReqBodyAddItemInCart extends TokenDecodedByAuthMiddleware {
   cakeId: string;
   type?: string;
-  frosting?: string;
+  frosting?: string | null;
   fillings?: string[];
   size?: Size;
   quantity?: number;

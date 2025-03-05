@@ -34,7 +34,7 @@ export class PersonalizedCakeService {
     cake: ICake,
     quantity: number = 1,
     typePersonalized?: string,
-    frostingPersonalized?: string,
+    frostingPersonalized?: string | null,
     fillingsPersonalized?: string[],
     sizePersonalized?: Size
   ): CakePartsValidationResult<IPersonalizedCake> {
@@ -225,11 +225,15 @@ export class PersonalizedCakeService {
   }
 
   private async verifyIfFrostingOfCakeExists(
-    frosting: string | undefined,
+    frosting: string | undefined | null,
     defaultFrosting: IFrosting | undefined,
     customizableParts: CustomizablesParts[],
     cakeId: string
   ): CakePartsValidationResult<string | undefined> {
+    if (frosting === null) {
+      return { isValid: true, data: undefined };
+    }
+
     if (!frosting || frosting === defaultFrosting?.name) {
       return { isValid: true, data: defaultFrosting?.name };
     }
