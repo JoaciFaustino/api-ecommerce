@@ -14,10 +14,7 @@ const mimeTypesAllowed = [
 const storageType = {
   local: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(
-        null,
-        path.resolve(__dirname, "..", "..", "public", "temp", "uploads")
-      );
+      cb(null, path.resolve(__dirname, "..", "..", "public", "uploads"));
     },
     filename: (req, file, cb) => {
       const fileName =
@@ -36,7 +33,7 @@ const storage =
 
 const upload = multer({
   storage: storage,
-  dest: path.resolve(__dirname, "..", "..", "public", "temp", "uploads"),
+  dest: path.resolve(__dirname, "..", "..", "public", "uploads"),
   limits: { fileSize: 1024 * 1024 * 5 },
   fileFilter: (req, file, cb) => {
     if (!mimeTypesAllowed.includes(file.mimetype)) {

@@ -14,9 +14,7 @@ const router = Router();
 
 router.use(
   "/images",
-  express.static(
-    path.resolve(__dirname, "..", "..", "public", "temp", "uploads")
-  )
+  express.static(path.resolve(__dirname, "..", "..", "public", "uploads"))
 );
 router.use("/user", userRouter);
 router.use("/auth", authRouter);

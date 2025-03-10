@@ -1,5 +1,5 @@
-/public/temp/uploads/*.*
-!public/temp/uploads/.txt
+#/public/temp/uploads/*.*
+#!public/temp/uploads/.txt
 
 # Logs
 logs

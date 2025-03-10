@@ -13,7 +13,7 @@ export const getLocalPathImage = (imageUrl: string): string => {
 
   const pathImage = path.resolve(
     __dirname,
-    "../../public/temp/uploads/" + fileNameImage
+    "../../public/uploads/" + fileNameImage
   );
 
   return pathImage;

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { v2 as cloudinary } from "cloudinary";
 import { deleteLocalImage, getCloudinaryPublicId } from "../utils/cakeImage";
+import { ApiError } from "../utils/ApiError";
 
 export class FilesService {
   constructor() {}
@@ -82,5 +83,16 @@ export class FilesService {
     const result: boolean = deleteLocalImage(imageUrl);
 
     return result;
+  }
+
+  async deleteAllImages() {
+    try {
+      await cloudinary.api.delete_all_resources();
+    } catch (error) {
+      throw new ApiError(
+        "failed to delete all images of cloudinary environment",
+        500
+      );
+    }
   }
 }
