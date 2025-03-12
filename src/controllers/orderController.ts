@@ -144,7 +144,7 @@ export class OrderController {
         throw new ApiError("failed to create the order", 500);
       }
 
-      return res.status(200).send({ order });
+      return res.status(201).send({ order });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         throw new ApiError(error.errors[0].message, 400);

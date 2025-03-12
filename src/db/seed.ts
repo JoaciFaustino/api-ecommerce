@@ -2,9 +2,7 @@ import fs from "fs/promises";
 import { connectDatabase } from "./db";
 import { ICake } from "../@types/Cake";
 import { ICakeType } from "../@types/CakeType";
-import { ICart } from "../@types/Cart";
 import { ICategory } from "../@types/Category";
-import { IOrder } from "../@types/Order";
 import { IFilling } from "../@types/Filling";
 import { IUser, User } from "../models/User";
 import { IFrosting } from "../@types/Frosting";
@@ -18,15 +16,13 @@ import { CakeType } from "../models/CakeType";
 import { Category } from "../models/Category";
 import { Filling } from "../models/Filling";
 import { Frosting } from "../models/Frosting";
-import { Cart } from "../models/Cart";
 import { isValidUrl } from "../utils/isValidUrl";
+import { Cart } from "../models/Cart";
 
 type Data = {
   cakes: Omit<ICake, "imageUrl" | "_id">[];
   caketypes: Omit<ICakeType, "_id">[];
-  carts: Omit<ICart, "_id">[];
   categories: Omit<ICategory, "_id">[];
-  orders: Omit<IOrder, "_id">[];
   fillings: Omit<IFilling, "_id">[];
   users: Omit<IUser, "_id" | "cartId">[];
   frostings: Omit<IFrosting, "_id">[];

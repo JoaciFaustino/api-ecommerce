@@ -42,7 +42,7 @@ export class AuthController {
         password
       );
 
-      return res.status(200).send({
+      return res.status(201).send({
         message: "signup completed successfully",
         user: user,
         token: token

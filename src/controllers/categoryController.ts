@@ -37,7 +37,7 @@ export class CategoryController {
       throw new ApiError("failed to create the category", 500);
     }
 
-    return res.status(200).send({
+    return res.status(201).send({
       message: "category created sucessfully",
       category: categoryCreated
     });

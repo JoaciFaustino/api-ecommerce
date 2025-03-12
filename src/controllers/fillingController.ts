@@ -42,7 +42,7 @@ export class FillingController {
       throw new ApiError("failed to create the filling", 500);
     }
 
-    return res.status(200).send({
+    return res.status(201).send({
       message: "filling created sucessfully",
       filling: fillingCreated
     });

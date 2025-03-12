@@ -39,7 +39,7 @@ export class CakeTypeController {
     if (!cakeTypeCreated)
       throw new ApiError("failed to create the cake type", 400);
 
-    return res.status(200).send({
+    return res.status(201).send({
       message: "cake type created sucessfully",
       cakeType: cakeTypeCreated
     });

@@ -77,7 +77,7 @@ export class CakeController {
 
       if (!cake) throw new ApiError("failed to create cake", 500);
 
-      return res.status(200).send({
+      return res.status(201).send({
         message: "cake created sucessfully",
         cake: cake
       });
