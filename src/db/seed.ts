@@ -18,9 +18,12 @@ import { Filling } from "../models/Filling";
 import { Frosting } from "../models/Frosting";
 import { isValidUrl } from "../utils/isValidUrl";
 import { Cart } from "../models/Cart";
+import path from "path";
+import { CakeService } from "../services/cakeService";
+import { ReqBodyCreateCake } from "../@types/ReqBody";
 
 type Data = {
-  cakes: Omit<ICake, "imageUrl" | "_id">[];
+  cakes: ReqBodyCreateCake[];
   caketypes: Omit<ICakeType, "_id">[];
   categories: Omit<ICategory, "_id">[];
   fillings: Omit<IFilling, "_id">[];
@@ -32,7 +35,10 @@ const seed = async () => {
   await connectDatabase();
   await mongoose.connection.dropDatabase();
 
-  const data = await fs.readFile("src/db/seed.json", "utf8");
+  const data = await fs.readFile(
+    path.resolve("src", "db", "seed.json"),
+    "utf8"
+  );
 
   const { cakes, caketypes, categories, fillings, frostings, users }: Data =
     JSON.parse(data);
@@ -42,53 +48,52 @@ const seed = async () => {
   }
 
   await Promise.all([
-    seedCakes(cakes),
     seedCakeTypes(caketypes),
     seedCategories(categories),
     seedFillings(fillings),
     seedFrosting(frostings),
     seedUsers(users)
   ]);
+  await seedCakes(cakes);
 
   await mongoose.disconnect();
   console.log("database seeding complected sucessfully!");
 };
 
-const seedCakeWithImageUrl = async (cake: Omit<ICake, "_id" | "imageUrl">) => {
-  const filePath = `public/uploads/${cake.name}.jpeg`;
+const seedCakeWithImageUrl = async (cake: ReqBodyCreateCake) => {
+  const filePath = path.resolve("public", "uploads", `${cake.name}.jpeg`);
 
-  if (process.env.DESTINATION_STORAGE_IMAGES !== "cloudinary") {
-    const apiUrl =
-      `${process.env.API_PROTOCOL}://` +
-      process.env.API_HOST +
-      `${process.env.PORT ? ":" + process.env.PORT : ""}/api/`;
+  const service = new CakeService();
 
-    if (!isValidUrl(apiUrl)) {
-      throw new Error(
-        `The URL "${apiUrl}" isn't valid. Check the .env values or create a .env file based on .env-example file`
-      );
-    }
+  const apiUrl =
+    `${process.env.API_PROTOCOL}://` +
+    process.env.API_HOST +
+    `${process.env.PORT ? ":" + process.env.PORT : ""}/api/`;
 
-    await Cake.create({
-      ...cake,
-      imageUrl: `${apiUrl}images/${cake.name}.jpeg`
-    });
-
-    return;
+  if (!isValidUrl(apiUrl)) {
+    throw new Error(
+      `The URL "${apiUrl}" isn't valid. Check the .env values or create a .env file based on .env-example file`
+    );
   }
 
-  const data = await fs.readFile(filePath, "base64");
+  const fileBuffer = await fs.readFile(filePath);
+  const multerFile: Express.Multer.File = {
+    fieldname: "file",
+    originalname: path.basename(filePath),
+    mimetype: "image/jpeg",
+    buffer: fileBuffer,
+    size: fileBuffer.length,
+    destination: "",
+    filename: path.basename(filePath),
+    path: filePath,
+    stream: undefined as any,
+    encoding: ""
+  };
 
-  const dataUri = `data:image/jpeg;base64,${data}`;
-
-  const result = await cloudinary.uploader.upload(dataUri, {
-    resource_type: "auto"
-  });
-
-  await Cake.create({ ...cake, imageUrl: result.secure_url });
+  await service.create(apiUrl, multerFile, cake);
 };
 
-const seedCakes = async (cakes: Omit<ICake, "_id" | "imageUrl">[]) => {
+const seedCakes = async (cakes: ReqBodyCreateCake[]) => {
   await Promise.all(cakes.map((cake) => seedCakeWithImageUrl(cake)));
 };
 
