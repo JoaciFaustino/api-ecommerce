@@ -33,6 +33,7 @@ export class FillingRepository {
         : {};
 
     const fillings = await Filling.find(query)
+      .sort({ name: 1 })
       .skip(limit * (page - 1))
       .limit(limit);
 

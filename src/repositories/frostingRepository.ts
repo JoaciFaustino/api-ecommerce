@@ -33,6 +33,7 @@ export class FrostingRepository {
         : {};
 
     const frostings = await Frosting.find(query)
+      .sort({ name: 1 })
       .skip(limit * (page - 1))
       .limit(limit);
 

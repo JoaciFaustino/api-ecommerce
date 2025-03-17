@@ -33,6 +33,7 @@ export class CakeTypeRepository {
         : {};
 
     const cakeTypes = await CakeType.find(query)
+      .sort({ type: 1 })
       .skip(limit * (page - 1))
       .limit(limit);
 

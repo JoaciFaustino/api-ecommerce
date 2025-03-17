@@ -33,6 +33,7 @@ export class CategoryRepository {
         : {};
 
     const categories = await Category.find(query)
+      .sort({ category: 1 })
       .skip(limit * (page - 1))
       .limit(limit);
 
