@@ -18,15 +18,15 @@ cakesRouter.get("/:id", asyncErrorHandler(cakeController.getById));
 //admin routes
 cakesRouter.use(authMiddleware.isAdmin);
 cakesRouter.post(
-  "/create",
+  "/",
   upload.single("imageCake"),
   asyncErrorHandler(cakeController.create)
 );
 cakesRouter.patch(
-  "/update/:id",
+  "/:id",
   upload.single("imageCake"),
   asyncErrorHandler(cakeController.update)
 );
-cakesRouter.delete("/delete/:id", asyncErrorHandler(cakeController.delete));
+cakesRouter.delete("/:id", asyncErrorHandler(cakeController.delete));
 
 export default cakesRouter;

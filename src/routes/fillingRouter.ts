@@ -12,11 +12,8 @@ fillingRouter.get("/", asyncErrorHandler(fillingController.getAll));
 
 //admin routes
 fillingRouter.use(authMiddleware.isAdmin);
-fillingRouter.post("/create", asyncErrorHandler(fillingController.create));
-fillingRouter.patch("/update/:id", asyncErrorHandler(fillingController.update));
-fillingRouter.delete(
-  "/delete/:id",
-  asyncErrorHandler(fillingController.delete)
-);
+fillingRouter.post("/", asyncErrorHandler(fillingController.create));
+fillingRouter.patch("/:id", asyncErrorHandler(fillingController.update));
+fillingRouter.delete("/:id", asyncErrorHandler(fillingController.delete));
 
 export default fillingRouter;

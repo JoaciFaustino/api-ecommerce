@@ -12,14 +12,8 @@ frostingRouter.get("/", asyncErrorHandler(frostingController.getAll));
 
 //admin routes
 frostingRouter.use(authMiddleware.isAdmin);
-frostingRouter.post("/create", asyncErrorHandler(frostingController.create));
-frostingRouter.patch(
-  "/update/:id",
-  asyncErrorHandler(frostingController.update)
-);
-frostingRouter.delete(
-  "/delete/:id",
-  asyncErrorHandler(frostingController.delete)
-);
+frostingRouter.post("/", asyncErrorHandler(frostingController.create));
+frostingRouter.patch("/:id", asyncErrorHandler(frostingController.update));
+frostingRouter.delete("/:id", asyncErrorHandler(frostingController.delete));
 
 export default frostingRouter;

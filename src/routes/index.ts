@@ -20,10 +20,10 @@ router.use("/user", userRouter);
 router.use("/auth", authRouter);
 router.use("/cakes", cakesRouter);
 router.use("/categories", categoryRouter);
-router.use("/cakeTypes", cakeTypeRouter);
+router.use("/cake-types", cakeTypeRouter);
 router.use("/fillings", fillingRouter);
 router.use("/frostings", frostingRouter);
-router.use("/cart", cartRouter);
+router.use("/carts", cartRouter);
 router.use("/orders", ordersRouter);
 
 export default router;

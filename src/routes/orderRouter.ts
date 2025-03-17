@@ -15,12 +15,12 @@ ordersRouter.get(
   "/:userId",
   asyncErrorHandler(orderController.getAllUserOrders)
 );
-ordersRouter.post("/create", asyncErrorHandler(orderController.create));
+ordersRouter.post("/", asyncErrorHandler(orderController.create));
 
 //admin routes
 ordersRouter.use(authMiddleware.isAdmin);
 ordersRouter.get("/", asyncErrorHandler(orderController.getAll));
-ordersRouter.patch("/update/:id", asyncErrorHandler(orderController.update));
-ordersRouter.delete("/delete/:id", asyncErrorHandler(orderController.delete));
+ordersRouter.patch("/:id", asyncErrorHandler(orderController.update));
+ordersRouter.delete("/:id", asyncErrorHandler(orderController.delete));
 
 export default ordersRouter;

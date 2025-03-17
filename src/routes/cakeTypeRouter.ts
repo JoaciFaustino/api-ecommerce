@@ -12,14 +12,8 @@ cakeTypeRouter.get("/", asyncErrorHandler(cakeTypeController.getAll));
 
 //admin routes
 cakeTypeRouter.use(authMiddleware.isAdmin);
-cakeTypeRouter.post("/create", asyncErrorHandler(cakeTypeController.create));
-cakeTypeRouter.patch(
-  "/update/:id",
-  asyncErrorHandler(cakeTypeController.update)
-);
-cakeTypeRouter.delete(
-  "/delete/:id",
-  asyncErrorHandler(cakeTypeController.delete)
-);
+cakeTypeRouter.post("/", asyncErrorHandler(cakeTypeController.create));
+cakeTypeRouter.patch("/:id", asyncErrorHandler(cakeTypeController.update));
+cakeTypeRouter.delete("/:id", asyncErrorHandler(cakeTypeController.delete));
 
 export default cakeTypeRouter;

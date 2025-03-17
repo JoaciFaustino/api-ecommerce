@@ -12,14 +12,8 @@ categoryRouter.get("/", asyncErrorHandler(categoryController.getAll));
 
 //admin routes
 categoryRouter.use(authMiddleware.isAdmin);
-categoryRouter.post("/create", asyncErrorHandler(categoryController.create));
-categoryRouter.patch(
-  "/update/:id",
-  asyncErrorHandler(categoryController.update)
-);
-categoryRouter.delete(
-  "/delete/:id",
-  asyncErrorHandler(categoryController.delete)
-);
+categoryRouter.post("/", asyncErrorHandler(categoryController.create));
+categoryRouter.patch("/:id", asyncErrorHandler(categoryController.update));
+categoryRouter.delete("/:id", asyncErrorHandler(categoryController.delete));
 
 export default categoryRouter;
