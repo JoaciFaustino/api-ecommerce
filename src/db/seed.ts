@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import { connectDatabase } from "./db";
-import { ICake } from "../@types/Cake";
 import { ICakeType } from "../@types/CakeType";
 import { ICategory } from "../@types/Category";
 import { IFilling } from "../@types/Filling";
@@ -8,9 +7,7 @@ import { IUser, User } from "../models/User";
 import { IFrosting } from "../@types/Frosting";
 import "dotenv/config";
 import { initCloudinary } from "../config/cloudinary";
-import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
-import { Cake } from "../models/Cake";
 import { FilesService } from "../services/filesService";
 import { CakeType } from "../models/CakeType";
 import { Category } from "../models/Category";
@@ -21,6 +18,7 @@ import { Cart } from "../models/Cart";
 import path from "path";
 import { CakeService } from "../services/cakeService";
 import { ReqBodyCreateCake } from "../@types/ReqBody";
+import data from "./seed.json";
 
 type Data = {
   cakes: ReqBodyCreateCake[];
@@ -35,13 +33,8 @@ const seed = async () => {
   await connectDatabase();
   await mongoose.connection.dropDatabase();
 
-  const data = await fs.readFile(
-    path.resolve("src", "db", "seed.json"),
-    "utf8"
-  );
-
   const { cakes, caketypes, categories, fillings, frostings, users }: Data =
-    JSON.parse(data);
+    data as Data;
 
   if (process.env.DESTINATION_STORAGE_IMAGES === "cloudinary") {
     await new FilesService().deleteAllImages();
