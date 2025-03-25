@@ -94,7 +94,7 @@ export class AuthController {
     return res.status(200).send({
       message: "authenticate sucessfully",
       userId: decodedUserId,
-      role: role
+      role
     });
   }
 }

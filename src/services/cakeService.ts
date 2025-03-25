@@ -351,6 +351,10 @@ export class CakeService {
         );
       }
 
+      if(imageCake && !newUrlImage) {
+        throw new ApiError("failed to update image", 500);
+      }
+
       const sizesPossiblesNormalized = !(
         customizableParts || cake.customizableParts
       ).includes("size")
