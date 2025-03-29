@@ -4,13 +4,13 @@ import { CakeTypeService } from "../services/cakeTypeService";
 import { BaseQueryParams } from "../@types/QueryParams";
 import { ReqBodyUpdateCakeType } from "../@types/ReqBody";
 import "dotenv/config";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export class CakeTypeController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
 
     const cakeTypeService = new CakeTypeService();
     const { cakeTypes, maxPages, nextUrl, prevUrl } =

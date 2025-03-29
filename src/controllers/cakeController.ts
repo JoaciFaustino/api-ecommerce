@@ -7,6 +7,7 @@ import { IQueryParamsGetAllCakes } from "../@types/QueryParams";
 import { ReqBodyCreateCake, ReqBodyUpdateCake } from "../@types/ReqBody";
 import { createCakeZodSchema } from "../utils/createCakeZodSchema";
 import "dotenv/config";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export class CakeController {
   constructor() {}
@@ -17,8 +18,7 @@ export class CakeController {
   ) {
     const query = req.query;
 
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
 
     const cakeService = new CakeService();
 
@@ -58,7 +58,7 @@ export class CakeController {
 
   async create(req: Request<{}, {}, { cake: string }>, res: Response) {
     const imageCake = req.file;
-    const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
+    const hostUrl = getApiUrl();
 
     const cakeParsed: ReqBodyCreateCake = JSON.parse(req.body.cake);
 
@@ -100,7 +100,7 @@ export class CakeController {
     }
 
     const imageCake = req.file;
-    const hostUrl = req.protocol + "://" + req.get("host") + "/api/";
+    const hostUrl = getApiUrl();
 
     const cakeParsed: ReqBodyUpdateCake = JSON.parse(req.body.cake);
 

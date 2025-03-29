@@ -16,6 +16,7 @@ import {
   IQueryParamsGetAllOrders
 } from "../@types/QueryParams";
 import "dotenv/config";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export class OrderController {
   constructor() {}
@@ -26,8 +27,7 @@ export class OrderController {
   ) {
     const query = req.query;
 
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
 
     const orderService = new OrderService();
 
@@ -59,8 +59,7 @@ export class OrderController {
       throw new ApiError("user id is invalid", 400);
     }
 
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
     const orderService = new OrderService();
 
     const { orders, maxPages, nextUrl, prevUrl } =

@@ -19,6 +19,7 @@ import path from "path";
 import { CakeService } from "../services/cakeService";
 import { ReqBodyCreateCake } from "../@types/ReqBody";
 import data from "./seed.json";
+import { getApiUrl } from "../utils/getApiUrl";
 
 type Data = {
   cakes: ReqBodyCreateCake[];
@@ -58,10 +59,7 @@ const seedCakeWithImageUrl = async (cake: ReqBodyCreateCake) => {
 
   const service = new CakeService();
 
-  const apiUrl =
-    `${process.env.API_PROTOCOL}://` +
-    process.env.API_HOST +
-    `${process.env.PORT ? ":" + process.env.PORT : ""}/api/`;
+  const apiUrl = getApiUrl();
 
   if (!isValidUrl(apiUrl)) {
     throw new Error(

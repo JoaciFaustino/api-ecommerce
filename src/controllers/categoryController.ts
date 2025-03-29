@@ -4,13 +4,13 @@ import { ApiError } from "../utils/ApiError";
 import { BaseQueryParams } from "../@types/QueryParams";
 import { ReqBodyUpdateCategory } from "../@types/ReqBody";
 import "dotenv/config";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export class CategoryController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
 
     const categoryService = new CategoryService();
     const { maxPages, nextUrl, prevUrl, categories } =

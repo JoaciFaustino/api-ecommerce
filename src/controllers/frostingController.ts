@@ -5,13 +5,13 @@ import { ApiError } from "../utils/ApiError";
 import { BaseQueryParams } from "../@types/QueryParams";
 import { ReqBodyUpdateFrosting } from "../@types/ReqBody";
 import "dotenv/config";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export class FrostingController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
 
     const frostingService = new FrostingService();
     const { maxPages, nextUrl, prevUrl, frostings } =

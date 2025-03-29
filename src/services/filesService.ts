@@ -28,7 +28,7 @@ export class FilesService {
 
     if (!file.filename) return;
 
-    return hostUrl + "images/" + file.filename;
+    return hostUrl + "/images/" + file.filename;
   }
 
   async updateImageCake(
@@ -64,7 +64,7 @@ export class FilesService {
 
     deleteLocalImage(oldImageUrl);
 
-    return hostUrl + "images/" + file.filename;
+    return hostUrl + "/images/" + file.filename;
   }
 
   async deleteImageCake(imageUrl: string): Promise<boolean> {

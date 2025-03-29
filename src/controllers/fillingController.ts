@@ -1,17 +1,16 @@
 import { Request, Response } from "express";
 import { FillingService } from "../services/fillingService";
 import { ApiError } from "../utils/ApiError";
-import { IFilling } from "../@types/Filling";
 import { BaseQueryParams } from "../@types/QueryParams";
 import { ReqBodyUpdateFilling } from "../@types/ReqBody";
 import "dotenv/config";
+import { getApiUrl } from "../utils/getApiUrl";
 
 export class FillingController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const protocol = process.env.API_PROTOCOL || "https";
-    const url = protocol + "://" + req.get("host") + req.originalUrl;
+    const url = getApiUrl();
 
     const fillingService = new FillingService();
     const { maxPages, nextUrl, prevUrl, fillings } =
