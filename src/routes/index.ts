@@ -9,6 +9,7 @@ import fillingRouter from "./fillingRouter";
 import frostingRouter from "./frostingRouter";
 import ordersRouter from "./orderRouter";
 import cartRouter from "./cartRouter";
+import swaggerRoute from "./swaggerRoute";
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use("/fillings", fillingRouter);
 router.use("/frostings", frostingRouter);
 router.use("/carts", cartRouter);
 router.use("/orders", ordersRouter);
+router.use("/docs", swaggerRoute);
 
 export default router;

@@ -1,0 +1,3100 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "api-ecommerce",
+    "description": "cake ecommerce api",
+    "contact": {
+      "email": "joacifaustino@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [],
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "summary": "Create a user and return the authentication token",
+        "requestBody": {
+          "description": "Data to create an user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "username": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "confirmPassword": { "type": "string" }
+                },
+                "required": [
+                  "name",
+                  "username",
+                  "email",
+                  "password",
+                  "confirmPassword"
+                ]
+              },
+              "example": {
+                "name": "New User",
+                "username": "new_user",
+                "email": "newuser@email.com",
+                "password": "newuser123",
+                "confirmPassword": "newuser123"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created - User created and token returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "signup completed successfully",
+                    "user": {
+                      "_id": "67dc393d625c3f6b117a2d60",
+                      "name": "New User",
+                      "username": "new_user",
+                      "email": "newuser@email.com",
+                      "role": "user",
+                      "cartId": "67dc393c625c3f6b117a2d5e",
+                      "createdAt": "2025-03-20T15:50:21.061Z",
+                      "updatedAt": "2025-03-20T15:50:21.061Z"
+                    },
+                    "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "description": "Conflict - User already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "message": "User already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate a user and return a token",
+        "requestBody": {
+          "description": "Data to authentication",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              },
+              "example": {
+                "email": "newuser@email.com",
+                "password": "newuser123"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Login completed successfully and returned token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "login completed successfully",
+                    "user": {
+                      "_id": "67dc393d625c3f6b117a2d60",
+                      "name": "New User",
+                      "username": "new_user",
+                      "email": "newuser@email.com",
+                      "role": "user",
+                      "cartId": "67dc393c625c3f6b117a2d5e",
+                      "createdAt": "2025-03-20T15:50:21.061Z",
+                      "updatedAt": "2025-03-20T15:50:21.061Z"
+                    },
+                    "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "description": "Unauthorized - Wrong email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                },
+                "example": {
+                  "message": "wrong email or password"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/auth": {
+      "get": {
+        "summary": "Verify a the authentication and return the data of decoded token (userId and role)",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK - Authentication completed sucessfully and returned the data of decoded token (userId and role)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "userId": { "type": "string" },
+                    "role": { "type": "string", "enum": ["user", "admin"] }
+                  },
+                  "example": {
+                    "message": "authenticate sucessfully",
+                    "userId": "67d9ab1f6ad9905c1709aaaf",
+                    "role": "user"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/cakes": {
+      "get": {
+        "summary": "Returns a list of cakes",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "The value to search cakes by name"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 20
+            },
+            "required": false,
+            "description": "The numbers of items to return"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "required": false,
+            "description": "The page number to retrieve, starting from 1. Used for paginating results"
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "popularity",
+                "latest",
+                "price_high_to_low",
+                "price_low_to_high"
+              ],
+              "default": "popularity"
+            },
+            "required": false,
+            "description": "Defines the sorting criteria for the results. Options: 'popularity' (most popular first), 'latest' (newest first), 'price_high_to_low' (highest price first), 'price_low_to_high' (lowest price first)"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "description": "Values to filter the cakes by the type"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "description": "Values to filter the cakes by the category"
+          },
+          {
+            "in": "query",
+            "name": "frosting",
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "description": "Values to filter the cakes by the frosting"
+          },
+          {
+            "in": "query",
+            "name": "filling",
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "description": "Values to filter the cakes by the filling"
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "description": "Values to filter the cakes by the size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of cakes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "maxPages": { "type": "integer" },
+                    "cakes": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Cake" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "message": "get all cakes sucessfully",
+                    "maxPages": 3,
+                    "cakes": [
+                      {
+                        "_id": "67d9ab1f6ac97f5cb7096484",
+                        "name": "Bolo de chocolate",
+                        "size": "pequeno",
+                        "sizesPossibles": ["pequeno"],
+                        "pricePerSize": { "pequeno": 10 },
+                        "totalPricing": 25.25,
+                        "customizableParts": ["frosting", "fillings", "size"],
+                        "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                        "boughts": 0,
+                        "createdAt": "2025-03-18T17:19:27.714Z",
+                        "updatedAt": "2025-03-18T17:19:27.714Z",
+                        "type": "chocolate",
+                        "categories": ["Tradicionais", "Decorados"],
+                        "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                        "frosting": { "name": "Chocolate", "price": 3.5 }
+                      },
+                      {
+                        "_id": "67d9ab1f6ac97f5cb7096484",
+                        "name": "Bolo de chocolate",
+                        "size": "pequeno",
+                        "sizesPossibles": ["pequeno"],
+                        "pricePerSize": { "pequeno": 10 },
+                        "totalPricing": 25.25,
+                        "customizableParts": ["frosting", "fillings", "size"],
+                        "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                        "boughts": 0,
+                        "createdAt": "2025-03-18T17:19:27.714Z",
+                        "updatedAt": "2025-03-18T17:19:27.714Z",
+                        "type": "chocolate",
+                        "categories": ["Tradicionais", "Decorados"],
+                        "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                        "frosting": { "name": "Chocolate", "price": 3.5 }
+                      },
+                      {
+                        "_id": "67d9ab1f6ac97f5cb7096484",
+                        "name": "Bolo de chocolate",
+                        "size": "pequeno",
+                        "sizesPossibles": ["pequeno"],
+                        "pricePerSize": { "pequeno": 10 },
+                        "totalPricing": 25.25,
+                        "customizableParts": ["frosting", "fillings", "size"],
+                        "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                        "boughts": 0,
+                        "createdAt": "2025-03-18T17:19:27.714Z",
+                        "updatedAt": "2025-03-18T17:19:27.714Z",
+                        "type": "chocolate",
+                        "categories": ["Tradicionais", "Decorados"],
+                        "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                        "frosting": { "name": "Chocolate", "price": 3.5 }
+                      },
+                      {
+                        "_id": "67d9ab1f6ac97f5cb7096484",
+                        "name": "Bolo de chocolate",
+                        "size": "pequeno",
+                        "sizesPossibles": ["pequeno"],
+                        "pricePerSize": { "pequeno": 10 },
+                        "totalPricing": 25.25,
+                        "customizableParts": ["frosting", "fillings", "size"],
+                        "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                        "boughts": 0,
+                        "createdAt": "2025-03-18T17:19:27.714Z",
+                        "updatedAt": "2025-03-18T17:19:27.714Z",
+                        "type": "chocolate",
+                        "categories": ["Tradicionais", "Decorados"],
+                        "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                        "frosting": { "name": "Chocolate", "price": 3.5 }
+                      }
+                    ],
+                    "prevUrl": "http://localhost:3001/api/cakes/?limit=24&sortBy=popularity&page=1",
+                    "nextUrl": "http://localhost:3001/api/cakes/?limit=24&sortBy=popularity&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundToPaginatedRoutes"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new Cake",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "requestBody": {
+          "description": "Data to create a cake",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cake": {
+                    "type": "string",
+                    "description": "A cake object to be sent as a JSON string. Check the schema **CakeToBodyOfCreateRoute** for more details about the cake object to be stringified as JSON.\n\n**NOTE**: All the type, categories, fillings and frosting need to be registered in the database",
+                    "example": "{ \"name\": \"Bolo de Chocolate\", \"type\": \"chocolate\", \"categories\": [\"Simples\", \"Tradicionais\"], \"frosting\": \"Chocolate\", \"fillings\": [\"Ganache\"], \"size\": \"medio\", \"sizesPossibles\": [\"pequeno\", \"medio\", \"grande\"], \"pricePerSize\": { \"pequeno\": 20, \"medio\": 30, \"grande\": 40 }, \"customizableParts\": [\"size\", \"frosting\"] }"
+                  },
+                  "imageCake": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file of the cake"
+                  }
+                },
+                "required": ["cake", "imageCake"]
+              }
+            }
+          }
+        },
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Created - Cake created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "cake": {
+                      "$ref": "#/components/schemas/Cake"
+                    }
+                  },
+                  "example": {
+                    "message": "cake created successfully",
+                    "cake": {
+                      "_id": "67d9ab1f6ac97f5cb7096484",
+                      "name": "Bolo de chocolate",
+                      "size": "pequeno",
+                      "sizesPossibles": ["pequeno"],
+                      "pricePerSize": { "pequeno": 10 },
+                      "totalPricing": 25.25,
+                      "customizableParts": ["frosting", "fillings", "size"],
+                      "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                      "boughts": 0,
+                      "createdAt": "2025-03-18T17:19:27.714Z",
+                      "updatedAt": "2025-03-18T17:19:27.714Z",
+                      "type": "chocolate",
+                      "categories": ["Tradicionais", "Decorados"],
+                      "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                      "frosting": { "name": "Chocolate", "price": 3.5 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/cakes/{id}": {
+      "get": {
+        "summary": "Returns a cake by id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cake to return"
+          }
+        ],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK - Cake Returned sucessfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cake": {
+                      "$ref": "#/components/schemas/Cake"
+                    }
+                  },
+                  "example": {
+                    "cake": {
+                      "_id": "67d9ab1f6ac97f5cb7096484",
+                      "name": "Bolo de chocolate",
+                      "size": "pequeno",
+                      "sizesPossibles": ["pequeno"],
+                      "pricePerSize": { "pequeno": 10 },
+                      "totalPricing": 25.25,
+                      "customizableParts": ["frosting", "fillings", "size"],
+                      "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                      "boughts": 0,
+                      "createdAt": "2025-03-18T17:19:27.714Z",
+                      "updatedAt": "2025-03-18T17:19:27.714Z",
+                      "type": "chocolate",
+                      "categories": ["Tradicionais", "Decorados"],
+                      "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                      "frosting": { "name": "Chocolate", "price": 3.5 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - This cake doesn't exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cake isn't exists"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a cake and return the cake updated",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cake to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to update a cake",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cake": {
+                    "type": "string",
+                    "description": "A cake object to be sent as a JSON string. Check the schema **CakeToBodyOfUpdateRoute** for more details about the cake object to be stringified as JSON.\n\n**NOTES**: All the properties are optional and all the type, categories, fillings and frosting need to be registered in the database",
+                    "example": "{ \"name\": \"Bolo de Chocolate\", \"type\": \"chocolate\", \"categories\": [\"Simples\", \"Tradicionais\"], \"frosting\": \"Chocolate\", \"fillings\": [\"Ganache\"], \"size\": \"medio\", \"sizesPossibles\": [\"pequeno\", \"medio\", \"grande\"], \"pricePerSize\": { \"pequeno\": 20, \"medio\": 30, \"grande\": 40 }, \"customizableParts\": [\"size\", \"frosting\"] }"
+                  },
+                  "imageCake": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Image file of the cake"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK - Cake updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "cake": {
+                      "$ref": "#/components/schemas/Cake"
+                    }
+                  },
+                  "example": {
+                    "message": "cake updated successfully",
+                    "cake": {
+                      "_id": "67d9ab1f6ac97f5cb7096484",
+                      "name": "Bolo de chocolate",
+                      "size": "pequeno",
+                      "sizesPossibles": ["pequeno"],
+                      "pricePerSize": { "pequeno": 10 },
+                      "totalPricing": 25.25,
+                      "customizableParts": ["frosting", "fillings", "size"],
+                      "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                      "boughts": 0,
+                      "createdAt": "2025-03-18T17:19:27.714Z",
+                      "updatedAt": "2025-03-18T17:19:27.714Z",
+                      "type": "chocolate",
+                      "categories": ["Tradicionais", "Decorados"],
+                      "fillings": [{ "name": "Chocolate", "price": 9.75 }],
+                      "frosting": { "name": "Chocolate", "price": 3.5 }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Not Found - This cake doesn't exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cake isn't exists"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a cake by id",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cake to delete"
+          }
+        ],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK - Cake deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cake deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "id is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/cake-types": {
+      "get": {
+        "summary": "Returns a list of cake types",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "The value to search the cake types by name"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 20
+            },
+            "required": false,
+            "description": "The numbers of items to return"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "required": false,
+            "description": "The page number to retrieve, starting from 1. Used for paginating results"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of cake types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "maxPages": { "type": "integer" },
+                    "cakeTypes": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/CakeType" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "message": "get all cake types sucessfully",
+                    "maxPages": 3,
+                    "cakeTypes": [
+                      {
+                        "_id": "67d9ab1b6ac97f5cb70962fb",
+                        "type": "Cenoura com Chocolate"
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb70962fb",
+                        "type": "Cenoura com Chocolate"
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb70962fb",
+                        "type": "Cenoura com Chocolate"
+                      }
+                    ],
+                    "prevUrl": "http://localhost:3001/api/cake-types/?limit=24&page=1",
+                    "nextUrl": "http://localhost:3001/api/cake-types/?limit=24&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundToPaginatedRoutes"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new cake type",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "requestBody": {
+          "description": "Data to create a new cake type",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string" }
+                },
+                "required": ["type"]
+              },
+              "example": {
+                "type": "Cenoura com Chocolate"
+              }
+            },
+            "required": true
+          }
+        },
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Created - Cake type created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "cakeType": {
+                      "$ref": "#/components/schemas/CakeType"
+                    }
+                  },
+                  "example": {
+                    "message": "cakeType created successfully",
+                    "cakeType": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "type": "Cenoura com Chocolate"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/cake-types/{id}": {
+      "patch": {
+        "summary": "Update a cake type and return the cake type updated",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cake type to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to update a cake type",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string" }
+                },
+                "required": ["type"]
+              },
+              "example": {
+                "type": "Cenoura com Chocolate"
+              }
+            },
+            "required": true
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Cake type updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "cakeType": {
+                      "$ref": "#/components/schemas/CakeType"
+                    }
+                  },
+                  "example": {
+                    "message": "cakeType updated successfully",
+                    "cakeType": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "type": "Cenoura com Chocolate"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a cake type by id",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cake type to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Cake type deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cake type deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "id is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/carts/{cartId}": {
+      "get": {
+        "summary": "Return a cart and his items by id",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cartId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cart to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Cart Returned sucessfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cart": {
+                      "$ref": "#/components/schemas/Cart"
+                    }
+                  },
+                  "example": {
+                    "cart": {
+                      "_id": "67d9ab1b6ac97f5cb7096361",
+                      "cakes": [
+                        {
+                          "_id": "67e590180d7829148f99090f",
+                          "cakeId": "67d9ab1f6ac97f5cb7096484",
+                          "name": "Bolo de chocolate",
+                          "type": "chocolate",
+                          "frosting": "Chocolate",
+                          "fillings": ["Chocolate"],
+                          "size": "medio",
+                          "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                          "totalPricing": 25.25,
+                          "quantity": 1
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Cart id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cartId is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - This cart doesn't belongs to the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart doesn't belongs to the user"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - This cart doesn't exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart isn't exists"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/carts/{cartId}/items": {
+      "post": {
+        "summary": "Adds a new cake in the cart",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cartId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cart to add the cake"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to add a new cake in the cart",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cakeId": { "type": "string" },
+                  "type": { "type": "string" },
+                  "frosting": { "type": "string", "nullable": true },
+                  "fillings": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "size": {
+                    "type": "string",
+                    "enum": ["pequeno", "medio", "grande", "extra-grande"]
+                  },
+                  "quantity": { "type": "integer", "default": 1 }
+                },
+                "required": ["cakeId"]
+              },
+              "example": {
+                "cakeId": "67d9ab1f6ac97f5cb7096484",
+                "type": "chocolate",
+                "frosting": "Chocolate",
+                "fillings": ["Chocolate"],
+                "size": "medio",
+                "quantity": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Cake added in the cart successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "addedCake": {
+                      "$ref": "#/components/schemas/ItemCart"
+                    }
+                  },
+                  "example": {
+                    "addedCake": {
+                      "_id": "67e590180d7829148f99090f",
+                      "cakeId": "67d9ab1f6ac97f5cb7096484",
+                      "name": "Bolo de chocolate",
+                      "type": "chocolate",
+                      "frosting": "Chocolate",
+                      "fillings": ["Chocolate"],
+                      "size": "medio",
+                      "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                      "totalPricing": 25.25,
+                      "quantity": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Cart id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cartId is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - This cart doesn't belongs to the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart doesn't belongs to the user"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - This cart doesn't exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart isn't exists"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Clear the cart by id",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cartId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cart to clear"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Cart cleared successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cart cleared successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Cart id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cartId is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - This cart doesn't belongs to the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart doesn't belongs to the user"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - This cart doesn't exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart isn't exists"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/carts/{cartId}/items/{itemCartId}": {
+      "delete": {
+        "summary": "Remove a item of cart by id of item",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cartId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the cart to remove the item"
+          },
+          {
+            "in": "path",
+            "name": "itemCartId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the item to remove"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Item removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "item removed successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Cart id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "cartId is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - This cart doesn't belongs to the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart doesn't belongs to the user"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - This cart doesn't exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "this cart isn't exists"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "Returns a list of categories",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "The value to search the categories by name"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 20
+            },
+            "required": false,
+            "description": "The numbers of items to return"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "required": false,
+            "description": "The page number to retrieve, starting from 1. Used for paginating results"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "maxPages": { "type": "integer" },
+                    "categories": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Category" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "message": "get all categories sucessfully",
+                    "maxPages": 3,
+                    "categories": [
+                      {
+                        "_id": "67d9ab1b6ac97f5cb709631b",
+                        "category": "Casamento"
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb7096317",
+                        "category": "Decorados"
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb7096319",
+                        "category": "Dia das Mães"
+                      }
+                    ],
+                    "prevUrl": "http://localhost:3001/api/categories/?limit=24&page=1",
+                    "nextUrl": "http://localhost:3001/api/categories/?limit=24&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundToPaginatedRoutes"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new category",
+        "requestBody": {
+          "description": "Data to create a new category",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": { "type": "string" }
+                },
+                "required": ["category"]
+              },
+              "example": {
+                "category": "Simples"
+              }
+            },
+            "required": true
+          }
+        },
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Created - Category created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "category": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  },
+                  "example": {
+                    "message": "category created successfully",
+                    "category": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "category": "Simples"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "patch": {
+        "summary": "Update a category and return the category updated",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the category to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to update a category",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": { "type": "string" }
+                },
+                "required": ["type"]
+              },
+              "example": {
+                "category": "Simples"
+              }
+            },
+            "required": true
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Category updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "category": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  },
+                  "example": {
+                    "message": "category updated successfully",
+                    "category": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "category": "Simples"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a category by id",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the category to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Category deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "category deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "id is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/fillings": {
+      "get": {
+        "summary": "Returns a list of fillings",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "The value to search the fillings by name"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 20
+            },
+            "required": false,
+            "description": "The numbers of items to return"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "required": false,
+            "description": "The page number to retrieve, starting from 1. Used for paginating results"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of fillings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "maxPages": { "type": "integer" },
+                    "fillings": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Filling" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "message": "get all fillings sucessfully",
+                    "maxPages": 3,
+                    "fillings": [
+                      {
+                        "_id": "67d9ab1b6ac97f5cb7096329",
+                        "name": "Brigadeiro",
+                        "price": 20
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb709631f",
+                        "name": "Brigadeiro com doce de leite",
+                        "price": 2
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb7096332",
+                        "name": "Café",
+                        "price": 4.25
+                      }
+                    ],
+                    "prevUrl": "http://localhost:3001/api/fillings/?limit=24&page=1",
+                    "nextUrl": "http://localhost:3001/api/fillings/?limit=24&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundToPaginatedRoutes"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new filling",
+        "requestBody": {
+          "description": "Data to create a new filling",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "price": { "type": "number" }
+                },
+                "required": ["name", "price"]
+              },
+              "example": {
+                "name": "Chocolate",
+                "price": 2.5
+              }
+            },
+            "required": true
+          }
+        },
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Created - Filling created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "filling": {
+                      "$ref": "#/components/schemas/Filling"
+                    }
+                  },
+                  "example": {
+                    "message": "filling created successfully",
+                    "filling": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "name": "Chocolate",
+                      "price": 2.5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/fillings/{id}": {
+      "patch": {
+        "summary": "Update a filling and return the filling updated",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the filling to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to update a filling",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "price": { "type": "number" }
+                }
+              },
+              "example": {
+                "name": "Chocolate",
+                "price": 2.5
+              }
+            },
+            "required": true
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Filling updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "filling": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "price": { "type": "number" }
+                      }
+                    }
+                  },
+                  "example": {
+                    "message": "filling updated successfully",
+                    "filling": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "name": "Chocolate",
+                      "price": 2.5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a filling by id",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the filling to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Filling deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "filling deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "id is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/frostings": {
+      "get": {
+        "summary": "Returns a list of frostings",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": { "type": "string" },
+            "description": "The value to search frostings by name"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 20
+            },
+            "required": false,
+            "description": "The numbers of items to return"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "required": false,
+            "description": "The page number to retrieve, starting from 1. Used for paginating results"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of frostings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "maxPages": { "type": "integer" },
+                    "frostings": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Frosting" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "message": "get all frostings sucessfully",
+                    "maxPages": 3,
+                    "frostings": [
+                      {
+                        "_id": "67d9ab1b6ac97f5cb7096346",
+                        "name": "Brigadeiro",
+                        "price": 7.5
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb709633e",
+                        "name": "Brigadeiro com leite ninho",
+                        "price": 2
+                      },
+                      {
+                        "_id": "67d9ab1b6ac97f5cb7096343",
+                        "name": "Chantilly",
+                        "price": 1.75
+                      }
+                    ],
+                    "prevUrl": "http://localhost:3001/api/frostings/?limit=24&page=1",
+                    "nextUrl": "http://localhost:3001/api/frostings/?limit=24&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundToPaginatedRoutes"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new frosting",
+        "requestBody": {
+          "description": "Data to create a new frosting",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "price": { "type": "number" }
+                },
+                "required": ["name", "price"]
+              },
+              "example": {
+                "name": "Chocolate",
+                "price": 2.5
+              }
+            },
+            "required": true
+          }
+        },
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "201": {
+            "description": "Created - Frosting created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "frosting": {
+                      "$ref": "#/components/schemas/Frosting"
+                    }
+                  },
+                  "example": {
+                    "message": "frosting created successfully",
+                    "frosting": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "name": "Chocolate",
+                      "price": 2.5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/frostings/{id}": {
+      "patch": {
+        "summary": "Update a frosting and return the frosting updated",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the frosting to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to update a frosting",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "price": { "type": "number" }
+                }
+              },
+              "example": {
+                "name": "Chocolate",
+                "price": 2.5
+              }
+            },
+            "required": true
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Frosting updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "frosting": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "price": { "type": "number" }
+                      }
+                    }
+                  },
+                  "example": {
+                    "message": "frosting updated successfully",
+                    "frosting": {
+                      "_id": "67d9ab1b6ac97f5cb70962fb",
+                      "name": "Chocolate",
+                      "price": 2.5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a frosting by id",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the frosting to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Frosting deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "frosting deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "id is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/orders/{userId}": {
+      "get": {
+        "summary": "Returns a list of orders of a user by the user id",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the user to get the orders"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "maxPages": { "type": "integer" },
+                    "orders": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Order" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "orders": [
+                      {
+                        "_id": "67e6e9f287ba3551fde50dd5",
+                        "userId": "67d9ab1d6ac97f5cb70963ef",
+                        "cakes": [
+                          {
+                            "cakeId": "67d9ab1f6ac97f5cb7096484",
+                            "name": "Bolo de chocolate",
+                            "type": "chocolate",
+                            "frosting": "Chocolate",
+                            "fillings": ["Chocolate"],
+                            "size": "medio",
+                            "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                            "totalPricing": 25.25,
+                            "quantity": 1,
+                            "_id": "67e590180d7829148f99090f"
+                          }
+                        ],
+                        "typeOfReceipt": "delivery",
+                        "contactDetails": {
+                          "name": "chaves",
+                          "phoneNumber": "(99) 99999-9999",
+                          "email": "admin@admin.com",
+                          "_id": "67e6e9f287ba3551fde50dd9"
+                        },
+                        "observations": "",
+                        "deliveryAddress": {
+                          "street": "Villa do Chaves",
+                          "number": "8",
+                          "neighborhood": "Villa do Chaves",
+                          "adicionalInfo": "se eu não estiver em casa entregue no meu barril",
+                          "_id": "67e6e9f287ba3551fde50dda"
+                        },
+                        "totalPricing": 95.72,
+                        "state": "pending",
+                        "createdAt": "2025-03-28T18:26:58.176Z",
+                        "updatedAt": "2025-03-28T18:26:58.176Z"
+                      }
+                    ],
+                    "maxPages": 3,
+                    "prevUrl": "http://localhost:3001/api/orders/?limit=24&page=1",
+                    "nextUrl": "http://localhost:3001/api/orders/?limit=24&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "summary": "Create a new order",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "description": "Data to create a order",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cartId": { "type": "string" },
+                  "typeOfReceipt": {
+                    "type": "string",
+                    "enum": ["delivery", "pick-up"]
+                  },
+                  "contactDetails": {
+                    "type": "object",
+                    "properties": {
+                      "name": { "type": "string" },
+                      "phoneNumber": { "type": "string" },
+                      "email": { "type": "string" }
+                    },
+                    "required": ["name", "phoneNumber", "email"]
+                  },
+                  "observations": { "type": "string" },
+                  "deliveryAddress": {
+                    "type": "object",
+                    "properties": {
+                      "street": { "type": "string" },
+                      "number": { "type": "string" },
+                      "neighborhood": { "type": "string" },
+                      "adicionalInfo": { "type": "string" }
+                    },
+                    "required": ["street", "number", "neighborhood"]
+                  }
+                },
+                "required": ["cartId", "typeOfReceipt", "contactDetails"]
+              },
+              "example": {
+                "cartId": "67d9ab1b6ac97f5cb7096361",
+                "typeOfReceipt": "delivery",
+                "contactDetails": {
+                  "name": "Chaves",
+                  "phoneNumber": "(99) 99999-9999",
+                  "email": "chaves@gmail.com"
+                },
+                "observations": "Isso, isso, isso",
+                "deliveryAddress": {
+                  "street": "Villa do seu Barriga",
+                  "number": "8",
+                  "neighborhood": "Villa do seu Barriga",
+                  "adicionalInfo": "Se eu não estiver em casa entregue no meu barril"
+                }
+              }
+            },
+            "required": true
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created - Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": { "$ref": "#/components/schemas/Order" }
+                  },
+                  "example": {
+                    "order": {
+                      "_id": "67e6e9f287ba3551fde50dd5",
+                      "userId": "67d9ab1d6ac97f5cb70963ef",
+                      "cakes": [
+                        {
+                          "cakeId": "67d9ab1f6ac97f5cb7096484",
+                          "name": "Bolo de chocolate",
+                          "type": "chocolate",
+                          "frosting": "Chocolate",
+                          "fillings": ["Chocolate"],
+                          "size": "medio",
+                          "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                          "totalPricing": 25.25,
+                          "quantity": 1,
+                          "_id": "67e590180d7829148f99090f"
+                        }
+                      ],
+                      "typeOfReceipt": "delivery",
+                      "contactDetails": {
+                        "name": "chaves",
+                        "phoneNumber": "(99) 99999-9999",
+                        "email": "admin@admin.com",
+                        "_id": "67e6e9f287ba3551fde50dd9"
+                      },
+                      "observations": "",
+                      "deliveryAddress": {
+                        "street": "Villa do Chaves",
+                        "number": "8",
+                        "neighborhood": "Villa do Chaves",
+                        "adicionalInfo": "se eu não estiver em casa entregue no meu barril",
+                        "_id": "67e6e9f287ba3551fde50dda"
+                      },
+                      "totalPricing": 95.72,
+                      "state": "pending",
+                      "createdAt": "2025-03-28T18:26:58.176Z",
+                      "updatedAt": "2025-03-28T18:26:58.176Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "get": {
+        "summary": "Return a list of orders of all the users",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK - Returned the paginated list of orders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "maxPages": { "type": "integer" },
+                    "orders": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Order" }
+                    },
+                    "prevUrl": { "type": "string", "nullable": true },
+                    "nextUrl": { "type": "string", "nullable": true }
+                  },
+                  "example": {
+                    "orders": [
+                      {
+                        "_id": "67e6e9f287ba3551fde50dd5",
+                        "userId": "67d9ab1d6ac97f5cb70963ef",
+                        "cakes": [
+                          {
+                            "cakeId": "67d9ab1f6ac97f5cb7096484",
+                            "name": "Bolo de chocolate",
+                            "type": "chocolate",
+                            "frosting": "Chocolate",
+                            "fillings": ["Chocolate"],
+                            "size": "medio",
+                            "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                            "totalPricing": 25.25,
+                            "quantity": 1,
+                            "_id": "67e590180d7829148f99090f"
+                          }
+                        ],
+                        "typeOfReceipt": "delivery",
+                        "contactDetails": {
+                          "name": "chaves",
+                          "phoneNumber": "(99) 99999-9999",
+                          "email": "admin@admin.com",
+                          "_id": "67e6e9f287ba3551fde50dd9"
+                        },
+                        "observations": "",
+                        "deliveryAddress": {
+                          "street": "Villa do Chaves",
+                          "number": "8",
+                          "neighborhood": "Villa do Chaves",
+                          "adicionalInfo": "se eu não estiver em casa entregue no meu barril",
+                          "_id": "67e6e9f287ba3551fde50dda"
+                        },
+                        "totalPricing": 95.72,
+                        "state": "pending",
+                        "createdAt": "2025-03-28T18:26:58.176Z",
+                        "updatedAt": "2025-03-28T18:26:58.176Z"
+                      }
+                    ],
+                    "maxPages": 3,
+                    "prevUrl": "http://localhost:3001/api/orders/?limit=24&page=1",
+                    "nextUrl": "http://localhost:3001/api/orders/?limit=24&page=3"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "patch": {
+        "summary": "Update a order and return the order updated",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the order to update"
+          }
+        ],
+        "requestBody": {
+          "description": "Data to update a order",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": ["pending", "preparing", "done"]
+                  },
+                  "dateAndTimeDelivery": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["state"]
+              },
+              "example": {
+                "state": "done",
+                "dateAndTimeDelivery": "2025-03-18T17:19:27.714Z"
+              }
+            },
+            "required": true
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - Order updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "order": { "$ref": "#/components/schemas/Order" }
+                  },
+                  "example": {
+                    "message": "order updated successfully",
+                    "order": {
+                      "_id": "67e6e9f287ba3551fde50dd5",
+                      "userId": "67d9ab1d6ac97f5cb70963ef",
+                      "cakes": [
+                        {
+                          "cakeId": "67d9ab1f6ac97f5cb7096484",
+                          "name": "Bolo de chocolate",
+                          "type": "chocolate",
+                          "frosting": "Chocolate",
+                          "fillings": ["Chocolate"],
+                          "size": "medio",
+                          "imageUrl": "https://res.cloudinary.com/dfs7acwzi/image/upload/v1742318366/xqomrtc5wqjsi2moq0tr.jpg",
+                          "totalPricing": 25.25,
+                          "quantity": 1,
+                          "_id": "67e590180d7829148f99090f"
+                        }
+                      ],
+                      "typeOfReceipt": "delivery",
+                      "contactDetails": {
+                        "name": "chaves",
+                        "phoneNumber": "(99) 99999-9999",
+                        "email": "admin@admin.com",
+                        "_id": "67e6e9f287ba3551fde50dd9"
+                      },
+                      "observations": "",
+                      "deliveryAddress": {
+                        "street": "Villa do Chaves",
+                        "number": "8",
+                        "neighborhood": "Villa do Chaves",
+                        "adicionalInfo": "se eu não estiver em casa entregue no meu barril",
+                        "_id": "67e6e9f287ba3551fde50dda"
+                      },
+                      "totalPricing": 95.72,
+                      "state": "pending",
+                      "createdAt": "2025-03-28T18:26:58.176Z",
+                      "updatedAt": "2025-03-28T18:26:58.176Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a order by id",
+        "description": "It's an admin route, only accessible with a valid admin user's token",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the order to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Order deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "order deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Id is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  },
+                  "example": {
+                    "message": "id is required"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "summary": "Return a user by id",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": { "type": "string" },
+            "required": true,
+            "description": "The id of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - User returned sucessfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  },
+                  "example": {
+                    "user": {
+                      "_id": "67dc393d625c3f6b117a2d60",
+                      "name": "New User",
+                      "username": "new_user",
+                      "email": "newuser@email.com",
+                      "role": "user",
+                      "cartId": "67dc393c625c3f6b117a2d5e",
+                      "createdAt": "2025-03-20T15:50:21.061Z",
+                      "updatedAt": "2025-03-20T15:50:21.061Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "role": { "type": "string", "enum": ["admin", "user"] },
+          "cartId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["_id", "name", "username", "email", "role", "cartId"]
+      },
+      "Cake": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "size": {
+            "type": "string",
+            "enum": ["pequeno", "medio", "grande", "extra-grande"]
+          },
+          "customizableParts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["type", "fillings", "frosting", "size"]
+            }
+          },
+          "pricePerSize": {
+            "type": "object",
+            "properties": {
+              "pequeno": { "type": "number" },
+              "medio": { "type": "number" },
+              "grande": { "type": "number" },
+              "extra-grande": { "type": "number" }
+            }
+          },
+          "sizesPossibles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["pequeno", "medio", "grande", "extra-grande"]
+            }
+          },
+          "totalPricing": { "type": "number" },
+          "boughts": { "type": "integer" },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "fillings": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "$ref": "#/components/schemas/Filling" },
+                { "$ref": "#/components/schemas/FillingWithoutId" }
+              ]
+            }
+          },
+          "frosting": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/FrostingWithoutId" },
+              { "$ref": "#/components/schemas/Frosting" }
+            ]
+          },
+          "imageUrl": { "type": "string", "format": "uri" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": [
+          "_id",
+          "name",
+          "type",
+          "size",
+          "customizableParts",
+          "pricePerSize",
+          "sizesPossibles",
+          "totalPricing",
+          "boughts",
+          "imageUrl"
+        ]
+      },
+      "CakeToBodyOfCreateRoute": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "frosting": { "type": "string" },
+          "fillings": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "size": {
+            "type": "string",
+            "enum": ["pequeno", "medio", "grande", "extra-grande"]
+          },
+          "sizesPossibles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["pequeno", "medio", "grande", "extra-grande"]
+            }
+          },
+          "pricePerSize": {
+            "type": "object",
+            "properties": {
+              "pequeno": { "type": "number" },
+              "medio": { "type": "number" },
+              "grande": { "type": "number" },
+              "extra-grande": { "type": "number" }
+            }
+          },
+          "customizableParts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["size", "type", "frosting", "fillings"]
+            }
+          }
+        },
+        "required": ["name", "type", "size", "sizesPossibles", "pricePerSize"]
+      },
+      "CakeToBodyOfUpdateRoute": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "categories": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "frosting": { "type": "string", "nullable": true },
+          "fillings": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "size": {
+            "type": "string",
+            "enum": ["pequeno", "medio", "grande", "extra-grande"]
+          },
+          "sizesPossibles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["pequeno", "medio", "grande", "extra-grande"]
+            }
+          },
+          "pricePerSize": {
+            "type": "object",
+            "properties": {
+              "pequeno": { "type": "number" },
+              "medio": { "type": "number" },
+              "grande": { "type": "number" },
+              "extra-grande": { "type": "number" }
+            }
+          },
+          "customizableParts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["size", "type", "frosting", "fillings"]
+            }
+          }
+        }
+      },
+      "CakeType": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "type": { "type": "string" }
+        },
+        "required": ["_id", "type"]
+      },
+      "Filling": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "price": { "type": "number" }
+        },
+        "required": ["_id", "name", "price"]
+      },
+      "FillingWithoutId": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "price": { "type": "number" }
+        },
+        "required": ["name", "price"]
+      },
+      "Frosting": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "price": { "type": "number" }
+        },
+        "required": ["_id", "name", "price"]
+      },
+      "FrostingWithoutId": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "price": { "type": "number" }
+        },
+        "required": ["name", "price"]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "category": { "type": "string" }
+        },
+        "required": ["_id", "category"]
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "cakes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemCart"
+            }
+          }
+        }
+      },
+      "ItemCart": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "cakeId": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "frosting": { "type": "string" },
+          "fillings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "size": {
+            "type": "string",
+            "enum": ["pequeno", "medio", "grande", "extra-grande"]
+          },
+          "totalPricing": { "type": "number" },
+          "quantity": { "type": "integer" },
+          "imageUrl": { "type": "string" }
+        },
+        "required": [
+          "_id",
+          "cakeId",
+          "name",
+          "type",
+          "fillings",
+          "size",
+          "totalPricing",
+          "quantity",
+          "imageUrl"
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "userId": { "type": "string" },
+          "cakes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemCart"
+            },
+            "default": []
+          },
+          "typeOfReceipt": {
+            "type": "string",
+            "enum": ["delivery", "pick-up"]
+          },
+          "contactDetails": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "phoneNumber": { "type": "string" },
+              "email": { "type": "string" }
+            },
+            "required": ["name", "phoneNumber", "email"]
+          },
+          "observations": { "type": "string" },
+          "deliveryAddress": {
+            "type": "object",
+            "properties": {
+              "street": { "type": "string" },
+              "number": { "type": "string" },
+              "neighborhood": { "type": "string" },
+              "adicionalInfo": { "type": "string" }
+            },
+            "required": ["street", "number", "neighborhood"]
+          },
+          "dateAndTimeDelivery": { "type": "string", "format": "date-time" },
+          "state": {
+            "type": "string",
+            "enum": ["pending", "preparing", "done"]
+          },
+          "totalPricing": { "type": "number" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": [
+          "_id",
+          "userId",
+          "cakes",
+          "typeOfReceipt",
+          "contactDetails",
+          "totalPricing",
+          "state"
+        ]
+      }
+    },
+    "responses": {
+      "InternalServerError": {
+        "description": "Internal Server Error - Something went wrong on the server",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" }
+              }
+            },
+            "example": {
+              "message": "Internal server error"
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Bad Request - Invalid input or missing required fields or params",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" }
+              }
+            },
+            "example": {
+              "message": "Invalid request data"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - The authentication token is invalid, expired, or missing",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" }
+              }
+            },
+            "example": {
+              "message": "you isn't authenticated"
+            }
+          }
+        }
+      },
+      "NotFoundToPaginatedRoutes": {
+        "description": "Not Found - The page requested doesn't exists",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string" }
+              },
+              "example": {
+                "message": "the page requested doesn't exists"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

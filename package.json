@@ -1,7 +1,7 @@
 {
   "name": "api-ecommerce",
   "version": "1.0.0",
-  "description": "api of ecommerce",
+  "description": "cake ecommerce api",
   "main": "server.ts",
   "scripts": {
     "clean": "rm -rf dist",
@@ -19,6 +19,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.11.19",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
@@ -32,6 +33,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.3",
     "multer": "^1.4.5-lts.1",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^3.23.8"
   }
 }
