@@ -2,11 +2,11 @@ import mongoose, { Types } from "mongoose";
 
 export interface IUser {
   _id?: Types.ObjectId | string;
-  cartId: Types.ObjectId | string
+  cartId: Types.ObjectId | string;
   name: string;
   username: string;
   email: string;
-  password?: string; //precisa não ser obrigatorio se não quando o banco de dados retornar o usuario sem a senha não vai dar erro
+  password?: string;
   role: string;
   createdAt?: Date;
   updatedAt?: Date;

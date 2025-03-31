@@ -99,9 +99,6 @@ export class CartService {
 
     const user = await this.userRepository.findById(userId);
 
-    // verificar aqui se o usuario foi encontrado, se foi e ele estiver sem cart,
-    // criar um cart novo para ele.
-
     if (user?.cartId.toString() !== cartId) {
       throw new ApiError("This cart doesn't belong to this user", 403);
     }

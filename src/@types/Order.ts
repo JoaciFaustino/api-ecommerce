@@ -11,7 +11,7 @@ export type OrderState = (typeof ORDER_STATE_OPTIONS)[number];
 
 export interface DeliveryAddress {
   street: string;
-  number: string; //vai ser string por que existem casas (pelo menos no Brasil) com número com esse formato "A123", "B123"
+  number: string;
   neighborhood: string;
   adicionalInfo?: string;
 }
@@ -30,9 +30,9 @@ export interface IOrder {
   typeOfReceipt: TypeOfReceiptOptions;
   contactDetails: ContactDetails;
   observations?: string;
-  deliveryAddress?: DeliveryAddress; //it will be undefined when the typeOfReceipt is "pick-up"
+  deliveryAddress?: DeliveryAddress;
 
-  dateAndTimeDelivery?: Date; //it will be undefined when the typeOfReceipt is "pick-up"
+  dateAndTimeDelivery?: Date;
   totalPricing: number;
   state: OrderState;
 
