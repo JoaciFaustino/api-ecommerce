@@ -1,6 +1,6 @@
 <p id="title" align="center">
   <a href="#title">
-    <img width="80" height="80" style="border-radius: 999px" src="./public/logo-readme.png">
+    <img width="80" height="80" style="border-radius: 999px;" src="./public/logo-readme.png">
   </a>
   <h1 align="center" style="font-weight: bold;">Cake E-commerce API</h1>
 </p>
@@ -93,15 +93,15 @@ To clone the project, follow the steps below:
 
 ```bash
 # Clone the project
-$ git clone https://github.com/JoaciFaustino/front-cake-ecommerce.git
+$ git clone https://github.com/JoaciFaustino/api-cake-ecommerce.git
 
 # Access the project folder
-$ cd front-cake-ecommerce
+$ cd api-cake-ecommerce
 ```
 
 <h3 id="env-config">Config .env variables</h3>
 
-Use the `.env.example` file as a reference to create your own `.env` configuration file.
+Use the `.env.example` file as a reference to create your own `.env` configuration file in the root of the project.
 
 - **`PORT`**: The HTTP port to listen on (Default: `3001`).
 - **`DATABASE_URL`**: The URL of your MongoDB database.
