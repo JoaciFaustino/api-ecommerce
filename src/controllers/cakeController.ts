@@ -18,7 +18,7 @@ export class CakeController {
   ) {
     const query = req.query;
 
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
 
     const cakeService = new CakeService();
 

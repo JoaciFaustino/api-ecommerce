@@ -10,7 +10,7 @@ export class CategoryController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
 
     const categoryService = new CategoryService();
     const { maxPages, nextUrl, prevUrl, categories } =

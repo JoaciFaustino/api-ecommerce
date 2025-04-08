@@ -10,7 +10,7 @@ export class FillingController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
 
     const fillingService = new FillingService();
     const { maxPages, nextUrl, prevUrl, fillings } =

@@ -27,7 +27,7 @@ export class OrderController {
   ) {
     const query = req.query;
 
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
 
     const orderService = new OrderService();
 
@@ -59,7 +59,7 @@ export class OrderController {
       throw new ApiError("user id is invalid", 400);
     }
 
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
     const orderService = new OrderService();
 
     const { orders, maxPages, nextUrl, prevUrl } =

@@ -11,7 +11,7 @@ export class FrostingController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
 
     const frostingService = new FrostingService();
     const { maxPages, nextUrl, prevUrl, frostings } =

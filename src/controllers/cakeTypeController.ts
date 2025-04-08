@@ -10,7 +10,7 @@ export class CakeTypeController {
   constructor() {}
 
   async getAll(req: Request<{}, {}, {}, BaseQueryParams>, res: Response) {
-    const url = getApiUrl();
+    const url = getApiUrl() + req.originalUrl.replace(/^\/api/, "");
 
     const cakeTypeService = new CakeTypeService();
     const { cakeTypes, maxPages, nextUrl, prevUrl } =
